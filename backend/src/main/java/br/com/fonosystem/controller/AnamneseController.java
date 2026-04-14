@@ -34,4 +34,12 @@ public class AnamneseController {
         request.setPacienteId(pacienteId);
         return ResponseEntity.status(HttpStatus.CREATED).body(anamneseService.criar(request));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Anamnese> atualizar(@PathVariable Long pacienteId,
+                                               @PathVariable Long id,
+                                               @Valid @RequestBody AnamneseRequest request) {
+        request.setPacienteId(pacienteId);
+        return ResponseEntity.ok(anamneseService.atualizar(id, request));
+    }
 }

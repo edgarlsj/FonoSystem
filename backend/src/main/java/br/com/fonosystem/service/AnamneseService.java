@@ -66,4 +66,32 @@ public class AnamneseService {
 
         return anamneseRepository.save(anamnese);
     }
+
+    @Transactional
+    public Anamnese atualizar(Long id, AnamneseRequest request) {
+        Anamnese anamnese = anamneseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Anamnese não encontrada: " + id));
+
+        anamnese.setQueixaPrincipal(request.getQueixaPrincipal());
+        anamnese.setHistoricoClinico(request.getHistoricoClinico());
+        anamnese.setHistoricoFamiliar(request.getHistoricoFamiliar());
+        anamnese.setDesenvolvimentoLinguagem(request.getDesenvolvimentoLinguagem());
+        anamnese.setDesenvolvimentoMotor(request.getDesenvolvimentoMotor());
+        anamnese.setDiagnosticoTea(request.getDiagnosticoTea());
+        anamnese.setNivelEspectro(request.getNivelEspectro());
+        anamnese.setUsaCaa(request.getUsaCaa());
+        anamnese.setTipoCaa(request.getTipoCaa());
+        anamnese.setHipersensibilidades(request.getHipersensibilidades());
+        anamnese.setProfissionaisAcompanham(request.getProfissionaisAcompanham());
+        anamnese.setFrequentaEscola(request.getFrequentaEscola());
+        anamnese.setTipoPerdaAuditiva(request.getTipoPerdaAuditiva());
+        anamnese.setGrauPerda(request.getGrauPerda());
+        anamnese.setUsaDispositivo(request.getUsaDispositivo());
+        anamnese.setTipoDispositivo(request.getTipoDispositivo());
+        anamnese.setDataAtivacao(request.getDataAtivacao());
+        anamnese.setMarcaModelo(request.getMarcaModelo());
+        anamnese.setObservacoes(request.getObservacoes());
+
+        return anamneseRepository.save(anamnese);
+    }
 }
