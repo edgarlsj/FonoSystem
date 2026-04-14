@@ -31,7 +31,8 @@ public class DataInitializer {
                                AnamneseRepository anamneseRepo,
                                AvaliacaoRepository avaliacaoRepo,
                                PlanoTerapeuticoRepository planoRepo,
-                               RelatorioDiarioRepository relatorioRepo) {
+                               RelatorioDiarioRepository relatorioRepo,
+                               PrescricaoRepository prescricaoRepo) {
         return args -> {
             if (userRepo.count() > 0) return;
 
@@ -238,7 +239,45 @@ public class DataInitializer {
                     .orientacoesFamilia("Praticar palavras com /r/ inicial (rato, rei, rio, roda).")
                     .build());
 
-            log.info("=== {} pacientes, 3 anamneses, 5 metas, 3 sessões criados ===",
+            // ---- PRESCRIÇÕES DE EXERCÍCIOS ----
+            prescricaoRepo.save(Prescricao.builder()
+                    .paciente(arthur).profissional(mariana)
+                    .dataPrescricao(hoje)
+                    .titulo("Exercícios de Comunicação Alternativa — Fase III PECS")
+                    .descricaoExercicios(
+                        "1. Pareamento de figuras com objetos reais (10 min)\n" +
+                        "   - Usar cartões PECS com brinquedos preferidos\n" +
+                        "   - Solicitar que a criança troque o cartão pelo objeto\n\n" +
+                        "2. Nomeação funcional durante lanche (10 min)\n" +
+                        "   - Oferecer 2 opções de alimento com figuras\n" +
+                        "   - Aguardar iniciativa comunicativa\n\n" +
+                        "3. Uso do aplicativo LetMeTalk (10 min)\n" +
+                        "   - Montar frases simples: QUERO + OBJETO\n" +
+                        "   - Variar entre 3-4 itens motivadores")
+                    .observacoes("Realizar os exercícios diariamente em ambiente tranquilo. " +
+                        "Reforçar positivamente cada tentativa comunicativa, mesmo que incorreta.")
+                    .build());
+
+            prescricaoRepo.save(Prescricao.builder()
+                    .paciente(sofia).profissional(mariana)
+                    .dataPrescricao(hoje.minusDays(3))
+                    .titulo("Treino Auditivo Domiciliar — Detecção e Discriminação")
+                    .descricaoExercicios(
+                        "1. Detecção de sons ambientais (5 min)\n" +
+                        "   - Com IC ligado, chamar a atenção para sons do cotidiano\n" +
+                        "   - Campainha, telefone, cachorro, chuva\n\n" +
+                        "2. Ling-6 Sounds — Treino diário (5 min)\n" +
+                        "   - Falar: /a/, /i/, /u/, /sh/, /s/, /m/\n" +
+                        "   - A 1 metro de distância, sem pista visual\n" +
+                        "   - Criança deve levantar a mão ao ouvir\n\n" +
+                        "3. Discriminação de palavras (10 min)\n" +
+                        "   - Pares: pato/gato, bola/mola, pé/chá\n" +
+                        "   - Mostrar 2 figuras, falar uma, criança aponta")
+                    .observacoes("Manter o Implante Coclear ligado durante todas as atividades. " +
+                        "Anotar diariamente os acertos no caderno de acompanhamento.")
+                    .build());
+
+            log.info("=== {} pacientes, 3 anamneses, 5 metas, 3 sessões, 2 prescrições criados ===",
                     pacienteRepo.count());
         };
     }

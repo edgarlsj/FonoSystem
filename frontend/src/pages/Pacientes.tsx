@@ -92,9 +92,12 @@ export default function Pacientes() {
                       {p.status}
                     </span>
                   </td>
-                  <td>
+                  <td style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                     <button className="btn-link" onClick={() => navigate(`/pacientes/${p.id}/anamnese`)}>
                       Ver
+                    </button>
+                    <button className="btn-link" onClick={() => navigate(`/pacientes/${p.id}/prescricoes`)} title="Prescrições de exercícios">
+                      📋 Prescrições
                     </button>
                   </td>
                 </tr>

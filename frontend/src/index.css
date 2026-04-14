@@ -1168,6 +1168,152 @@ textarea.form-control {
 }
 
 /* ══════════════════════════════════════
+   PRESCRIÇÕES DE EXERCÍCIOS
+   ══════════════════════════════════════ */
+.prescricao-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.prescricao-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border-left: 5px solid var(--aud-500);
+  padding: 20px 24px;
+  transition: all var(--t-base);
+  border-top: 1px solid rgba(226,232,240,0.5);
+  border-right: 1px solid rgba(226,232,240,0.5);
+  border-bottom: 1px solid rgba(226,232,240,0.5);
+}
+
+.prescricao-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
+}
+
+.prescricao-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.prescricao-titulo {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gray-900);
+  letter-spacing: -0.2px;
+  margin-bottom: 6px;
+}
+
+.prescricao-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.prescricao-date,
+.prescricao-profissional {
+  font-size: 12px;
+  color: var(--gray-500);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+}
+
+.prescricao-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.prescricao-body {
+  font-size: 13px;
+  color: var(--gray-600);
+  line-height: 1.7;
+}
+
+.prescricao-descricao {
+  white-space: pre-wrap;
+  font-size: 13px;
+  color: var(--gray-600);
+  line-height: 1.7;
+  margin-bottom: 8px;
+}
+
+.prescricao-obs-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--tea-600);
+  background: var(--tea-200);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+}
+
+/* ── Botões de ícone ── */
+.btn-icon-primary,
+.btn-icon-secondary,
+.btn-icon-success,
+.btn-icon-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: all var(--t-fast);
+  flex-shrink: 0;
+}
+
+.btn-icon-primary {
+  background: var(--primary-50);
+  color: var(--primary-600);
+}
+.btn-icon-primary:hover {
+  background: var(--primary-100);
+  color: var(--primary-800);
+  transform: translateY(-1px);
+}
+
+.btn-icon-secondary {
+  background: var(--gray-100);
+  color: var(--gray-600);
+}
+.btn-icon-secondary:hover {
+  background: var(--gray-200);
+  color: var(--gray-800);
+  transform: translateY(-1px);
+}
+
+.btn-icon-success {
+  background: var(--aud-200);
+  color: #166534;
+}
+.btn-icon-success:hover {
+  background: var(--aud-300);
+  color: #14532d;
+  transform: translateY(-1px);
+}
+
+.btn-icon-danger {
+  background: var(--danger-100);
+  color: var(--danger-500);
+}
+.btn-icon-danger:hover {
+  background: var(--danger-200);
+  color: var(--danger-text);
+  transform: translateY(-1px);
+}
+
+/* ══════════════════════════════════════
    SCROLLBAR PERSONALIZADA
    ══════════════════════════════════════ */
 ::-webkit-scrollbar       { width: 8px; }
