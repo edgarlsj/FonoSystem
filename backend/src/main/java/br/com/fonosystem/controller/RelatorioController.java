@@ -44,4 +44,15 @@ public class RelatorioController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) {
         return ResponseEntity.ok(relatorioService.buscarEvolucao(pacienteId, inicio, fim));
     }
+
+    @GetMapping("/v1/relatorios/{id}")
+    public ResponseEntity<RelatorioDiario> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(relatorioService.buscarPorId(id));
+    }
+
+    @DeleteMapping("/v1/relatorios/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void excluir(@PathVariable Long id) {
+        relatorioService.excluir(id);
+    }
 }

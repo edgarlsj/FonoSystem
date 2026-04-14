@@ -1,19 +1,55 @@
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import api from '../services/api'
 
 export default function Avaliacao() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const [pacienteNome, setPacienteNome] = useState('')
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    // Carregar dados do paciente para exibir o nome
+    api.get(`/v1/pacientes/${id}`)
+      .then(res => setPacienteNome(res.data.nomeCompleto))
+      .catch(() => setPacienteNome(`Paciente #${id}`))
+      .finally(() => setLoading(false))
+  }, [id])
+
+  if (loading) {
+    return <div style={{ textAlign: 'center', padding: '80px', color: '#6B7280' }}>Carregando...</div>
+  }
 
   return (
     <div>
       <div className="breadcrumb">
-        <a onClick={() => navigate('/pacientes')}>Pacientes</a><span>›</span>
-        <a>Paciente #{id}</a><span>›</span> Avaliação
+        <button 
+          onClick={() => navigate('/pacientes')} 
+          style={{ background: 'none', border: 'none', color: 'inherit', padding: 0, font: 'inherit', cursor: 'pointer' }}
+        >
+          Pacientes
+        </button>
+        <span>›</span>
+        <button 
+          onClick={() => navigate(`/pacientes/${id}`)} 
+          style={{ background: 'none', border: 'none', color: 'inherit', padding: 0, font: 'inherit', cursor: 'pointer', fontWeight: 600 }}
+        >
+          {pacienteNome}
+        </button>
+        <span>›</span> Avaliação
       </div>
+
       <div className="page-header">
-        <div>
-          <div className="page-title">Avaliação e Planejamento</div>
-          <div className="page-subtitle">Paciente #{id}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <button className="btn btn-outline" onClick={() => navigate(`/pacientes/${id}`)} title="Voltar">
+            ← Voltar
+          </button>
+          <div>
+            <div className="page-title">Avaliação e Planejamento</div>
+            <div className="page-subtitle" style={{ color: 'var(--primary-600)', fontWeight: 600 }}>
+              Paciente: {pacienteNome}
+            </div>
+          </div>
         </div>
         <button className="btn btn-primary">+ Nova Avaliação</button>
       </div>

@@ -50,6 +50,7 @@ export default function Anamnese() {
   const { id } = useParams()        // id do paciente
   const navigate = useNavigate()
   const [form, setForm] = useState<AnamneseForm>(FORM_VAZIO)
+  const [pacienteNome, setPacienteNome] = useState('')
   const [anamneseId, setAnamneseId] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [salvando, setSalvando] = useState(false)
@@ -57,6 +58,12 @@ export default function Anamnese() {
   const [sucesso, setSucesso] = useState(false)
 
   useEffect(() => {
+    // 1. Carregar dados do paciente para exibir o nome
+    api.get(`/v1/pacientes/${id}`)
+      .then(res => setPacienteNome(res.data.nomeCompleto))
+      .catch(() => setPacienteNome(`Paciente #${id}`))
+
+    // 2. Carregar anamnese existente
     api.get(`/v1/pacientes/${id}/anamneses`)
       .then(res => {
         const lista = res.data
@@ -129,7 +136,7 @@ export default function Anamnese() {
   if (loading) {
     return (
       <div style={{ textAlign: 'center', padding: '80px', color: '#6B7280' }}>
-        Carregando anamnese...
+        Carregando dados...
       </div>
     )
   }
@@ -137,17 +144,32 @@ export default function Anamnese() {
   return (
     <div>
       <div className="breadcrumb">
-        <a onClick={() => navigate('/pacientes')} style={{ cursor: 'pointer' }}>Pacientes</a>
+        <button 
+          onClick={() => navigate('/pacientes')} 
+          style={{ background: 'none', border: 'none', color: 'inherit', padding: 0, font: 'inherit', cursor: 'pointer' }}
+        >
+          Pacientes
+        </button>
         <span>›</span>
-        <a onClick={() => navigate(`/pacientes/${id}`)} style={{ cursor: 'pointer' }}>Paciente #{id}</a>
+        <button 
+          onClick={() => navigate(`/pacientes/${id}`)} 
+          style={{ background: 'none', border: 'none', color: 'inherit', padding: 0, font: 'inherit', cursor: 'pointer', fontWeight: 600 }}
+        >
+          {pacienteNome}
+        </button>
         <span>›</span> Anamnese
       </div>
 
       <div className="page-header">
-        <div>
-          <div className="page-title">Anamnese</div>
-          <div className="page-subtitle">
-            {anamneseId ? `Editando anamnese #${anamneseId}` : 'Nova anamnese'}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <button className="btn btn-outline" onClick={() => navigate(`/pacientes/${id}`)} title="Voltar">
+            ← Voltar
+          </button>
+          <div>
+            <div className="page-title">Anamnese</div>
+            <div className="page-subtitle" style={{ color: 'var(--primary-600)', fontWeight: 600 }}>
+              Paciente: {pacienteNome}
+            </div>
           </div>
         </div>
       </div>

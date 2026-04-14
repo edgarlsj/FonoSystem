@@ -506,6 +506,58 @@ tbody td strong {
   color: var(--primary-700);
 }
 
+.btn-icon-danger {
+  background: var(--danger-500);
+  border: 1px solid var(--danger-500);
+  color: #FFF;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--t-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+
+.btn-icon-danger:hover {
+  background: #DC2626;
+  border-color: #DC2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-icon-danger:active {
+  transform: translateY(0);
+}
+
+.btn-icon-secondary {
+  background: var(--primary-50);
+  border: 1px solid var(--primary-200);
+  color: var(--primary-600);
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--t-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.btn-icon-secondary:hover {
+  background: var(--primary-600);
+  color: #FFF;
+  border-color: var(--primary-600);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(46,116,181,0.2);
+}
+
+.btn-icon-secondary:active {
+  transform: translateY(0);
+}
+
 /* ══════════════════════════════════════
    BADGES
    ══════════════════════════════════════ */

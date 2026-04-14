@@ -33,7 +33,7 @@ public class RelatorioService {
     }
 
     public RelatorioDiario buscarPorId(Long id) {
-        return relatorioRepository.findById(id)
+        return relatorioRepository.findByIdWithFetch(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Relatório não encontrado: " + id));
     }
 
@@ -67,7 +67,13 @@ public class RelatorioService {
                 .orientacoesFamilia(request.getOrientacoesFamilia())
                 .planejamentoProximaSessao(request.getPlanejamentoProximaSessao())
                 .build();
-
         return relatorioRepository.save(relatorio);
+    }
+    @Transactional
+    public void excluir(Long id) {
+        if (!relatorioRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Relatório não encontrado: " + id);
+        }
+        relatorioRepository.deleteById(id);
     }
 }

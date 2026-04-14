@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
-} from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { format } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
 import api from '../services/api'
 
 interface Paciente {
@@ -34,6 +34,19 @@ export default function Dashboard() {
   const [pacientes, setPacientes] = useState<Paciente[]>([])
   const [sessoesHoje, setSessoesHoje] = useState<Relatorio[]>([])
   const [loading, setLoading] = useState(true)
+  const [relatorioVisualizar, setRelatorioVisualizar] = useState<any | null>(null)
+
+  const handleVisualizar = async (id: number) => {
+    try {
+      setLoading(true)
+      const { data } = await api.get(`/v1/relatorios/${id}`)
+      setRelatorioVisualizar(data)
+    } catch (err) {
+      console.error('Erro ao carregar relatório', err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
     const hoje = new Date().toISOString().split('T')[0]
@@ -143,17 +156,32 @@ export default function Dashboard() {
                         Meta: {r.metaTrabalhada}
                       </div>
                     </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div
-                        style={{
-                          fontSize: '20px',
-                          fontWeight: 700,
-                          color: Number(r.percentualAcerto) >= 70 ? '#10B981' : Number(r.percentualAcerto) >= 50 ? '#F59E0B' : '#EF4444',
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <button 
+                        className="btn-icon-secondary" 
+                        title="Visualizar detalhes"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleVisualizar(r.id);
                         }}
                       >
-                        {r.percentualAcerto != null ? `${r.percentualAcerto}%` : '–'}
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                      </button>
+                      <div style={{ textAlign: 'right' }}>
+                        <div
+                          style={{
+                            fontSize: '20px',
+                            fontWeight: 700,
+                            color: Number(r.percentualAcerto) >= 70 ? '#10B981' : Number(r.percentualAcerto) >= 50 ? '#F59E0B' : '#EF4444',
+                          }}
+                        >
+                          {r.percentualAcerto != null ? `${r.percentualAcerto}%` : '–'}
+                        </div>
+                        <div style={{ fontSize: '11px', color: '#9CA3AF' }}>acerto</div>
                       </div>
-                      <div style={{ fontSize: '11px', color: '#9CA3AF' }}>acerto</div>
                     </div>
                   </div>
                   {r.evolucaoObservada && (
@@ -270,6 +298,108 @@ export default function Dashboard() {
             </tbody>
           </table>
         )}
+      </div>
+
+      {/* MODAL DE VISUALIZAÇÃO */}
+      <div className={`modal-overlay ${relatorioVisualizar ? 'active' : ''}`}>
+        <div className="modal" style={{ maxWidth: '700px' }}>
+          <div className="modal-header">
+            <h2 className="modal-title">Detalhes da Sessão</h2>
+            <button className="modal-close" onClick={() => setRelatorioVisualizar(null)}>×</button>
+          </div>
+
+          {relatorioVisualizar && (
+            <div className="view-details">
+              <div className="session-card-header" style={{ borderBottom: '1px solid var(--gray-100)', paddingBottom: '16px', marginBottom: '20px' }}>
+                <div>
+                  <div className="session-patient" style={{ fontSize: '20px' }}>{relatorioVisualizar.pacienteNome}</div>
+                  <div className="page-subtitle">Sessão em {format(new Date(relatorioVisualizar.dataSessao + 'T00:00:00'), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</div>
+                </div>
+                <div className="session-time" style={{ fontSize: '14px', padding: '6px 16px' }}>
+                  {relatorioVisualizar.horaInicio} – {relatorioVisualizar.horaFim}
+                </div>
+              </div>
+
+              <div className="form-grid">
+                <div className="form-card">
+                  <div className="form-section-title"><div className="section-icon" />Objetivos e Atividades</div>
+                  <div className="view-group">
+                    <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--gray-500)', textTransform: 'uppercase' }}>Meta Trabalhada</label>
+                    <p style={{ margin: '4px 0 16px', fontSize: '14px', color: 'var(--gray-800)' }}>{relatorioVisualizar.metaTrabalhada}</p>
+                    
+                    <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--gray-500)', textTransform: 'uppercase' }}>Atividades Realizadas</label>
+                    <p style={{ margin: '4px 0 0', fontSize: '14px', color: 'var(--gray-800)', whiteSpace: 'pre-wrap' }}>{relatorioVisualizar.atividadesRealizadas}</p>
+                  </div>
+                </div>
+
+                <div className="form-grid-2">
+                  <div className="form-card">
+                    <div className="form-section-title"><div className="section-icon" />Desempenho</div>
+                    <div className="session-metrics" style={{ gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                      <div>
+                        <div className="metric-label">Acerto</div>
+                        <div className={`metric-value ${Number(relatorioVisualizar.percentualAcerto) >= 70 ? 'green' : 'blue'}`}>
+                          {relatorioVisualizar.percentualAcerto != null ? `${relatorioVisualizar.percentualAcerto}%` : 'N/A'}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="metric-label">Engajamento</div>
+                        <div className="engagement-dots" style={{ marginTop: '8px' }}>
+                           {[1, 2, 3, 4, 5].map(v => (
+                             <div key={v} className={`dot ${v <= (relatorioVisualizar.nivelEngajamento || 0) ? 'filled' : ''}`} />
+                           ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="form-card">
+                    <div className="form-section-title"><div className="section-icon" />Comunicação Auxiliar</div>
+                    <div className="view-group">
+                      <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--gray-500)' }}>USO DE CAA</label>
+                      <p style={{ margin: '4px 0', fontWeight: 600 }}>{relatorioVisualizar.usoCaaSessao ? '✅ Sim' : '❌ Não'}</p>
+                      {relatorioVisualizar.recursoCaaUtilizado && (
+                        <p style={{ fontSize: '12px', color: 'var(--gray-600)' }}>Recurso: {relatorioVisualizar.recursoCaaUtilizado}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-card">
+                  <div className="form-section-title"><div className="section-icon" />Evolução e Observações</div>
+                  <div className="view-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                    <div>
+                      <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--gray-500)' }}>EVOLUÇÃO OBSERVADA</label>
+                      <p style={{ marginTop: '4px', fontSize: '13px' }}>{relatorioVisualizar.evolucaoObservada || 'Sem registros'}</p>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--gray-500)' }}>INTERCORRÊNCIAS</label>
+                      <p style={{ marginTop: '4px', fontSize: '13px' }}>{relatorioVisualizar.intercorrencias || 'Nenhuma intercorrência'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-card section-auditiva">
+                   <div className="form-section-title"><div className="section-icon" />Orientações e Próxima Sessão</div>
+                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--aud-600)' }}>ORIENTAÇÕES À FAMÍLIA</label>
+                        <p style={{ marginTop: '4px', fontSize: '13px' }}>{relatorioVisualizar.orientacoesFamilia || 'Sem orientações específicas.'}</p>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--aud-600)' }}>PLANEJAMENTO PRÓXIMA SESSÃO</label>
+                        <p style={{ marginTop: '4px', fontSize: '13px' }}>{relatorioVisualizar.planejamentoProximaSessao || 'A definir.'}</p>
+                      </div>
+                   </div>
+                </div>
+              </div>
+
+              <div className="form-actions">
+                <button className="btn btn-primary" onClick={() => setRelatorioVisualizar(null)}>Fechar Visualização</button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
