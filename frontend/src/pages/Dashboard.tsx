@@ -285,13 +285,23 @@ export default function Dashboard() {
                     </span>
                   </td>
                   <td style={{ padding: '10px 12px' }}>
-                    <button
-                      className="btn btn-secondary"
-                      style={{ fontSize: '12px', padding: '4px 12px' }}
-                      onClick={() => navigate(`/pacientes/${p.id}`)}
-                    >
-                      Ver
-                    </button>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <button
+                        className="btn btn-secondary"
+                        style={{ fontSize: '11px', padding: '4px 10px' }}
+                        onClick={() => navigate(`/pacientes/${p.id}/anamnese`)}
+                      >
+                        Ver
+                      </button>
+                      <button
+                        className="btn btn-primary"
+                        style={{ fontSize: '11px', padding: '4px 10px' }}
+                        onClick={() => navigate(`/pacientes/${p.id}/relatorios`)}
+                        title="Histórico de Sessões"
+                      >
+                        📝 Relatórios
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

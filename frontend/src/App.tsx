@@ -9,6 +9,7 @@ import PacienteForm from './pages/PacienteForm'
 import Anamnese from './pages/Anamnese'
 import Avaliacao from './pages/Avaliacao'
 import Relatorios from './pages/Relatorios'
+import PacienteRelatorios from './pages/PacienteRelatorios'
 import PacientePrescricoes from './pages/PacientePrescricoes'
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="pacientes/novo" element={<PacienteForm />} />
         <Route path="pacientes/:id/anamnese" element={<Anamnese />} />
         <Route path="pacientes/:id/avaliacao" element={<Avaliacao />} />
+        <Route path="pacientes/:id/relatorios" element={<PacienteRelatorios />} />
         <Route path="pacientes/:id/prescricoes" element={<PacientePrescricoes />} />
         <Route path="relatorios" element={<Relatorios />} />
       </Route>

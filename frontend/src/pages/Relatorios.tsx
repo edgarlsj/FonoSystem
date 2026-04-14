@@ -17,6 +17,8 @@ const schema = z.object({
   percentualAcerto: z.string().optional(),
   nivelEngajamento: z.string().optional(),
   evolucaoObservada: z.string().optional(),
+  orientacoesFamilia: z.string().optional(),
+  planejamentoProximaSessao: z.string().optional(),
 })
 
 type FormData = z.infer<typeof schema>
@@ -275,6 +277,17 @@ export default function Relatorios() {
               <div className="form-group">
                 <label>Evolução Observada</label>
                 <textarea className="form-control" rows={2} {...register('evolucaoObservada')} />
+              </div>
+
+              <div className="form-grid-2">
+                <div className="form-group">
+                  <label>Orientações à Família</label>
+                  <textarea className="form-control" rows={2} placeholder="Sugestões de estímulo em casa..." {...register('orientacoesFamilia')} />
+                </div>
+                <div className="form-group">
+                  <label>Planejamento Próxima Sessão</label>
+                  <textarea className="form-control" rows={2} placeholder="O que será trabalhado na próxima sessão..." {...register('planejamentoProximaSessao')} />
+                </div>
               </div>
             </div>
 
