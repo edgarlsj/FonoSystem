@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup – Sistema Fonoaudiológico</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+  body { background: #f0f4f8; color: #1a202c; }
+
+  /* NAV */
+  .navbar { background: #1F4E79; color: white; display: flex; align-items: center; padding: 0 24px; height: 56px; gap: 16px; position: fixed; top: 0; left: 0; right: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.3); }
+  .navbar .logo { font-size: 16px; font-weight: 700; letter-spacing: .5px; margin-right: 8px; }
+  .navbar .logo span { color: #90CDF4; }
+  .nav-btn { background: none; border: none; color: rgba(255,255,255,.75); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: all .2s; white-space: nowrap; }
+  .nav-btn:hover, .nav-btn.active { background: rgba(255,255,255,.15); color: white; }
+  .nav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: #2E74B5; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; }
+
+  /* LAYOUT */
+  .content { margin-top: 56px; padding: 28px 32px; max-width: 1200px; margin-left: auto; margin-right: auto; margin-top: 80px; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* CARDS */
+  .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .page-title { font-size: 22px; font-weight: 700; color: #1F4E79; }
+  .page-subtitle { font-size: 13px; color: #718096; margin-top: 2px; }
+
+  /* STATS ROW */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  .stat-card { background: white; border-radius: 10px; padding: 18px 20px; box-shadow: 0 1px 4px rgba(0,0,0,.08); border-left: 4px solid; }
+  .stat-card.blue { border-color: #2E74B5; }
+  .stat-card.green { border-color: #38A169; }
+  .stat-card.orange { border-color: #DD6B20; }
+  .stat-card.purple { border-color: #6B46C1; }
+  .stat-label { font-size: 12px; color: #718096; font-weight: 500; text-transform: uppercase; letter-spacing: .5px; }
+  .stat-value { font-size: 28px; font-weight: 700; margin-top: 4px; color: #1a202c; }
+  .stat-sub { font-size: 12px; color: #A0AEC0; margin-top: 2px; }
+
+  /* TABLE */
+  .table-card { background: white; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.08); overflow: hidden; }
+  .table-toolbar { display: flex; gap: 12px; padding: 16px 20px; border-bottom: 1px solid #EDF2F7; align-items: center; }
+  .search-input { flex: 1; max-width: 320px; padding: 8px 14px; border: 1px solid #E2E8F0; border-radius: 7px; font-size: 13px; outline: none; }
+  .search-input:focus { border-color: #2E74B5; box-shadow: 0 0 0 3px rgba(46,116,181,.1); }
+  .btn { padding: 8px 16px; border-radius: 7px; font-size: 13px; font-weight: 500; border: none; cursor: pointer; transition: all .15s; }
+  .btn-primary { background: #2E74B5; color: white; }
+  .btn-primary:hover { background: #1F4E79; }
+  .btn-outline { background: white; color: #4A5568; border: 1px solid #E2E8F0; }
+  .btn-outline:hover { background: #F7FAFC; }
+  .btn-sm { padding: 5px 10px; font-size: 12px; border-radius: 5px; }
+  .btn-link { background: none; border: none; color: #2E74B5; cursor: pointer; font-size: 13px; padding: 4px; text-decoration: underline; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: #F7FAFC; color: #4A5568; font-weight: 600; text-align: left; padding: 10px 16px; border-bottom: 1px solid #EDF2F7; font-size: 12px; text-transform: uppercase; letter-spacing: .4px; }
+  tbody tr { border-bottom: 1px solid #EDF2F7; transition: background .1s; cursor: pointer; }
+  tbody tr:hover { background: #F7FAFC; }
+  tbody td { padding: 12px 16px; color: #2D3748; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-tea { background: #FEF3C7; color: #92400E; }
+  .badge-auditiva { background: #DCFCE7; color: #166534; }
+  .badge-ativo { background: #DCFCE7; color: #166534; }
+  .badge-inativo { background: #FEE2E2; color: #991B1B; }
+  .badge-tea-auditiva { background: #EDE9FE; color: #5B21B6; }
+
+  /* FORM */
+  .form-card { background: white; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.08); padding: 24px; margin-bottom: 20px; }
+  .form-section-title { font-size: 14px; font-weight: 700; color: #1F4E79; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #EBF3FB; display: flex; align-items: center; gap: 8px; }
+  .form-section-title .section-icon { width: 6px; height: 20px; border-radius: 3px; background: #2E74B5; }
+  .form-grid { display: grid; gap: 14px; }
+  .form-grid-2 { grid-template-columns: 1fr 1fr; }
+  .form-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .form-group label { display: block; font-size: 12px; font-weight: 600; color: #4A5568; margin-bottom: 5px; text-transform: uppercase; letter-spacing: .4px; }
+  .form-control { width: 100%; padding: 9px 12px; border: 1px solid #E2E8F0; border-radius: 7px; font-size: 13px; color: #2D3748; outline: none; background: white; }
+  .form-control:focus { border-color: #2E74B5; box-shadow: 0 0 0 3px rgba(46,116,181,.1); }
+  .form-control[disabled] { background: #F7FAFC; color: #A0AEC0; cursor: not-allowed; }
+  select.form-control { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23718096' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+  textarea.form-control { resize: vertical; min-height: 80px; }
+  .tag-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag-check { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #E2E8F0; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all .15s; }
+  .tag-check:hover, .tag-check.selected { background: #EBF3FB; border-color: #2E74B5; color: #1F4E79; font-weight: 600; }
+  .tag-check input { display: none; }
+
+  /* TEA specific section */
+  .section-tea { border: 1px solid #FEF3C7; background: #FFFBEB; border-radius: 8px; padding: 16px; }
+  .section-tea .form-section-title { color: #92400E; }
+  .section-tea .form-section-title .section-icon { background: #F59E0B; }
+  .section-auditiva { border: 1px solid #D1FAE5; background: #F0FDF4; border-radius: 8px; padding: 16px; }
+  .section-auditiva .form-section-title { color: #166534; }
+  .section-auditiva .form-section-title .section-icon { background: #22C55E; }
+
+  /* RELATORIO */
+  .rel-header { display: flex; gap: 16px; margin-bottom: 20px; }
+  .rel-date-nav { display: flex; align-items: center; gap: 10px; }
+  .rel-date-nav button { background: white; border: 1px solid #E2E8F0; border-radius: 7px; width: 34px; height: 34px; cursor: pointer; font-size: 16px; color: #4A5568; }
+  .rel-date-nav .current-date { font-size: 15px; font-weight: 600; color: #1F4E79; min-width: 160px; text-align: center; }
+  .session-list { display: flex; flex-direction: column; gap: 12px; }
+  .session-card { background: white; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.08); border-left: 5px solid #2E74B5; padding: 16px 20px; }
+  .session-card.tea { border-color: #F59E0B; }
+  .session-card.auditiva { border-color: #22C55E; }
+  .session-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .session-patient { font-size: 15px; font-weight: 700; color: #1a202c; }
+  .session-time { font-size: 12px; color: #718096; background: #F7FAFC; padding: 3px 10px; border-radius: 20px; }
+  .session-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .session-body { font-size: 13px; color: #4A5568; line-height: 1.6; }
+  .session-body strong { color: #2D3748; }
+  .engagement-dots { display: flex; gap: 4px; align-items: center; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #E2E8F0; }
+  .dot.filled { background: #F59E0B; }
+
+  /* AVALIAÇÃO */
+  .plan-list { display: flex; flex-direction: column; gap: 10px; }
+  .plan-item { background: white; border-radius: 8px; padding: 14px 16px; border-left: 4px solid #E2E8F0; display: flex; align-items: flex-start; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .plan-item.em-andamento { border-color: #2E74B5; }
+  .plan-item.atingido { border-color: #22C55E; }
+  .plan-item.reformulado { border-color: #F59E0B; }
+  .plan-status { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; margin-top: 2px; }
+  .plan-status.em-andamento { background: #DBEAFE; border: 2px solid #2E74B5; }
+  .plan-status.atingido { background: #22C55E; }
+  .plan-status.reformulado { background: #FEF3C7; border: 2px solid #F59E0B; }
+  .plan-text { font-size: 13px; color: #2D3748; flex: 1; }
+  .plan-text small { color: #718096; display: block; margin-top: 2px; }
+
+  .tabs { display: flex; gap: 2px; margin-bottom: 20px; background: #EDF2F7; border-radius: 8px; padding: 4px; }
+  .tab-btn { flex: 1; padding: 8px 12px; border: none; background: none; border-radius: 6px; font-size: 13px; color: #718096; cursor: pointer; transition: all .15s; }
+  .tab-btn.active { background: white; color: #1F4E79; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+
+  .form-actions { display: flex; justify-content: flex-end; gap: 10px; padding-top: 16px; border-top: 1px solid #EDF2F7; margin-top: 4px; }
+
+  /* BREADCRUMB */
+  .breadcrumb { font-size: 12px; color: #A0AEC0; margin-bottom: 16px; }
+  .breadcrumb a { color: #2E74B5; cursor: pointer; text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+  .breadcrumb span { margin: 0 6px; }
+
+  /* PROGRESS BAR */
+  .progress-bar { height: 6px; background: #EDF2F7; border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; background: #22C55E; }
+
+  /* TOOLTIP hint */
+  .hint { font-size: 11px; color: #A0AEC0; margin-top: 3px; }
+
+  @media(max-width:768px) {
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
+    .content { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <span class="logo">Fono<span>System</span></span>
+  <button class="nav-btn active" onclick="showPage('pacientes')">👥 Pacientes</button>
+  <button class="nav-btn" onclick="showPage('anamnese')">📋 Anamnese</button>
+  <button class="nav-btn" onclick="showPage('avaliacao')">🎯 Avaliação</button>
+  <button class="nav-btn" onclick="showPage('relatorio')">📝 Relatório Diário</button>
+  <div class="nav-right">
+    <span style="font-size:12px;color:rgba(255,255,255,.6)">Dra. Mariana</span>
+    <div class="avatar">M</div>
+  </div>
+</nav>
+
+<!-- ════════════════════════════════════════════
+     PÁGINA 1 – PACIENTES
+════════════════════════════════════════════ -->
+<div class="content">
+<div id="page-pacientes" class="page active">
+  <div class="stats-row">
+    <div class="stat-card blue">
+      <div class="stat-label">Total de Pacientes</div>
+      <div class="stat-value">24</div>
+      <div class="stat-sub">3 novos este mês</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-label">Pacientes TEA</div>
+      <div class="stat-value">14</div>
+      <div class="stat-sub">58% do total</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Reabilitação Auditiva</div>
+      <div class="stat-value">8</div>
+      <div class="stat-sub">3 com implante coclear</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-label">Sessões Hoje</div>
+      <div class="stat-value">6</div>
+      <div class="stat-sub">2 ainda pendentes</div>
+    </div>
+  </div>
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">Pacientes</div>
+      <div class="page-subtitle">Gerencie os cadastros dos pacientes</div>
+    </div>
+    <button class="btn btn-primary" onclick="showPage('cad-paciente')">+ Novo Paciente</button>
+  </div>
+
+  <div class="table-card">
+    <div class="table-toolbar">
+      <input class="search-input" placeholder="🔍  Buscar por nome, CPF ou responsável..." />
+      <select class="btn btn-outline" style="padding:8px 12px;font-size:13px">
+        <option>Todas as especialidades</option>
+        <option>TEA</option>
+        <option>Reabilitação Auditiva</option>
+        <option>Fala / Linguagem</option>
+      </select>
+      <select class="btn btn-outline" style="padding:8px 12px;font-size:13px">
+        <option>Todos os status</option>
+        <option>Ativo</option>
+        <option>Inativo</option>
+      </select>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nome</th>
+          <th>Idade</th>
+          <th>Responsável</th>
+          <th>Especialidade</th>
+          <th>Última Sessão</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr onclick="showPage('anamnese')">
+          <td style="color:#A0AEC0">001</td>
+          <td><strong>Arthur Lima Santos</strong></td>
+          <td>7 anos</td>
+          <td>Carla Santos</td>
+          <td><span class="badge badge-tea">TEA Nível 2</span></td>
+          <td>10/04/2026</td>
+          <td><span class="badge badge-ativo">Ativo</span></td>
+          <td><button class="btn-link">Ver</button></td>
+        </tr>
+        <tr onclick="showPage('avaliacao')">
+          <td style="color:#A0AEC0">002</td>
+          <td><strong>Sofia Rodrigues</strong></td>
+          <td>5 anos</td>
+          <td>Ana Rodrigues</td>
+          <td><span class="badge badge-auditiva">Impl. Coclear</span></td>
+          <td>11/04/2026</td>
+          <td><span class="badge badge-ativo">Ativo</span></td>
+          <td><button class="btn-link">Ver</button></td>
+        </tr>
+        <tr>
+          <td style="color:#A0AEC0">003</td>
+          <td><strong>Pedro Henrique Costa</strong></td>
+          <td>9 anos</td>
+          <td>Marcos Costa</td>
+          <td><span class="badge badge-tea-auditiva">TEA + AASI</span></td>
+          <td>09/04/2026</td>
+          <td><span class="badge badge-ativo">Ativo</span></td>
+          <td><button class="btn-link">Ver</button></td>
+        </tr>
+        <tr>
+          <td style="color:#A0AEC0">004</td>
+          <td><strong>Laura Mendes</strong></td>
+          <td>4 anos</td>
+          <td>Fernanda Mendes</td>
+          <td><span class="badge badge-tea">TEA Nível 1</span></td>
+          <td>08/04/2026</td>
+          <td><span class="badge badge-ativo">Ativo</span></td>
+          <td><button class="btn-link">Ver</button></td>
+        </tr>
+        <tr>
+          <td style="color:#A0AEC0">005</td>
+          <td><strong>Miguel Oliveira</strong></td>
+          <td>6 anos</td>
+          <td>Roberto Oliveira</td>
+          <td><span class="badge badge-auditiva">Reab. Auditiva</span></td>
+          <td>03/04/2026</td>
+          <td><span class="badge badge-inativo">Inativo</span></td>
+          <td><button class="btn-link">Ver</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="padding:12px 20px;font-size:12px;color:#A0AEC0;border-top:1px solid #EDF2F7;">Mostrando 5 de 24 pacientes</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     PÁGINA 1B – CADASTRO PACIENTE
+════════════════════════════════════════════ -->
+<div id="page-cad-paciente" class="page">
+  <div class="breadcrumb">
+    <a onclick="showPage('pacientes')">Pacientes</a><span>›</span> Novo Paciente
+  </div>
+  <div class="page-header">
+    <div>
+      <div class="page-title">Cadastro de Paciente</div>
+      <div class="page-subtitle">Preencha os dados do novo paciente</div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-section-title"><div class="section-icon"></div>Dados Pessoais</div>
+    <div class="form-grid form-grid-3">
+      <div class="form-group" style="grid-column:span 2">
+        <label>Nome Completo *</label>
+        <input class="form-control" type="text" placeholder="Nome completo do paciente" value="Arthur Lima Santos">
+      </div>
+      <div class="form-group">
+        <label>Data de Nascimento *</label>
+        <input class="form-control" type="date" value="2018-03-15">
+      </div>
+      <div class="form-group">
+        <label>Sexo *</label>
+        <select class="form-control">
+          <option selected>Masculino</option>
+          <option>Feminino</option>
+          <option>Outro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>CPF</label>
+        <input class="form-control" type="text" placeholder="000.000.000-00">
+        <div class="hint">Opcional para menores de idade</div>
+      </div>
+      <div class="form-group">
+        <label>Telefone</label>
+        <input class="form-control" placeholder="(11) 99999-9999">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-section-title"><div class="section-icon"></div>Responsável Legal</div>
+    <div class="form-grid form-grid-3">
+      <div class="form-group" style="grid-column:span 2">
+        <label>Nome do Responsável *</label>
+        <input class="form-control" type="text" value="Carla Lima Santos">
+      </div>
+      <div class="form-group">
+        <label>Telefone do Responsável *</label>
+        <input class="form-control" value="(11) 98765-4321">
+      </div>
+      <div class="form-group" style="grid-column:span 2">
+        <label>E-mail</label>
+        <input class="form-control" type="email" placeholder="email@exemplo.com">
+      </div>
+      <div class="form-group">
+        <label>Grau de Parentesco</label>
+        <select class="form-control">
+          <option>Mãe</option>
+          <option>Pai</option>
+          <option>Outro</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-section-title"><div class="section-icon"></div>Convênio</div>
+    <div class="form-grid form-grid-3">
+      <div class="form-group">
+        <label>Tipo de Atendimento *</label>
+        <select class="form-control">
+          <option>Convênio</option>
+          <option>Particular</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Convênio</label>
+        <input class="form-control" value="Unimed">
+      </div>
+      <div class="form-group">
+        <label>Número da Carteirinha</label>
+        <input class="form-control" value="00123456789">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn btn-outline" onclick="showPage('pacientes')">Cancelar</button>
+    <button class="btn btn-primary" onclick="showPage('pacientes')">✓ Salvar Paciente</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     PÁGINA 2 – ANAMNESE
+════════════════════════════════════════════ -->
+<div id="page-anamnese" class="page">
+  <div class="breadcrumb">
+    <a onclick="showPage('pacientes')">Pacientes</a><span>›</span>
+    <a>Arthur Lima Santos</a><span>›</span> Anamnese
+  </div>
+  <div class="page-header">
+    <div>
+      <div class="page-title">Anamnese — Arthur Lima Santos</div>
+      <div class="page-subtitle">7 anos · TEA Nível 2 · Responsável: Carla Santos</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-outline">Ver histórico</button>
+      <button class="btn btn-primary">+ Nova Anamnese</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active">Geral</button>
+    <button class="tab-btn" onclick="this.parentElement.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">TEA</button>
+    <button class="tab-btn" onclick="this.parentElement.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">Auditiva</button>
+  </div>
+
+  <div class="form-card">
+    <div class="form-section-title"><div class="section-icon"></div>Queixa e Histórico Clínico</div>
+    <div class="form-grid form-grid-2">
+      <div class="form-group" style="grid-column:span 2">
+        <label>Queixa Principal *</label>
+        <textarea class="form-control">Ausência de fala funcional, dificuldade na comunicação social, comportamentos repetitivos. Família relata que a criança apresenta ecolalia e dificuldade de contato visual.</textarea>
+      </div>
+      <div class="form-group">
+        <label>Histórico Clínico</label>
+        <textarea class="form-control" placeholder="Histórico médico geral, diagnósticos anteriores..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Histórico Familiar</label>
+        <textarea class="form-control" placeholder="Histórico familiar relevante para o quadro..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-section-title"><div class="section-icon"></div>Desenvolvimento</div>
+    <div class="form-grid form-grid-2">
+      <div class="form-group">
+        <label>Desenvolvimento de Linguagem</label>
+        <textarea class="form-control">Primeiras palavras aos 18 meses, regressão aos 2 anos. Atualmente apresenta ecolalia imediata e algumas palavras funcionais isoladas.</textarea>
+      </div>
+      <div class="form-group">
+        <label>Desenvolvimento Motor</label>
+        <textarea class="form-control">Marcos motores dentro do esperado. Marcha independente aos 14 meses. Boa coordenação motora grossa.</textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-tea form-card" style="background:#FFFBEB;border:1px solid #FEF3C7">
+    <div class="form-section-title" style="color:#92400E"><div class="section-icon" style="background:#F59E0B"></div>Específico TEA</div>
+    <div class="form-grid form-grid-3">
+      <div class="form-group">
+        <label>Diagnóstico Formal de TEA</label>
+        <select class="form-control">
+          <option selected>Sim</option>
+          <option>Em investigação</option>
+          <option>Não</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Nível do Espectro (DSM-5)</label>
+        <select class="form-control">
+          <option>Nível 1</option>
+          <option selected>Nível 2</option>
+          <option>Nível 3</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Usa CAA?</label>
+        <select class="form-control">
+          <option selected>Sim</option>
+          <option>Não</option>
+          <option>Em introdução</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tipo de CAA</label>
+        <input class="form-control" value="PECS + Aplicativo LetMeTalk">
+      </div>
+      <div class="form-group" style="grid-column:span 2">
+        <label>Hipersensibilidades Sensoriais</label>
+        <div class="tag-group" style="margin-top:4px">
+          <label class="tag-check selected"><input type="checkbox" checked> 🔊 Sons altos</label>
+          <label class="tag-check"><input type="checkbox"> 💡 Luz forte</label>
+          <label class="tag-check selected"><input type="checkbox" checked> 👕 Texturas</label>
+          <label class="tag-check"><input type="checkbox"> 🍽 Alimentos</label>
+          <label class="tag-check"><input type="checkbox"> 👋 Toque</label>
+        </div>
+      </div>
+      <div class="form-group" style="grid-column:span 2">
+        <label>Outros Profissionais que Acompanham</label>
+        <div class="tag-group" style="margin-top:4px">
+          <label class="tag-check selected"><input type="checkbox" checked> Psicólogo</label>
+          <label class="tag-check selected"><input type="checkbox" checked> Terapeuta Ocupacional</label>
+          <label class="tag-check"><input type="checkbox"> Neurologista</label>
+          <label class="tag-check"><input type="checkbox"> Psicopedagogo</label>
+          <label class="tag-check"><input type="checkbox"> ABA Intensivo</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Frequenta Escola?</label>
+        <select class="form-control"><option selected>Sim, com AEE</option><option>Sim, sem suporte</option><option>Não</option></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn btn-outline" onclick="showPage('pacientes')">Cancelar</button>
+    <button class="btn btn-primary">✓ Salvar Anamnese</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     PÁGINA 3 – AVALIAÇÃO
+════════════════════════════════════════════ -->
+<div id="page-avaliacao" class="page">
+  <div class="breadcrumb">
+    <a onclick="showPage('pacientes')">Pacientes</a><span>›</span>
+    <a>Sofia Rodrigues</a><span>›</span> Avaliação e Planejamento
+  </div>
+  <div class="page-header">
+    <div>
+      <div class="page-title">Avaliação — Sofia Rodrigues</div>
+      <div class="page-subtitle">5 anos · Implante Coclear (ativado em jan/2025) · Resp: Ana Rodrigues</div>
+    </div>
+    <button class="btn btn-primary">+ Nova Avaliação</button>
+  </div>
+
+  <div class="form-card">
+    <div class="form-section-title"><div class="section-icon"></div>Dados da Avaliação</div>
+    <div class="form-grid form-grid-3">
+      <div class="form-group">
+        <label>Tipo de Avaliação *</label>
+        <select class="form-control"><option>Avaliação Inicial</option><option selected>Reavaliação</option></select>
+      </div>
+      <div class="form-group">
+        <label>Área de Especialidade *</label>
+        <select class="form-control"><option selected>Reabilitação Auditiva</option><option>TEA</option><option>Fala</option><option>Linguagem</option></select>
+      </div>
+      <div class="form-group">
+        <label>Instrumento de Avaliação</label>
+        <input class="form-control" value="IT-MAIS + Escala MUSS">
+      </div>
+      <div class="form-group">
+        <label>Abordagem Terapêutica</label>
+        <select class="form-control"><option>Hanen</option><option selected>Aurioral</option><option>AVT (Verbal-Tonal)</option><option>ABA</option></select>
+      </div>
+      <div class="form-group">
+        <label>Sessões por Semana</label>
+        <select class="form-control"><option>1×</option><option selected>2×</option><option>3×</option></select>
+      </div>
+      <div class="form-group">
+        <label>Data da Avaliação</label>
+        <input class="form-control" type="date" value="2026-04-11">
+      </div>
+      <div class="form-group" style="grid-column:span 2">
+        <label>Hipótese Diagnóstica</label>
+        <textarea class="form-control">Deficiência auditiva severa bilateral em reabilitação pós-ativação de implante coclear. Boa detecção de sons em campo aberto. Discriminação e reconhecimento de fala em desenvolvimento.</textarea>
+      </div>
+      <div class="form-group">
+        <label>Resultados</label>
+        <textarea class="form-control">IT-MAIS: 72/40 pontos. MUSS: 8/10. Detecta voz humana a 2m de distância.</textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-section-title"><div class="section-icon"></div>Plano Terapêutico — Metas</div>
+    <div style="margin-bottom:14px">
+      <div style="font-size:12px;color:#718096;margin-bottom:8px;font-weight:600">METAS ATIVAS</div>
+      <div class="plan-list">
+        <div class="plan-item atingido">
+          <div class="plan-status atingido"></div>
+          <div class="plan-text">
+            Detectar sons do ambiente a 1 metro de distância com IC
+            <small>✅ Meta atingida em 02/2026 · Abordagem: estimulação auditiva progressiva</small>
+            <div class="progress-bar" style="margin-top:6px"><div class="progress-fill" style="width:100%"></div></div>
+          </div>
+          <span class="badge" style="background:#DCFCE7;color:#166534;flex-shrink:0">Atingida</span>
+        </div>
+        <div class="plan-item em-andamento">
+          <div class="plan-status em-andamento"></div>
+          <div class="plan-text">
+            Discriminar sons de fala em palavras monossilábicas (CVC) com 70% de acerto
+            <small>📅 Prazo: Jul/2026 · Abordagem: pares mínimos + jogo auditivo</small>
+            <div class="progress-bar" style="margin-top:6px"><div class="progress-fill" style="width:55%"></div></div>
+            <small style="color:#2E74B5">55% de progresso</small>
+          </div>
+          <span class="badge" style="background:#DBEAFE;color:#1E40AF;flex-shrink:0">Em andamento</span>
+        </div>
+        <div class="plan-item em-andamento">
+          <div class="plan-status em-andamento"></div>
+          <div class="plan-text">
+            Reconhecer o próprio nome e nomear 10 palavras funcionais auditivamente
+            <small>📅 Prazo: Jun/2026 · Abordagem: rotina verbal estruturada</small>
+            <div class="progress-bar" style="margin-top:6px"><div class="progress-fill" style="width:30%"></div></div>
+            <small style="color:#2E74B5">30% de progresso</small>
+          </div>
+          <span class="badge" style="background:#DBEAFE;color:#1E40AF;flex-shrink:0">Em andamento</span>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-outline btn-sm">+ Adicionar meta</button>
+  </div>
+
+  <div class="form-card">
+    <div class="form-section-title"><div class="section-icon"></div>Orientações para a Família</div>
+    <div class="form-group">
+      <label>Estratégias para Generalização (casa/escola)</label>
+      <textarea class="form-control" style="min-height:100px">• Nomear objetos e ações do cotidiano sempre que possível
+• Manter IC ligado pelo máximo de horas acordada
+• Conversar de frente, com boa iluminação no rosto
+• Ouvir músicas infantis e histórias narradas diariamente</textarea>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn btn-outline" onclick="showPage('pacientes')">Cancelar</button>
+    <button class="btn btn-outline">Exportar PDF</button>
+    <button class="btn btn-primary">✓ Salvar Avaliação</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     PÁGINA 4 – RELATÓRIO DIÁRIO
+════════════════════════════════════════════ -->
+<div id="page-relatorio" class="page">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Relatório Diário</div>
+      <div class="page-subtitle">Registre as sessões do dia</div>
+    </div>
+    <button class="btn btn-primary">+ Registrar Sessão</button>
+  </div>
+
+  <div class="rel-header">
+    <div class="rel-date-nav">
+      <button>‹</button>
+      <span class="current-date">Segunda-feira, 13 Abr 2026</span>
+      <button>›</button>
+    </div>
+    <select class="btn btn-outline" style="padding:8px 12px;font-size:13px">
+      <option>Todos os pacientes</option>
+      <option>Arthur Lima Santos</option>
+      <option>Sofia Rodrigues</option>
+    </select>
+    <button class="btn btn-outline" style="margin-left:auto">📄 Exportar PDF do dia</button>
+  </div>
+
+  <div class="session-list">
+
+    <!-- Sessão TEA -->
+    <div class="session-card tea">
+      <div class="session-card-header">
+        <div>
+          <div class="session-patient">Arthur Lima Santos</div>
+          <div class="session-meta">
+            <span class="badge badge-tea">TEA Nível 2</span>
+            <span class="badge" style="background:#EDE9FE;color:#5B21B6">PECS + LetMeTalk</span>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="session-time">08:00 – 09:00 (60 min)</div>
+          <div style="font-size:11px;color:#718096;margin-top:4px">Dra. Mariana</div>
+        </div>
+      </div>
+      <div class="session-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:10px">
+          <div>
+            <div style="font-size:11px;color:#718096;font-weight:600;margin-bottom:3px">META TRABALHADA</div>
+            <div>Uso espontâneo de CAA para pedido de objeto</div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:#718096;font-weight:600;margin-bottom:3px">ENGAJAMENTO</div>
+            <div class="engagement-dots">
+              <div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div>
+              <span style="font-size:12px;color:#718096;margin-left:4px">4/5</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:#718096;font-weight:600;margin-bottom:3px">% DE ACERTO</div>
+            <div style="font-size:18px;font-weight:700;color:#2E74B5">68%</div>
+          </div>
+        </div>
+        <strong>Atividades:</strong> Jogo de pareamento com figuras do PECS, rotina de lanche com nomeação, uso do app para pedir brinquedo preferido.<br>
+        <strong>Evolução:</strong> Iniciou 3 pedidos espontâneos com o app sem pista física. Melhor do que na semana anterior (1 pedido espontâneo).<br>
+        <strong>Intercorrências:</strong> Crise aos 40 min por troca de atividade. Resolvida com objeto de transição.<br>
+        <strong>Orientações à família:</strong> Disponibilizar o tablet com o app durante as refeições para generalização.
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid #FEF3C7">
+        <button class="btn btn-outline btn-sm">✏️ Editar</button>
+        <button class="btn btn-outline btn-sm">📄 PDF</button>
+      </div>
+    </div>
+
+    <!-- Sessão Auditiva -->
+    <div class="session-card auditiva">
+      <div class="session-card-header">
+        <div>
+          <div class="session-patient">Sofia Rodrigues</div>
+          <div class="session-meta">
+            <span class="badge badge-auditiva">Implante Coclear</span>
+            <span class="badge" style="background:#DCFCE7;color:#166534">Abordagem Aurioral</span>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="session-time">10:00 – 10:50 (50 min)</div>
+          <div style="font-size:11px;color:#718096;margin-top:4px">Dra. Mariana</div>
+        </div>
+      </div>
+      <div class="session-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:10px">
+          <div>
+            <div style="font-size:11px;color:#718096;font-weight:600;margin-bottom:3px">META TRABALHADA</div>
+            <div>Discriminação de pares mínimos (CVC)</div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:#718096;font-weight:600;margin-bottom:3px">RESP. ESTIMULAÇÃO AUDITIVA</div>
+            <div style="font-size:12px;color:#166534;font-weight:600">Resposta consistente ✓</div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:#718096;font-weight:600;margin-bottom:3px">% DE ACERTO</div>
+            <div style="font-size:18px;font-weight:700;color:#22C55E">75%</div>
+          </div>
+        </div>
+        <strong>Atividades:</strong> Jogo de pares mínimos (pal/bal, faz/vaz), atividade com figuras e nomeação auditiva sem pista visual.<br>
+        <strong>Evolução:</strong> Atingiu 75% em pares mínimos (meta era 70%). Pronta para avançar para sílabas mediais.<br>
+        <strong>Orientações à família:</strong> Praticar nomear objetos da casa sem gestos, estimulando a percepção auditiva.
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid #D1FAE5">
+        <button class="btn btn-outline btn-sm">✏️ Editar</button>
+        <button class="btn btn-outline btn-sm">📄 PDF</button>
+      </div>
+    </div>
+
+    <!-- Placeholder nova sessão -->
+    <div style="border:2px dashed #E2E8F0;border-radius:10px;padding:24px;text-align:center;color:#A0AEC0;cursor:pointer" onclick="showPage('nova-sessao')">
+      <div style="font-size:24px;margin-bottom:6px">＋</div>
+      <div style="font-size:13px">Registrar nova sessão do dia</div>
+    </div>
+
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<script>
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const page = document.getElementById('page-' + id);
+    if (page) {
+      page.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+    // update nav
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    const map = { pacientes: 0, 'cad-paciente': 0, anamnese: 1, avaliacao: 2, relatorio: 3 };
+    const idx = map[id];
+    if (idx !== undefined) {
+      document.querySelectorAll('.nav-btn')[idx]?.classList.add('active');
+    }
+  }
+</script>
+</body>
+</html>

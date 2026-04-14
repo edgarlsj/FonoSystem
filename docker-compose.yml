@@ -1,0 +1,50 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: fonosystem-db
+    environment:
+      POSTGRES_DB: fonosystem
+      POSTGRES_USER: fono_admin
+      POSTGRES_PASSWORD: fono_secret_2026
+      TZ: America/Sao_Paulo
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fono_admin -d fonosystem"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fonosystem-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/fonosystem
+      SPRING_DATASOURCE_USERNAME: fono_admin
+      SPRING_DATASOURCE_PASSWORD: fono_secret_2026
+      JWT_SECRET: fonosystem-jwt-secret-key-2026-super-seguro-256bits
+      TZ: America/Sao_Paulo
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: fonosystem-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
