@@ -19,20 +19,43 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true
-      try {
-        const refreshToken = localStorage.getItem('refreshToken')
-        const { data } = await axios.post('/api/v1/auth/refresh', { refreshToken })
-        localStorage.setItem('token', data.token)
-        originalRequest.headers.Authorization = `Bearer ${data.token}`
-        return api(originalRequest)
-      } catch {
+
+    // Se for 401 (não autorizado)
+    if (error.response?.status === 401) {
+      // Se ainda não tentou fazer refresh
+      if (!originalRequest._retry) {
+        originalRequest._retry = true
+        try {
+          const refreshToken = localStorage.getItem('refreshToken')
+          if (!refreshToken) {
+            // Sem refresh token, vai direto para login
+            throw new Error('No refresh token')
+          }
+
+          const { data } = await axios.post('/api/v1/auth/refresh', { refreshToken })
+          localStorage.setItem('token', data.token)
+          if (data.refreshToken) {
+            localStorage.setItem('refreshToken', data.refreshToken)
+          }
+          originalRequest.headers.Authorization = `Bearer ${data.token}`
+          return api(originalRequest)
+        } catch (err) {
+          // Qualquer erro no refresh, limpa e vai para login
+          localStorage.removeItem('token')
+          localStorage.removeItem('refreshToken')
+          localStorage.removeItem('user')
+          window.location.href = '/login'
+          return Promise.reject(err)
+        }
+      } else {
+        // Já tentou refresh e ainda está 401, vai para login
         localStorage.removeItem('token')
         localStorage.removeItem('refreshToken')
+        localStorage.removeItem('user')
         window.location.href = '/login'
       }
     }
+
     return Promise.reject(error)
   }
 )

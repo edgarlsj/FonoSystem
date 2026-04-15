@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface PacienteRepository extends JpaRepository<Paciente, Long> {
 
-    @Query("SELECT p FROM Paciente p WHERE p.deletedAt IS NULL AND " +
+    @Query("SELECT p FROM Paciente p WHERE " +
            "(:nome IS NULL OR LOWER(p.nomeCompleto) LIKE LOWER(CONCAT('%', :nome, '%'))) AND " +
            "(:status IS NULL OR p.status = :status)")
     Page<Paciente> findByFilters(@Param("nome") String nome,

@@ -49,21 +49,30 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    const hoje = new Date().toISOString().split('T')[0]
-
-    Promise.all([
-      api.get('/v1/pacientes?size=100&sort=nomeCompleto,asc'),
-      api.get(`/v1/relatorios?data=${hoje}`)
-    ])
-      .then(([pacRes, relRes]) => {
+    const carregarDados = async () => {
+      try {
+        const pacRes = await api.get('/v1/pacientes?size=100&sort=nomeCompleto,asc')
         const lista: Paciente[] = pacRes.data.content || []
         setTotalPacientes(pacRes.data.totalElements || lista.length)
         setAtivos(lista.filter((p: Paciente) => p.status === 'ATIVO').length)
         setPacientes(lista.slice(0, 6))
-        setSessoesHoje(relRes.data || [])
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false))
+
+        // Tentar carregar relatórios, mas não falhar se não conseguir
+        try {
+          const hoje = new Date().toISOString().split('T')[0]
+          const relRes = await api.get(`/v1/relatorios?data=${hoje}`)
+          setSessoesHoje(relRes.data || [])
+        } catch {
+          setSessoesHoje([])
+        }
+      } catch (err) {
+        console.error('Erro ao carregar dados:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    carregarDados()
   }, [])
 
   const chartData = sessoesHoje
@@ -97,28 +106,16 @@ export default function Dashboard() {
           <div className="stat-sub">Em acompanhamento</div>
         </div>
         <div className="stat-card orange">
-          <div className="stat-label">Sessões Hoje</div>
+          <div className="stat-label">Consultas Hoje</div>
           <div className="stat-value">{loading ? '...' : sessoesHoje.length}</div>
           <div className="stat-sub">Atendimentos do dia</div>
         </div>
-        <div className="stat-card purple">
-          <div className="stat-label">Média de Acerto</div>
-          <div className="stat-value">
-            {loading || sessoesHoje.length === 0
-              ? '–'
-              : `${Math.round(
-                  sessoesHoje.reduce((acc, r) => acc + Number(r.percentualAcerto || 0), 0) /
-                  sessoesHoje.filter(r => r.percentualAcerto != null).length
-                )}%`}
-          </div>
-          <div className="stat-sub">Nas sessões de hoje</div>
-        </div>
       </div>
 
-      {/* Sessões de Hoje */}
+      {/* Consultas de Hoje */}
       <div className="form-card" style={{ marginTop: '24px' }}>
         <h3 style={{ color: '#1A4D73', marginBottom: '16px', fontSize: '16px', fontWeight: 600 }}>
-          📋 Sessões de Hoje
+          📋 Consultas de Hoje
         </h3>
         {loading ? (
           <p style={{ color: '#9CA3AF', textAlign: 'center', padding: '20px' }}>Carregando...</p>
