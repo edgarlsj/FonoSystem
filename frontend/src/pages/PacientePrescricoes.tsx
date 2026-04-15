@@ -6,6 +6,7 @@ import * as z from 'zod'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import api from '../services/api'
+import PacienteAcoesMenu from '../components/PacienteAcoesMenu'
 
 const schema = z.object({
   dataPrescricao: z.string().min(1, 'Data é obrigatória'),
@@ -177,12 +178,15 @@ export default function PacientePrescricoes() {
         <div>
           <div className="page-title">📋 Prescrições</div>
           <div className="page-subtitle">
-            {pacienteNome ? `Paciente: ${pacienteNome}` : 'Carregando...'}
+            {pacienteNome || 'Carregando...'}
           </div>
         </div>
-        <button className="btn btn-primary" onClick={() => abrirNovaPrescrição()}>
-          + Nova Prescrição
-        </button>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <PacienteAcoesMenu pacienteId={id!} paginaAtual="prescricoes" />
+          <button className="btn btn-primary" onClick={() => abrirNovaPrescrição()}>
+            + Nova Prescrição
+          </button>
+        </div>
       </div>
 
       {/* LISTA DE PRESCRIÇÕES */}

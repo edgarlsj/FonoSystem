@@ -11,6 +11,7 @@ import Avaliacao from './pages/Avaliacao'
 import Relatorios from './pages/Relatorios'
 import PacienteRelatorios from './pages/PacienteRelatorios'
 import PacientePrescricoes from './pages/PacientePrescricoes'
+import Logs from './pages/Logs'
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { token } = useAuth()
@@ -31,6 +32,7 @@ export default function App() {
         <Route path="pacientes/:id/relatorios" element={<PacienteRelatorios />} />
         <Route path="pacientes/:id/prescricoes" element={<PacientePrescricoes />} />
         <Route path="relatorios" element={<Relatorios />} />
+        <Route path="logs" element={<Logs />} />
       </Route>
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

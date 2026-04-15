@@ -26,6 +26,11 @@ export default function Layout() {
         <NavLink to="/relatorios" className={({ isActive }) => `nav-btn ${isActive ? 'active' : ''}`}>
           📝 Relatórios
         </NavLink>
+        {user?.perfil === 'ADMIN' && (
+          <NavLink to="/logs" className={({ isActive }) => `nav-btn ${isActive ? 'active' : ''}`}>
+            📋 Logs
+          </NavLink>
+        )}
         <div className="nav-right">
           <span className="nav-user-name">{user?.nome}</span>
           <div className="avatar" onClick={handleLogout} title="Sair">

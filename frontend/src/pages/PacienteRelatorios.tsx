@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import api from '../services/api'
+import PacienteAcoesMenu from '../components/PacienteAcoesMenu'
 
 export default function PacienteRelatorios() {
   const { id } = useParams()
@@ -146,10 +147,11 @@ export default function PacienteRelatorios() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <button className="btn btn-outline" onClick={() => navigate(-1)}>← Voltar</button>
           <div>
-            <div className="page-title">Relatório Diário</div>
-            <div className="page-subtitle">Todos os relatórios diários registrados</div>
+            <div className="page-title">📝 Relatório Diário</div>
+            <div className="page-subtitle">{paciente?.nomeCompleto || 'Carregando...'}</div>
           </div>
         </div>
+        <PacienteAcoesMenu pacienteId={id!} paginaAtual="relatorios" />
       </div>
 
       {/* BARRA DE FILTROS */}

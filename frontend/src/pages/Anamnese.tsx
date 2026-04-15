@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import api from '../services/api'
+import PacienteAcoesMenu from '../components/PacienteAcoesMenu'
 
 interface AnamneseForm {
   queixaPrincipal: string
@@ -162,16 +163,17 @@ export default function Anamnese() {
 
       <div className="page-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <button className="btn btn-outline" onClick={() => navigate(`/pacientes/${id}`)} title="Voltar">
+          <button className="btn btn-outline" onClick={() => navigate('/pacientes')} title="Voltar">
             ← Voltar
           </button>
           <div>
-            <div className="page-title">Anamnese</div>
+            <div className="page-title">🩺 Anamnese</div>
             <div className="page-subtitle" style={{ color: 'var(--primary-600)', fontWeight: 600 }}>
-              Paciente: {pacienteNome}
+              {pacienteNome || 'Carregando...'}
             </div>
           </div>
         </div>
+        <PacienteAcoesMenu pacienteId={id!} paginaAtual="anamnese" />
       </div>
 
       {/* Mensagens */}

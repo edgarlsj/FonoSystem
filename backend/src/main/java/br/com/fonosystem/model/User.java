@@ -1,6 +1,7 @@
 package br.com.fonosystem.model;
 
 import br.com.fonosystem.model.enums.Perfil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -23,6 +24,7 @@ public class User {
     @Column(nullable = false, unique = true, length = 200)
     private String email;
 
+    @JsonIgnore
     @Column(name = "senha_hash", nullable = false)
     private String senhaHash;
 

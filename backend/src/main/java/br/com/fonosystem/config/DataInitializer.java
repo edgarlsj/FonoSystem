@@ -39,11 +39,19 @@ public class DataInitializer {
             log.info("=== Inicializando dados simulados (H2) ===");
 
             // ---- USERS ----
+            User edgar = userRepo.save(User.builder()
+                    .nome("Edgar Junior")
+                    .email("edgar@fonosystem.com")
+                    .senhaHash(passwordEncoder.encode("481635"))
+                    .perfil(Perfil.ADMIN)
+                    .ativo(true)
+                    .build());
+
             User mariana = userRepo.save(User.builder()
                     .nome("Dra. Viviane Cardoso da Silva")
                     .email("viviane@fonosystem.com")
                     .senhaHash(passwordEncoder.encode("admin123"))
-                    .perfil(Perfil.ADMIN)
+                    .perfil(Perfil.FONOAUDIOLOGO)
                     .ativo(true)
                     .build());
 
