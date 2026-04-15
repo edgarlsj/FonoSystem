@@ -3,22 +3,22 @@ package br.com.fonosystem.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
 @Data
 public class PrescricaoRequest {
-    @NotNull(message = "Paciente é obrigatório")
-    private Long pacienteId;
+    private Long pacienteId;  // Setado pelo controller, não precisa validação
 
     @NotNull(message = "Data da prescrição é obrigatória")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dataPrescricao;
 
     @NotBlank(message = "Título é obrigatório")
     private String titulo;
 
-    @NotBlank(message = "Descrição dos exercícios é obrigatória")
-    private String descricaoExercicios;
+    private String descricaoExercicios;  // Opcional
 
     private String observacoes;
 }

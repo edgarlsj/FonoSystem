@@ -1,11 +1,50 @@
-import { useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import api from '../services/api'
+
+interface Paciente {
+  id: number
+  nomeCompleto: string
+  dataNascimento: string
+  sexo: string
+  cpf: string
+  telefone: string
+  nomeResponsavel: string
+  telefoneResponsavel: string
+  emailResponsavel: string
+  grauParentesco: string
+  tipoAtendimento: string
+  convenio: string
+  numeroConvenio: string
+}
 
 export default function PacienteForm() {
   const navigate = useNavigate()
-  const [loading, setLoading] = useState(false)
+  const { id } = useParams<{ id: string }>()
+  const isEditing = !!id
+
+  const [loading, setLoading] = useState(isEditing)
   const [erro, setErro] = useState('')
+  const [paciente, setPaciente] = useState<Paciente | null>(null)
+
+  useEffect(() => {
+    if (isEditing && id) {
+      carregarPaciente()
+    }
+  }, [id, isEditing])
+
+  const carregarPaciente = async () => {
+    try {
+      setLoading(true)
+      const { data } = await api.get(`/v1/pacientes/${id}`)
+      setPaciente(data)
+    } catch (err: any) {
+      setErro('Erro ao carregar dados do paciente')
+      setTimeout(() => navigate('/pacientes'), 2000)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -29,7 +68,11 @@ export default function PacienteForm() {
     setLoading(true)
     setErro('')
     try {
-      await api.post('/v1/pacientes', dados)
+      if (isEditing) {
+        await api.put(`/v1/pacientes/${id}`, dados)
+      } else {
+        await api.post('/v1/pacientes', dados)
+      }
       navigate('/pacientes')
     } catch (err: any) {
       setErro(err.response?.data?.detail || 'Erro ao salvar paciente')
@@ -41,14 +84,20 @@ export default function PacienteForm() {
   return (
     <div>
       <div className="breadcrumb">
-        <a onClick={() => navigate('/pacientes')}>Pacientes</a><span>›</span> Novo Paciente
+        <a onClick={() => navigate('/pacientes')}>Pacientes</a><span>›</span> {isEditing ? 'Editar Paciente' : 'Novo Paciente'}
       </div>
       <div className="page-header">
         <div>
-          <div className="page-title">Cadastro de Paciente</div>
-          <div className="page-subtitle">Preencha os dados do novo paciente</div>
+          <div className="page-title">{isEditing ? 'Editar Paciente' : 'Cadastro de Paciente'}</div>
+          <div className="page-subtitle">{isEditing ? 'Atualize os dados do paciente' : 'Preencha os dados do novo paciente'}</div>
         </div>
       </div>
+
+      {loading && isEditing ? (
+        <div style={{ textAlign: 'center', padding: '40px', color: '#9CA3AF' }}>
+          Carregando dados...
+        </div>
+      ) : null}
 
       <form onSubmit={handleSubmit}>
         <div className="form-card">
@@ -56,15 +105,15 @@ export default function PacienteForm() {
           <div className="form-grid form-grid-3">
             <div className="form-group" style={{ gridColumn: 'span 2' }}>
               <label>Nome Completo *</label>
-              <input className="form-control" name="nome" required placeholder="Nome completo" />
+              <input className="form-control" name="nome" required placeholder="Nome completo" defaultValue={paciente?.nomeCompleto || ''} />
             </div>
             <div className="form-group">
               <label>Data de Nascimento *</label>
-              <input className="form-control" type="date" name="nascimento" required />
+              <input className="form-control" type="date" name="nascimento" required defaultValue={paciente?.dataNascimento || ''} />
             </div>
             <div className="form-group">
               <label>Sexo *</label>
-              <select className="form-control" name="sexo" required>
+              <select className="form-control" name="sexo" required defaultValue={paciente?.sexo || ''}>
                 <option value="">Selecione...</option>
                 <option value="MASCULINO">Masculino</option>
                 <option value="FEMININO">Feminino</option>
@@ -73,11 +122,11 @@ export default function PacienteForm() {
             </div>
             <div className="form-group">
               <label>CPF</label>
-              <input className="form-control" name="cpf" placeholder="000.000.000-00" />
+              <input className="form-control" name="cpf" placeholder="000.000.000-00" defaultValue={paciente?.cpf || ''} />
             </div>
             <div className="form-group">
               <label>Telefone</label>
-              <input className="form-control" name="telefone" placeholder="(11) 99999-9999" />
+              <input className="form-control" name="telefone" placeholder="(11) 99999-9999" defaultValue={paciente?.telefone || ''} />
             </div>
           </div>
         </div>
@@ -87,19 +136,19 @@ export default function PacienteForm() {
           <div className="form-grid form-grid-3">
             <div className="form-group" style={{ gridColumn: 'span 2' }}>
               <label>Nome do Responsável *</label>
-              <input className="form-control" name="responsavel" required placeholder="Nome completo" />
+              <input className="form-control" name="responsavel" required placeholder="Nome completo" defaultValue={paciente?.nomeResponsavel || ''} />
             </div>
             <div className="form-group">
               <label>Telefone Responsável *</label>
-              <input className="form-control" name="telResponsavel" required placeholder="(11) 99999-9999" />
+              <input className="form-control" name="telResponsavel" required placeholder="(11) 99999-9999" defaultValue={paciente?.telefoneResponsavel || ''} />
             </div>
             <div className="form-group" style={{ gridColumn: 'span 2'}}>
               <label>E-mail</label>
-              <input className="form-control" type="email" name="emailResponsavel" placeholder="email@exemplo.com" />
+              <input className="form-control" type="email" name="emailResponsavel" placeholder="email@exemplo.com" defaultValue={paciente?.emailResponsavel || ''} />
             </div>
             <div className="form-group">
               <label>Parentesco</label>
-              <select className="form-control" name="parentesco">
+              <select className="form-control" name="parentesco" defaultValue={paciente?.grauParentesco || ''}>
                 <option>Mãe</option><option>Pai</option><option>Avó/Avô</option><option>Outro</option>
               </select>
             </div>
@@ -111,17 +160,17 @@ export default function PacienteForm() {
           <div className="form-grid form-grid-3">
             <div className="form-group">
               <label>Tipo de Atendimento *</label>
-              <select className="form-control" name="tipoAtendimento">
+              <select className="form-control" name="tipoAtendimento" defaultValue={paciente?.tipoAtendimento || ''}>
                 <option value="CONVENIO">Convênio</option><option value="PARTICULAR">Particular</option>
               </select>
             </div>
             <div className="form-group">
               <label>Convênio</label>
-              <input className="form-control" name="convenio" placeholder="Nome do convênio" />
+              <input className="form-control" name="convenio" placeholder="Nome do convênio" defaultValue={paciente?.convenio || ''} />
             </div>
             <div className="form-group">
               <label>Carteirinha</label>
-              <input className="form-control" name="carteirinha" placeholder="Número" />
+              <input className="form-control" name="carteirinha" placeholder="Número" defaultValue={paciente?.numeroConvenio || ''} />
             </div>
           </div>
         </div>
@@ -145,7 +194,7 @@ export default function PacienteForm() {
         <div className="form-actions">
           <button type="button" className="btn btn-outline" onClick={() => navigate('/pacientes')}>Cancelar</button>
           <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Salvando...' : '✓ Salvar Paciente'}
+            {loading ? 'Salvando...' : `✓ ${isEditing ? 'Atualizar' : 'Salvar'} Paciente`}
           </button>
         </div>
       </form>

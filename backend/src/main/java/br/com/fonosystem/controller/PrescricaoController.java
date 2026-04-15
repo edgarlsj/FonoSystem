@@ -31,6 +31,12 @@ public class PrescricaoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(prescricaoService.criar(request));
     }
 
+    @PutMapping("/v1/prescricoes/{id}")
+    public ResponseEntity<Prescricao> atualizar(@PathVariable Long id,
+                                                @Valid @RequestBody PrescricaoRequest request) {
+        return ResponseEntity.ok(prescricaoService.atualizar(id, request));
+    }
+
     @GetMapping("/v1/prescricoes/{id}/pdf")
     public ResponseEntity<byte[]> downloadPdf(@PathVariable Long id) {
         byte[] pdf = prescricaoService.gerarPdf(id);

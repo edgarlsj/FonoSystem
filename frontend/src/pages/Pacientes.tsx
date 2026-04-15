@@ -96,8 +96,16 @@ export default function Pacientes() {
                     <button className="btn-link" onClick={() => navigate(`/pacientes/${p.id}/anamnese`)}>
                       Ver
                     </button>
-                    <button 
-                      className="btn-link" 
+                    <button
+                      className="btn-link"
+                      style={{ color: 'var(--warning-600)' }}
+                      onClick={() => navigate(`/pacientes/${p.id}/editar`)}
+                      title="Editar paciente"
+                    >
+                      ✏️ Editar
+                    </button>
+                    <button
+                      className="btn-link"
                       style={{ color: 'var(--primary-600)', fontWeight: 600 }}
                       onClick={() => navigate(`/pacientes/${p.id}/relatorios`)}
                     >

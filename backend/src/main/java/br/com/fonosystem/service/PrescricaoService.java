@@ -53,6 +53,18 @@ public class PrescricaoService {
         return prescricaoRepository.save(prescricao);
     }
 
+    @Transactional
+    public Prescricao atualizar(Long id, PrescricaoRequest request) {
+        Prescricao prescricao = buscarPorId(id);
+
+        prescricao.setDataPrescricao(request.getDataPrescricao());
+        prescricao.setTitulo(request.getTitulo());
+        prescricao.setDescricaoExercicios(request.getDescricaoExercicios());
+        prescricao.setObservacoes(request.getObservacoes());
+
+        return prescricaoRepository.save(prescricao);
+    }
+
     public byte[] gerarPdf(Long prescricaoId) {
         Prescricao prescricao = buscarPorId(prescricaoId);
         return pdfService.gerarPrescricaoPdf(prescricao);

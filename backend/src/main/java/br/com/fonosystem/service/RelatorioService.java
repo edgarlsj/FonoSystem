@@ -70,6 +70,28 @@ public class RelatorioService {
         return relatorioRepository.save(relatorio);
     }
     @Transactional
+    public RelatorioDiario atualizar(Long id, RelatorioRequest request) {
+        RelatorioDiario relatorio = buscarPorId(id);
+
+        relatorio.setDataSessao(request.getDataSessao());
+        relatorio.setHoraInicio(request.getHoraInicio());
+        relatorio.setHoraFim(request.getHoraFim());
+        relatorio.setAtividadesRealizadas(request.getAtividadesRealizadas());
+        relatorio.setMetaTrabalhada(request.getMetaTrabalhada());
+        relatorio.setPercentualAcerto(request.getPercentualAcerto());
+        relatorio.setNivelEngajamento(request.getNivelEngajamento());
+        relatorio.setUsoCaaSessao(request.getUsoCaaSessao());
+        relatorio.setRecursoCaaUtilizado(request.getRecursoCaaUtilizado());
+        relatorio.setRespostaEstimulacaoAuditiva(request.getRespostaEstimulacaoAuditiva());
+        relatorio.setEvolucaoObservada(request.getEvolucaoObservada());
+        relatorio.setIntercorrencias(request.getIntercorrencias());
+        relatorio.setOrientacoesFamilia(request.getOrientacoesFamilia());
+        relatorio.setPlanejamentoProximaSessao(request.getPlanejamentoProximaSessao());
+
+        return relatorioRepository.save(relatorio);
+    }
+
+    @Transactional
     public void excluir(Long id) {
         if (!relatorioRepository.existsById(id)) {
             throw new ResourceNotFoundException("Relatório não encontrado: " + id);

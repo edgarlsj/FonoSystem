@@ -50,6 +50,12 @@ public class RelatorioController {
         return ResponseEntity.ok(relatorioService.buscarPorId(id));
     }
 
+    @PutMapping("/v1/relatorios/{id}")
+    public ResponseEntity<RelatorioDiario> atualizar(@PathVariable Long id,
+                                                      @Valid @RequestBody RelatorioRequest request) {
+        return ResponseEntity.ok(relatorioService.atualizar(id, request));
+    }
+
     @DeleteMapping("/v1/relatorios/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void excluir(@PathVariable Long id) {

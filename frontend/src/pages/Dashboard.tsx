@@ -82,9 +82,6 @@ export default function Dashboard() {
           <div className="page-title">Dashboard</div>
           <div className="page-subtitle">Visão geral do sistema</div>
         </div>
-        <button className="btn btn-primary" onClick={() => navigate('/pacientes/novo')}>
-          + Novo Paciente
-        </button>
       </div>
 
       {/* Stats Cards */}
@@ -118,114 +115,88 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginTop: '24px' }}>
-
-        {/* Sessões de Hoje */}
-        <div className="form-card">
-          <h3 style={{ color: '#1A4D73', marginBottom: '16px', fontSize: '16px', fontWeight: 600 }}>
-            📋 Sessões de Hoje
-          </h3>
-          {loading ? (
-            <p style={{ color: '#9CA3AF', textAlign: 'center', padding: '20px' }}>Carregando...</p>
-          ) : sessoesHoje.length === 0 ? (
-            <p style={{ color: '#9CA3AF', textAlign: 'center', padding: '20px' }}>
-              Nenhuma sessão registrada hoje.
-            </p>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {sessoesHoje.map(r => (
-                <div
-                  key={r.id}
-                  style={{
-                    border: '1px solid #E5E7EB',
-                    borderRadius: '8px',
-                    padding: '12px 14px',
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => navigate(`/pacientes/${r.paciente?.id}`)}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <div style={{ fontWeight: 600, color: '#111827', fontSize: '14px' }}>
-                        {r.paciente?.nomeCompleto}
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#6B7280', marginTop: '2px' }}>
-                        {r.horaInicio} – {r.horaFim}
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#6B7280', marginTop: '2px' }}>
-                        Meta: {r.metaTrabalhada}
-                      </div>
+      {/* Sessões de Hoje */}
+      <div className="form-card" style={{ marginTop: '24px' }}>
+        <h3 style={{ color: '#1A4D73', marginBottom: '16px', fontSize: '16px', fontWeight: 600 }}>
+          📋 Sessões de Hoje
+        </h3>
+        {loading ? (
+          <p style={{ color: '#9CA3AF', textAlign: 'center', padding: '20px' }}>Carregando...</p>
+        ) : sessoesHoje.length === 0 ? (
+          <p style={{ color: '#9CA3AF', textAlign: 'center', padding: '20px' }}>
+            Nenhuma sessão registrada hoje.
+          </p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {sessoesHoje.map(r => (
+              <div
+                key={r.id}
+                style={{
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '8px',
+                  padding: '12px 14px',
+                  cursor: 'pointer',
+                }}
+                onClick={() => navigate(`/pacientes/${r.paciente?.id}`)}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontWeight: 600, color: '#111827', fontSize: '14px' }}>
+                      {r.paciente?.nomeCompleto}
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <button 
-                        className="btn-icon-secondary" 
-                        title="Visualizar detalhes"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleVisualizar(r.id);
-                        }}
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                          <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                      </button>
-                      <div style={{ textAlign: 'right' }}>
-                        <div
-                          style={{
-                            fontSize: '20px',
-                            fontWeight: 700,
-                            color: Number(r.percentualAcerto) >= 70 ? '#10B981' : Number(r.percentualAcerto) >= 50 ? '#F59E0B' : '#EF4444',
-                          }}
-                        >
-                          {r.percentualAcerto != null ? `${r.percentualAcerto}%` : '–'}
-                        </div>
-                        <div style={{ fontSize: '11px', color: '#9CA3AF' }}>acerto</div>
-                      </div>
+                    <div style={{ fontSize: '12px', color: '#6B7280', marginTop: '2px' }}>
+                      {r.horaInicio} – {r.horaFim}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#6B7280', marginTop: '2px' }}>
+                      Meta: {r.metaTrabalhada}
                     </div>
                   </div>
-                  {r.evolucaoObservada && (
-                    <div
-                      style={{
-                        marginTop: '8px',
-                        fontSize: '12px',
-                        color: '#374151',
-                        background: '#F9FAFB',
-                        borderRadius: '6px',
-                        padding: '6px 10px',
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <button
+                      className="btn-icon-secondary"
+                      title="Visualizar detalhes"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleVisualizar(r.id);
                       }}
                     >
-                      {r.evolucaoObservada}
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                    <div style={{ textAlign: 'right' }}>
+                      <div
+                        style={{
+                          fontSize: '20px',
+                          fontWeight: 700,
+                          color: Number(r.percentualAcerto) >= 70 ? '#10B981' : Number(r.percentualAcerto) >= 50 ? '#F59E0B' : '#EF4444',
+                        }}
+                      >
+                        {r.percentualAcerto != null ? `${r.percentualAcerto}%` : '–'}
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#9CA3AF' }}>acerto</div>
                     </div>
-                  )}
+                  </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Gráfico de desempenho */}
-        <div className="form-card">
-          <h3 style={{ color: '#1A4D73', marginBottom: '16px', fontSize: '16px', fontWeight: 600 }}>
-            📊 Desempenho nas Sessões de Hoje
-          </h3>
-          {chartData.length === 0 ? (
-            <p style={{ color: '#9CA3AF', textAlign: 'center', padding: '40px 20px' }}>
-              Nenhum dado disponível hoje.
-            </p>
-          ) : (
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
-                <XAxis dataKey="nome" tick={{ fontSize: 12 }} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} unit="%" />
-                <Tooltip formatter={(val: number) => `${val}%`} />
-                <Bar dataKey="acerto" name="% Acerto" fill="#1A4D73" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="engajamento" name="Engajamento" fill="#F59E0B" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </div>
+                {r.evolucaoObservada && (
+                  <div
+                    style={{
+                      marginTop: '8px',
+                      fontSize: '12px',
+                      color: '#374151',
+                      background: '#F9FAFB',
+                      borderRadius: '6px',
+                      padding: '6px 10px',
+                    }}
+                  >
+                    {r.evolucaoObservada}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Lista de Pacientes */}

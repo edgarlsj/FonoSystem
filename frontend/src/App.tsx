@@ -25,6 +25,7 @@ export default function App() {
         <Route index element={<Dashboard />} />
         <Route path="pacientes" element={<Pacientes />} />
         <Route path="pacientes/novo" element={<PacienteForm />} />
+        <Route path="pacientes/:id/editar" element={<PacienteForm />} />
         <Route path="pacientes/:id/anamnese" element={<Anamnese />} />
         <Route path="pacientes/:id/avaliacao" element={<Avaliacao />} />
         <Route path="pacientes/:id/relatorios" element={<PacienteRelatorios />} />

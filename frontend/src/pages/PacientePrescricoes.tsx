@@ -10,7 +10,7 @@ import api from '../services/api'
 const schema = z.object({
   dataPrescricao: z.string().min(1, 'Data é obrigatória'),
   titulo: z.string().min(3, 'Mínimo 3 caracteres'),
-  descricaoExercicios: z.string().min(10, 'Descreva os exercícios detalhadamente'),
+  descricaoExercicios: z.string().optional(),
   observacoes: z.string().optional(),
 })
 
@@ -37,6 +37,7 @@ export default function PacientePrescricoes() {
   const [saving, setSaving] = useState(false)
   const [pacienteNome, setPacienteNome] = useState('')
   const [detalhes, setDetalhes] = useState<PrescricaoData | null>(null)
+  const [editando, setEditando] = useState<PrescricaoData | null>(null)
   const [toast, setToast] = useState<{ show: boolean; msg: string; type: 'success' | 'error' }>({
     show: false, msg: '', type: 'success'
   })
@@ -79,22 +80,51 @@ export default function PacientePrescricoes() {
     setTimeout(() => setToast(prev => ({ ...prev, show: false })), 3000)
   }
 
+  const abrirEditar = (prescricao: PrescricaoData) => {
+    setEditando(prescricao)
+    reset({
+      dataPrescricao: prescricao.dataPrescricao,
+      titulo: prescricao.titulo,
+      descricaoExercicios: prescricao.descricaoExercicios,
+      observacoes: prescricao.observacoes || '',
+    })
+    setIsModalOpen(true)
+  }
+
+  const abrirNovaPrescrição = () => {
+    setEditando(null)
+    reset({ dataPrescricao: format(new Date(), 'yyyy-MM-dd') })
+    setIsModalOpen(true)
+  }
+
+  const fecharModal = () => {
+    setIsModalOpen(false)
+    setEditando(null)
+    reset({ dataPrescricao: format(new Date(), 'yyyy-MM-dd') })
+  }
+
   const onSubmit = async (formData: FormData) => {
     try {
       setSaving(true)
-      await api.post(`/v1/pacientes/${id}/prescricoes`, formData)
-      showToast('Prescrição criada com sucesso!', 'success')
+      if (editando) {
+        await api.put(`/v1/prescricoes/${editando.id}`, formData)
+        showToast('Prescrição atualizada com sucesso!', 'success')
+      } else {
+        await api.post(`/v1/pacientes/${id}/prescricoes`, formData)
+        showToast('Prescrição criada com sucesso!', 'success')
+      }
       setIsModalOpen(false)
+      setEditando(null)
       reset({ dataPrescricao: format(new Date(), 'yyyy-MM-dd') })
       carregarPrescricoes()
     } catch {
-      showToast('Erro ao criar prescrição. Verifique os dados.', 'error')
+      showToast(`Erro ao ${editando ? 'atualizar' : 'criar'} prescrição.`, 'error')
     } finally {
       setSaving(false)
     }
   }
 
-  const handleDownloadPdf = async (prescricaoId: number) => {
+  const handleDownloadPdf = async (prescricaoId: number, pacienteNome: string, dataPrescricao: string) => {
     try {
       const response = await api.get(`/v1/prescricoes/${prescricaoId}/pdf`, {
         responseType: 'blob'
@@ -102,7 +132,8 @@ export default function PacientePrescricoes() {
       const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }))
       const link = document.createElement('a')
       link.href = url
-      link.setAttribute('download', `prescricao_${prescricaoId}.pdf`)
+      const fileName = `prescricao_${pacienteNome}_${dataPrescricao}.pdf`
+      link.setAttribute('download', fileName)
       document.body.appendChild(link)
       link.click()
       link.remove()
@@ -144,12 +175,12 @@ export default function PacientePrescricoes() {
       {/* HEADER */}
       <div className="page-header">
         <div>
-          <div className="page-title">📋 Prescrições de Exercícios</div>
+          <div className="page-title">📋 Prescrições</div>
           <div className="page-subtitle">
             {pacienteNome ? `Paciente: ${pacienteNome}` : 'Carregando...'}
           </div>
         </div>
-        <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
+        <button className="btn btn-primary" onClick={() => abrirNovaPrescrição()}>
           + Nova Prescrição
         </button>
       </div>
@@ -195,9 +226,19 @@ export default function PacientePrescricoes() {
                     </svg>
                   </button>
                   <button
+                    className="btn-icon-primary"
+                    title="Editar prescrição"
+                    onClick={() => abrirEditar(p)}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                  </button>
+                  <button
                     className="btn-icon-success"
                     title="Baixar PDF"
-                    onClick={() => handleDownloadPdf(p.id)}
+                    onClick={() => handleDownloadPdf(p.id, p.pacienteNome, p.dataPrescricao)}
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -238,7 +279,7 @@ export default function PacientePrescricoes() {
 
         <div className="add-session-card" onClick={() => setIsModalOpen(true)}>
           <div className="add-session-icon">＋</div>
-          <div className="add-session-text">Criar nova prescrição de exercícios</div>
+          <div className="add-session-text">Criar nova prescrição</div>
         </div>
       </div>
 
@@ -246,8 +287,8 @@ export default function PacientePrescricoes() {
       <div className={`modal-overlay ${isModalOpen ? 'active' : ''}`}>
         <div className="modal" style={{ maxWidth: '650px' }}>
           <div className="modal-header">
-            <h2 className="modal-title">Nova Prescrição de Exercícios</h2>
-            <button className="modal-close" onClick={() => setIsModalOpen(false)}>×</button>
+            <h2 className="modal-title">{editando ? 'Editar Prescrição' : 'Nova Prescrição'}</h2>
+            <button className="modal-close" onClick={() => fecharModal()}>×</button>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -268,11 +309,11 @@ export default function PacientePrescricoes() {
               </div>
 
               <div className="form-group">
-                <label>Descrição dos Exercícios</label>
+                <label>Descrição da Prescrição</label>
                 <textarea
                   className={`form-control ${errors.descricaoExercicios ? 'error' : ''}`}
                   rows={8}
-                  placeholder={"1. Exercício de respiração (5 min)\n   - Inspirar pelo nariz, expirar pela boca\n   - Repetir 10 vezes\n\n2. Exercício de articulação (10 min)\n   - Trabalhar fonemas /r/ e /l/\n   - Repetições com cartões ilustrados"}
+                  placeholder="Descreva a prescrição e orientações..."
                   {...register('descricaoExercicios')}
                 />
                 {errors.descricaoExercicios && <span className="hint" style={{ color: 'red' }}>{errors.descricaoExercicios.message}</span>}
@@ -290,9 +331,9 @@ export default function PacientePrescricoes() {
             </div>
 
             <div className="form-actions" style={{ marginTop: '24px' }}>
-              <button type="button" className="btn btn-outline" onClick={() => setIsModalOpen(false)}>Cancelar</button>
+              <button type="button" className="btn btn-outline" onClick={() => fecharModal()}>Cancelar</button>
               <button type="submit" className="btn btn-primary" disabled={saving}>
-                {saving ? 'Salvando...' : 'Salvar Prescrição'}
+                {saving ? 'Salvando...' : `${editando ? 'Atualizar' : 'Salvar'} Prescrição`}
               </button>
             </div>
           </form>
@@ -329,9 +370,9 @@ export default function PacientePrescricoes() {
                   <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--gray-900)' }}>{detalhes.titulo}</p>
                 </div>
 
-                {/* Exercícios */}
+                {/* Descrição da Prescrição */}
                 <div className="form-card">
-                  <div className="form-section-title"><div className="section-icon" />Descrição dos Exercícios</div>
+                  <div className="form-section-title"><div className="section-icon" />Descrição da Prescrição</div>
                   <pre style={{
                     whiteSpace: 'pre-wrap',
                     fontFamily: 'Inter, sans-serif',
@@ -360,7 +401,7 @@ export default function PacientePrescricoes() {
 
               <div className="form-actions" style={{ gap: '10px' }}>
                 <button className="btn btn-outline" onClick={() => setDetalhes(null)}>Fechar</button>
-                <button className="btn btn-success" onClick={() => handleDownloadPdf(detalhes.id)}>
+                <button className="btn btn-success" onClick={() => handleDownloadPdf(detalhes.id, detalhes.pacienteNome, detalhes.dataPrescricao)}>
                   📥 Baixar PDF
                 </button>
                 <button className="btn btn-primary" onClick={() => handlePrintPdf(detalhes.id)}>
