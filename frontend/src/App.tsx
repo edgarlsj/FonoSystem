@@ -14,6 +14,7 @@ import Relatorios from './pages/Relatorios'
 import PacienteRelatorios from './pages/PacienteRelatorios'
 import PacientePrescricoes from './pages/PacientePrescricoes'
 import Logs from './pages/Logs'
+import ColetarDados from './pages/ColetarDados'
 import Users from './pages/Users'
 import UserForm from './pages/UserForm'
 import Profile from './pages/Profile'
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="avaliacao" element={<Avaliacao />} />
         </Route>
         <Route path="relatorios" element={<Relatorios />} />
+        <Route path="coletar-dados" element={<ColetarDados />} />
         <Route path="logs" element={<Logs />} />
         <Route path="usuarios" element={<Users />} />
         <Route path="usuarios/novo" element={<UserForm />} />

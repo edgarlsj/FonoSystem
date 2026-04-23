@@ -80,6 +80,9 @@ export default function Layout() {
           <NavLink to="/relatorios" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}>
             <span className="sidebar-item-icon">📝</span> Relatórios
           </NavLink>
+          <NavLink to="/coletar-dados" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}>
+            <span className="sidebar-item-icon">📋</span> Coletar Dados
+          </NavLink>
         </div>
 
         {user?.perfil === 'ADMIN' && (
