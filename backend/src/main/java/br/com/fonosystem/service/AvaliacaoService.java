@@ -57,4 +57,23 @@ public class AvaliacaoService {
 
         return avaliacaoRepository.save(avaliacao);
     }
+
+    @Transactional
+    public Avaliacao atualizar(Long id, AvaliacaoRequest request) {
+        Avaliacao avaliacao = avaliacaoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Avaliação não encontrada: " + id));
+
+        avaliacao.setTipoAvaliacao(request.getTipoAvaliacao());
+        avaliacao.setAreaEspecialidade(request.getAreaEspecialidade());
+        avaliacao.setInstrumentoAvaliacao(request.getInstrumentoAvaliacao());
+        avaliacao.setAbordagemTerapeutica(request.getAbordagemTerapeutica());
+        avaliacao.setSessoesPorSemana(request.getSessoesPorSemana());
+        avaliacao.setDataAvaliacao(request.getDataAvaliacao());
+        avaliacao.setHipoteseDiagnostica(request.getHipoteseDiagnostica());
+        avaliacao.setResultados(request.getResultados());
+        avaliacao.setOrientacoesFamilia(request.getOrientacoesFamilia());
+        avaliacao.setObservacoes(request.getObservacoes());
+
+        return avaliacaoRepository.save(avaliacao);
+    }
 }

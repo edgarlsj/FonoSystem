@@ -34,6 +34,12 @@ public class AvaliacaoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(avaliacaoService.criar(request));
     }
 
+    @PutMapping("/v1/avaliacoes/{id}")
+    public ResponseEntity<Avaliacao> atualizar(@PathVariable Long id,
+                                                @Valid @RequestBody AvaliacaoRequest request) {
+        return ResponseEntity.ok(avaliacaoService.atualizar(id, request));
+    }
+
     @GetMapping("/v1/avaliacoes/{id}/plano")
     public ResponseEntity<List<PlanoTerapeutico>> listarPlano(@PathVariable Long id) {
         return ResponseEntity.ok(planoRepository.findByAvaliacaoId(id));

@@ -58,6 +58,7 @@ export default function AvaliacoesTab() {
 
   const [salvando, setSalvando] = useState(false)
   const [showDetalhes, setShowDetalhes] = useState<AvaliacaoData | null>(null)
+  const [editandoId, setEditandoId] = useState<number | null>(null)
   const [toast, setToast] = useState<{ show: boolean; msg: string; type: 'success' | 'error' }>({
     show: false, msg: '', type: 'success'
   })
@@ -278,6 +279,7 @@ export default function AvaliacoesTab() {
     setEtapa('instrumento')
     setInstrumentoSelecionado('')
     setInstrumentoData(null)
+    setEditandoId(null)
     setForm({
       tipoAvaliacao: 'INICIAL',
       areaEspecialidade: 'TEA',
@@ -289,6 +291,35 @@ export default function AvaliacoesTab() {
       resultados: '',
       orientacoesFamilia: '',
       observacoes: '',
+    })
+    setShowModal(true)
+  }
+
+  const abrirEditar = (av: AvaliacaoData) => {
+    setShowDetalhes(null)
+    setEditandoId(av.id)
+
+    const parsed = parseResultados(av.resultados)
+    // Detectar instrumento pelo nome
+    const instrKey = INSTRUMENTOS.find(i => i.label === av.instrumentoAvaliacao)?.key
+      || (av.instrumentoAvaliacao?.includes('PORTAGE') ? 'PORTAGE'
+        : av.instrumentoAvaliacao?.includes('DENVER') ? 'DENVER_II'
+          : av.instrumentoAvaliacao?.includes('PROC') ? 'PROC' : 'OUTRO')
+
+    setInstrumentoSelecionado(instrKey)
+    setInstrumentoData(parsed)
+    setEtapa('formulario')
+    setForm({
+      tipoAvaliacao: av.tipoAvaliacao || 'INICIAL',
+      areaEspecialidade: av.areaEspecialidade || 'TEA',
+      instrumentoAvaliacao: av.instrumentoAvaliacao || '',
+      abordagemTerapeutica: av.abordagemTerapeutica || '',
+      sessoesPorSemana: av.sessoesPorSemana || 2,
+      dataAvaliacao: av.dataAvaliacao || '',
+      hipoteseDiagnostica: av.hipoteseDiagnostica || '',
+      resultados: (!parsed ? (av.resultados || '') : ''),
+      orientacoesFamilia: av.orientacoesFamilia || '',
+      observacoes: av.observacoes || '',
     })
     setShowModal(true)
   }
@@ -312,12 +343,22 @@ export default function AvaliacoesTab() {
         ? JSON.stringify(instrumentoData)
         : form.resultados
 
-      await api.post(`/v1/pacientes/${id}/avaliacoes`, {
-        ...form,
-        resultados: resultadosJSON,
-        sessoesPorSemana: form.sessoesPorSemana || 2,
-      })
-      showToast('Avaliação salva com sucesso!', 'success')
+      if (editandoId) {
+        await api.put(`/v1/avaliacoes/${editandoId}`, {
+          ...form,
+          resultados: resultadosJSON,
+          sessoesPorSemana: form.sessoesPorSemana || 2,
+        })
+        showToast('Avaliação atualizada com sucesso!', 'success')
+      } else {
+        await api.post(`/v1/pacientes/${id}/avaliacoes`, {
+          ...form,
+          resultados: resultadosJSON,
+          sessoesPorSemana: form.sessoesPorSemana || 2,
+        })
+        showToast('Avaliação salva com sucesso!', 'success')
+      }
+      setEditandoId(null)
       setShowModal(false)
       carregarAvaliacoes()
     } catch (err: any) {
@@ -477,9 +518,11 @@ export default function AvaliacoesTab() {
         <div className="modal" style={{ maxWidth: etapa === 'formulario' ? '900px' : '700px', maxHeight: '92vh', overflowY: 'auto' }}>
           <div className="modal-header">
             <h2 className="modal-title">
-              {etapa === 'instrumento' ? 'Selecione o Instrumento' : `Nova Avaliação — ${INSTRUMENTOS.find(i => i.key === instrumentoSelecionado)?.label || ''}`}
+              {etapa === 'instrumento'
+                ? 'Selecione o Instrumento'
+                : `${editandoId ? 'Editar' : 'Nova'} Avaliação — ${INSTRUMENTOS.find(i => i.key === instrumentoSelecionado)?.label || ''}`}
             </h2>
-            <button className="modal-close" onClick={() => setShowModal(false)}>×</button>
+            <button className="modal-close" onClick={() => { setShowModal(false); setEditandoId(null) }}>×</button>
           </div>
 
           <div style={{ padding: '24px' }}>
@@ -625,9 +668,9 @@ export default function AvaliacoesTab() {
 
                 {/* Ações */}
                 <div className="form-actions" style={{ marginTop: '20px' }}>
-                  <button className="btn btn-outline" onClick={() => setShowModal(false)} disabled={salvando}>Cancelar</button>
+                  <button className="btn btn-outline" onClick={() => { setShowModal(false); setEditandoId(null) }} disabled={salvando}>Cancelar</button>
                   <button className="btn btn-primary" onClick={handleSalvar} disabled={salvando}>
-                    {salvando ? 'Salvando...' : '✓ Salvar Avaliação'}
+                    {salvando ? 'Salvando...' : editandoId ? '✓ Atualizar Avaliação' : '✓ Salvar Avaliação'}
                   </button>
                 </div>
               </div>
@@ -775,6 +818,7 @@ export default function AvaliacoesTab() {
 
                 <div className="form-actions">
                   <button className="btn btn-outline" onClick={() => setShowDetalhes(null)}>Fechar</button>
+                  <button className="btn btn-outline" onClick={() => abrirEditar(showDetalhes)} style={{ color: '#D97706', borderColor: '#D97706' }}>✏️ Editar</button>
                   <button className="btn btn-primary" onClick={() => handleImprimir(showDetalhes)}>🖨️ Imprimir</button>
                 </div>
               </div>
