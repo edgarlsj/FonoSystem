@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 public interface RelatorioDiarioRepository extends JpaRepository<RelatorioDiario, Long> {
@@ -21,4 +22,11 @@ public interface RelatorioDiarioRepository extends JpaRepository<RelatorioDiario
 
     @Query("SELECT r FROM RelatorioDiario r JOIN FETCH r.paciente JOIN FETCH r.profissional WHERE r.id = :id")
     java.util.Optional<RelatorioDiario> findByIdWithFetch(@Param("id") Long id);
+
+    @Query("SELECT r FROM RelatorioDiario r JOIN FETCH r.paciente JOIN FETCH r.profissional " +
+           "WHERE (:pacienteId IS NULL OR r.paciente.id = :pacienteId) " +
+           "AND (cast(:data as date) IS NULL OR r.dataSessao = :data) " +
+           "AND (cast(:hora as time) IS NULL OR r.horaInicio = :hora) " +
+           "ORDER BY r.dataSessao DESC, r.horaInicio DESC")
+    List<RelatorioDiario> filtrar(@Param("pacienteId") Long pacienteId, @Param("data") LocalDate data, @Param("hora") LocalTime hora);
 }

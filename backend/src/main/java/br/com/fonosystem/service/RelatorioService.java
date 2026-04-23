@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -28,8 +29,8 @@ public class RelatorioService {
         return relatorioRepository.findByPacienteIdOrderByDataSessaoDesc(pacienteId);
     }
 
-    public List<RelatorioDiario> listarPorData(LocalDate data) {
-        return relatorioRepository.findByDataSessaoOrderByHoraInicio(data);
+    public List<RelatorioDiario> filtrar(Long pacienteId, LocalDate data, LocalTime hora) {
+        return relatorioRepository.filtrar(pacienteId, data, hora);
     }
 
     public RelatorioDiario buscarPorId(Long id) {

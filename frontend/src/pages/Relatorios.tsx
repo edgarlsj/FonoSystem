@@ -24,7 +24,10 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>
 
 export default function Relatorios() {
-  const [data, setData] = useState(new Date())
+  const [filtroPaciente, setFiltroPaciente] = useState<string>('')
+  const [filtroData, setFiltroData] = useState<string>(format(new Date(), 'yyyy-MM-dd'))
+  const [filtroHora, setFiltroHora] = useState<string>('')
+
   const [relatorios, setRelatorios] = useState<any[]>([])
   const [pacientes, setPacientes] = useState<any[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -44,19 +47,27 @@ export default function Relatorios() {
   })
 
   useEffect(() => {
-    carregarRelatorios()
-  }, [data])
+    carregarPacientes()
+  }, [])
 
   useEffect(() => {
-    if (isModalOpen) {
+    carregarRelatorios()
+  }, [filtroPaciente, filtroData, filtroHora])
+
+  useEffect(() => {
+    if (isModalOpen && pacientes.length === 0) {
       carregarPacientes()
     }
   }, [isModalOpen])
 
   const carregarRelatorios = async () => {
     try {
-      const dataStr = format(data, 'yyyy-MM-dd')
-      const { data: resp } = await api.get(`/v1/relatorios?data=${dataStr}`)
+      const params = new URLSearchParams()
+      if (filtroPaciente) params.append('pacienteId', filtroPaciente)
+      if (filtroData) params.append('data', filtroData)
+      if (filtroHora) params.append('hora', filtroHora)
+      
+      const { data: resp } = await api.get(`/v1/relatorios?${params.toString()}`)
       setRelatorios(resp || [])
     } catch {
       setRelatorios([])
@@ -113,9 +124,10 @@ export default function Relatorios() {
   }
 
   const mudarData = (delta: number) => {
-    const nova = new Date(data)
+    if (!filtroData) return;
+    const nova = new Date(filtroData + 'T12:00:00')
     nova.setDate(nova.getDate() + delta)
-    setData(nova)
+    setFiltroData(format(nova, 'yyyy-MM-dd'))
   }
 
   const handleExcluir = async (id: number) => {
@@ -147,14 +159,29 @@ export default function Relatorios() {
         </button>
       </div>
 
-      <div className="rel-header">
-        <div className="rel-date-nav">
-          <button onClick={() => mudarData(-1)}>‹</button>
-          <span className="current-date">
-            {format(data, "EEEE, dd MMM yyyy", { locale: ptBR })}
-          </span>
-          <button onClick={() => mudarData(1)}>›</button>
+      <div className="filter-bar" style={{ display: 'flex', gap: '16px', marginBottom: '24px', alignItems: 'flex-end', background: '#fff', padding: '16px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: '200px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600, color: '#6B7280' }}>Paciente</label>
+          <select className="form-control" value={filtroPaciente} onChange={e => setFiltroPaciente(e.target.value)}>
+            <option value="">Todos os pacientes</option>
+            {pacientes.map(p => <option key={p.id} value={p.id}>{p.nomeCompleto}</option>)}
+          </select>
         </div>
+        <div style={{ paddingBottom: '8px', display: 'flex', alignItems: 'center' }}>
+          <button className="btn-icon-secondary" style={{ padding: '8px 12px', background: '#f3f4f6', border: '1px solid #e5e7eb', borderRadius: '6px' }} onClick={() => mudarData(-1)} disabled={!filtroData}>‹</button>
+        </div>
+        <div>
+          <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600, color: '#6B7280' }}>Data</label>
+          <input type="date" className="form-control" value={filtroData} onChange={e => setFiltroData(e.target.value)} />
+        </div>
+        <div style={{ paddingBottom: '8px', display: 'flex', alignItems: 'center' }}>
+          <button className="btn-icon-secondary" style={{ padding: '8px 12px', background: '#f3f4f6', border: '1px solid #e5e7eb', borderRadius: '6px' }} onClick={() => mudarData(1)} disabled={!filtroData}>›</button>
+        </div>
+        <div>
+          <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600, color: '#6B7280' }}>Hora Início</label>
+          <input type="time" className="form-control" value={filtroHora} onChange={e => setFiltroHora(e.target.value)} />
+        </div>
+        <button className="btn btn-outline" onClick={() => { setFiltroPaciente(''); setFiltroData(''); setFiltroHora(''); }}>Limpar Filtros</button>
       </div>
 
       <div className="session-list">

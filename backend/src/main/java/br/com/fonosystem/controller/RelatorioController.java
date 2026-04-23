@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,9 +54,11 @@ public class RelatorioController {
     }
 
     @GetMapping("/v1/relatorios")
-    public ResponseEntity<List<RelatorioDiario>> listarPorData(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
-        return ResponseEntity.ok(relatorioService.listarPorData(data));
+    public ResponseEntity<List<RelatorioDiario>> filtrar(
+            @RequestParam(required = false) Long pacienteId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime hora) {
+        return ResponseEntity.ok(relatorioService.filtrar(pacienteId, data, hora));
     }
 
     @GetMapping("/v1/pacientes/{pacienteId}/evolucao")
