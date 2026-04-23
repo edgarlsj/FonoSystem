@@ -20,6 +20,7 @@ public class PacienteResponse {
     private String nomeResponsavel;
     private String telefoneResponsavel;
     private String convenio;
+    private String tipoAtendimento;
     private String numeroConvenio;
     private String status;
     private String endereco;
