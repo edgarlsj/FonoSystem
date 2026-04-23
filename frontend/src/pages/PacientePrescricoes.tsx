@@ -7,6 +7,7 @@ import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import api from '../services/api'
 import PacienteAcoesMenu from '../components/PacienteAcoesMenu'
+import { useInTab } from '../context/TabContext'
 
 const schema = z.object({
   dataPrescricao: z.string().min(1, 'Data é obrigatória'),
@@ -32,6 +33,7 @@ interface PrescricaoData {
 export default function PacientePrescricoes() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const inTab = useInTab()
   const [prescricoes, setPrescricoes] = useState<PrescricaoData[]>([])
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -164,30 +166,42 @@ export default function PacientePrescricoes() {
 
   return (
     <div>
-      {/* BREADCRUMB */}
-      <div className="breadcrumb">
-        <a onClick={() => navigate('/pacientes')}>Pacientes</a>
-        <span>›</span>
-        {pacienteNome || '...'}
-        <span>›</span>
-        Prescrições
-      </div>
-
-      {/* HEADER */}
-      <div className="page-header">
-        <div>
-          <div className="page-title">📋 Prescrições</div>
-          <div className="page-subtitle">
-            {pacienteNome || 'Carregando...'}
+      {!inTab && (
+        <>
+          {/* BREADCRUMB */}
+          <div className="breadcrumb">
+            <a onClick={() => navigate('/pacientes')}>Pacientes</a>
+            <span>›</span>
+            {pacienteNome || '...'}
+            <span>›</span>
+            Prescrições
           </div>
-        </div>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <PacienteAcoesMenu pacienteId={id!} paginaAtual="prescricoes" />
+
+          {/* HEADER */}
+          <div className="page-header">
+            <div>
+              <div className="page-title">📋 Prescrições</div>
+              <div className="page-subtitle">
+                {pacienteNome || 'Carregando...'}
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <PacienteAcoesMenu pacienteId={id!} paginaAtual="prescricoes" />
+              <button className="btn btn-primary" onClick={() => abrirNovaPrescrição()}>
+                + Nova Prescrição
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {inTab && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
           <button className="btn btn-primary" onClick={() => abrirNovaPrescrição()}>
             + Nova Prescrição
           </button>
         </div>
-      </div>
+      )}
 
       {/* LISTA DE PRESCRIÇÕES */}
       <div className="prescricao-list">

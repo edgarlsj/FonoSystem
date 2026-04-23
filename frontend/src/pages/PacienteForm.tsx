@@ -115,9 +115,9 @@ export default function PacienteForm() {
               <label>Sexo *</label>
               <select className="form-control" name="sexo" required defaultValue={paciente?.sexo || ''}>
                 <option value="">Selecione...</option>
-                <option value="MASCULINO">Masculino</option>
-                <option value="FEMININO">Feminino</option>
-                <option value="OUTRO">Outro</option>
+                <option value="M">Masculino</option>
+                <option value="F">Feminino</option>
+                <option value="O">Outro</option>
               </select>
             </div>
             <div className="form-group">

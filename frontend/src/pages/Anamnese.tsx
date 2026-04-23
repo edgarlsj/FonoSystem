@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import PacienteAcoesMenu from '../components/PacienteAcoesMenu'
+import { useInTab } from '../context/TabContext'
 
 interface AnamneseForm {
   queixaPrincipal: string
@@ -48,8 +49,9 @@ const FORM_VAZIO: AnamneseForm = {
 }
 
 export default function Anamnese() {
-  const { id } = useParams()        // id do paciente
+  const { id } = useParams()
   const navigate = useNavigate()
+  const inTab = useInTab()
   const [form, setForm] = useState<AnamneseForm>(FORM_VAZIO)
   const [pacienteNome, setPacienteNome] = useState('')
   const [anamneseId, setAnamneseId] = useState<number | null>(null)
@@ -144,37 +146,40 @@ export default function Anamnese() {
 
   return (
     <div>
-      <div className="breadcrumb">
-        <button 
-          onClick={() => navigate('/pacientes')} 
-          style={{ background: 'none', border: 'none', color: 'inherit', padding: 0, font: 'inherit', cursor: 'pointer' }}
-        >
-          Pacientes
-        </button>
-        <span>›</span>
-        <button 
-          onClick={() => navigate(`/pacientes/${id}`)} 
-          style={{ background: 'none', border: 'none', color: 'inherit', padding: 0, font: 'inherit', cursor: 'pointer', fontWeight: 600 }}
-        >
-          {pacienteNome}
-        </button>
-        <span>›</span> Anamnese
-      </div>
-
-      <div className="page-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <button className="btn btn-outline" onClick={() => navigate('/pacientes')} title="Voltar">
-            ← Voltar
-          </button>
-          <div>
-            <div className="page-title">🩺 Anamnese</div>
-            <div className="page-subtitle" style={{ color: 'var(--primary-600)', fontWeight: 600 }}>
-              {pacienteNome || 'Carregando...'}
-            </div>
+      {!inTab && (
+        <>
+          <div className="breadcrumb">
+            <button
+              onClick={() => navigate('/pacientes')}
+              style={{ background: 'none', border: 'none', color: 'inherit', padding: 0, font: 'inherit', cursor: 'pointer' }}
+            >
+              Pacientes
+            </button>
+            <span>›</span>
+            <button
+              onClick={() => navigate(`/pacientes/${id}`)}
+              style={{ background: 'none', border: 'none', color: 'inherit', padding: 0, font: 'inherit', cursor: 'pointer', fontWeight: 600 }}
+            >
+              {pacienteNome}
+            </button>
+            <span>›</span> Anamnese
           </div>
-        </div>
-        <PacienteAcoesMenu pacienteId={id!} paginaAtual="anamnese" />
-      </div>
+          <div className="page-header">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <button className="btn btn-outline" onClick={() => navigate('/pacientes')} title="Voltar">
+                ← Voltar
+              </button>
+              <div>
+                <div className="page-title">🩺 Anamnese</div>
+                <div className="page-subtitle" style={{ color: 'var(--primary-600)', fontWeight: 600 }}>
+                  {pacienteNome || 'Carregando...'}
+                </div>
+              </div>
+            </div>
+            <PacienteAcoesMenu pacienteId={id!} paginaAtual="anamnese" />
+          </div>
+        </>
+      )}
 
       {/* Mensagens */}
       {sucesso && (

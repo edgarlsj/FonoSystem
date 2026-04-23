@@ -4,10 +4,12 @@ import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import api from '../services/api'
 import PacienteAcoesMenu from '../components/PacienteAcoesMenu'
+import { useInTab } from '../context/TabContext'
 
 export default function PacienteRelatorios() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const inTab = useInTab()
   const [paciente, setPaciente] = useState<any>(null)
   const [relatorios, setRelatorios] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -136,23 +138,26 @@ export default function PacienteRelatorios() {
 
   return (
     <div>
-      <div className="breadcrumb">
-        <button onClick={() => navigate('/pacientes')} className="btn-link" style={{ padding: 0 }}>Pacientes</button>
-        <span>›</span>
-        <strong>{paciente?.nomeCompleto || 'Paciente'}</strong>
-        <span>›</span> Relatório Diário
-      </div>
-
-      <div className="page-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <button className="btn btn-outline" onClick={() => navigate(-1)}>← Voltar</button>
-          <div>
-            <div className="page-title">📝 Relatório Diário</div>
-            <div className="page-subtitle">{paciente?.nomeCompleto || 'Carregando...'}</div>
+      {!inTab && (
+        <>
+          <div className="breadcrumb">
+            <button onClick={() => navigate('/pacientes')} className="btn-link" style={{ padding: 0 }}>Pacientes</button>
+            <span>›</span>
+            <strong>{paciente?.nomeCompleto || 'Paciente'}</strong>
+            <span>›</span> Relatório Diário
           </div>
-        </div>
-        <PacienteAcoesMenu pacienteId={id!} paginaAtual="relatorios" />
-      </div>
+          <div className="page-header">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <button className="btn btn-outline" onClick={() => navigate(-1)}>← Voltar</button>
+              <div>
+                <div className="page-title">📝 Relatório Diário</div>
+                <div className="page-subtitle">{paciente?.nomeCompleto || 'Carregando...'}</div>
+              </div>
+            </div>
+            <PacienteAcoesMenu pacienteId={id!} paginaAtual="relatorios" />
+          </div>
+        </>
+      )}
 
       {/* BARRA DE FILTROS */}
       <div className="table-toolbar" style={{ marginBottom: '24px', background: 'white', padding: '16px', borderRadius: '10px', boxShadow: 'var(--shadow-sm)' }}>

@@ -6,8 +6,10 @@ import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import Pacientes from './pages/Pacientes'
 import PacienteForm from './pages/PacienteForm'
+import PacienteDetalhe from './pages/PacienteDetalhe'
 import Anamnese from './pages/Anamnese'
 import Avaliacao from './pages/Avaliacao'
+import AvaliacoesTab from './pages/AvaliacoesTab'
 import Relatorios from './pages/Relatorios'
 import PacienteRelatorios from './pages/PacienteRelatorios'
 import PacientePrescricoes from './pages/PacientePrescricoes'
@@ -30,10 +32,14 @@ export default function App() {
         <Route path="pacientes" element={<Pacientes />} />
         <Route path="pacientes/novo" element={<PacienteForm />} />
         <Route path="pacientes/:id/editar" element={<PacienteForm />} />
-        <Route path="pacientes/:id/anamnese" element={<Anamnese />} />
-        <Route path="pacientes/:id/avaliacao" element={<Avaliacao />} />
-        <Route path="pacientes/:id/relatorios" element={<PacienteRelatorios />} />
-        <Route path="pacientes/:id/prescricoes" element={<PacientePrescricoes />} />
+        <Route path="pacientes/:id" element={<PacienteDetalhe />}>
+          <Route index element={<Navigate to="relatorios" replace />} />
+          <Route path="relatorios" element={<PacienteRelatorios />} />
+          <Route path="prescricoes" element={<PacientePrescricoes />} />
+          <Route path="anamnese" element={<Anamnese />} />
+          <Route path="avaliacoes" element={<AvaliacoesTab />} />
+          <Route path="avaliacao" element={<Avaliacao />} />
+        </Route>
         <Route path="relatorios" element={<Relatorios />} />
         <Route path="logs" element={<Logs />} />
         <Route path="usuarios" element={<Users />} />

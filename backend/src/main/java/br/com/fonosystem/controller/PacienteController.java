@@ -33,7 +33,7 @@ public class PacienteController {
     public ResponseEntity<Page<PacienteResponse>> listar(
             @RequestParam(required = false) String nome,
             @RequestParam(required = false) String status,
-            @PageableDefault(size = 20, sort = "nomeCompleto", direction = Sort.Direction.ASC) Pageable pageable) {
+            @PageableDefault(size = 20, sort = "nome_completo", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(pacienteService.listar(nome, status, pageable));
     }
 
