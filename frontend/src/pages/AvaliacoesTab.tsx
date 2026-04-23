@@ -6,6 +6,9 @@ import api from '../services/api'
 import PortageForm from './avaliacoes/PortageForm'
 import DenverForm from './avaliacoes/DenverForm'
 import ProcForm from './avaliacoes/ProcForm'
+import MchatForm from './avaliacoes/MchatForm'
+import CarsForm from './avaliacoes/CarsForm'
+import AbfwForm from './avaliacoes/AbfwForm'
 import AvaliacaoRadar from './avaliacoes/AvaliacaoRadar'
 
 interface AvaliacaoData {
@@ -26,7 +29,10 @@ interface AvaliacaoData {
 const INSTRUMENTOS = [
   { key: 'PORTAGE', label: 'Inventário PORTAGE', desc: '580 itens · 6 domínios · 0-6 anos', emoji: '📋', bg: '#EDE9FE', color: '#5B21B6' },
   { key: 'DENVER_II', label: 'Teste DENVER II', desc: '125 itens · 4 domínios · Triagem', emoji: '🧪', bg: '#DBEAFE', color: '#1D4ED8' },
-  { key: 'PROC', label: 'PROC (Zorzi & Hage)', desc: '3 áreas · Observação comportamental', emoji: '💬', bg: '#ECFDF5', color: '#065F46' },
+  { key: 'MCHAT', label: 'M-CHAT-R/F', desc: '20 itens · Triagem de Autismo · 16-30 meses', emoji: '👶', bg: '#FFE4E6', color: '#BE123C' },
+  { key: 'CARS', label: 'Teste CARS', desc: '15 domínios · Severidade do TEA', emoji: '🧩', bg: '#FEF3C7', color: '#92400E' },
+  { key: 'PROC', label: 'PROC (Zorzi & Hage)', desc: '3 áreas · Observação comportamental', emoji: '🗣️', bg: '#ECFDF5', color: '#065F46' },
+  { key: 'ABFW', label: 'ABFW Pragmática', desc: '15 funções · Perfil funcional da comunicação', emoji: '💬', bg: '#E0F2FE', color: '#0369A1' },
   { key: 'OUTRO', label: 'Outro instrumento', desc: 'Formulário livre', emoji: '📝', bg: '#F3F4F6', color: '#6B7280' },
 ]
 
@@ -124,14 +130,28 @@ export default function AvaliacoesTab() {
         </table>`
     }
 
-    // Denver resultado geral
-    let denverHTML = ''
+    // Resultado geral (Denver, M-CHAT, CARS)
+    let geralHTML = ''
     if (parsed?.resultadoGeral) {
-      const r = parsed.resultadoGeral
-      const lbl = r === 'NORMAL' ? '✅ Normal' : r === 'SUSPEITO' ? '⚠️ Suspeito' : '➖ Não testável'
-      const cor = r === 'NORMAL' ? '#065F46' : r === 'SUSPEITO' ? '#92400E' : '#6B7280'
-      const bg = r === 'NORMAL' ? '#D1FAE5' : r === 'SUSPEITO' ? '#FEF3C7' : '#F3F4F6'
-      denverHTML = `<div style="padding:12px 16px;border-radius:8px;background:${bg};color:${cor};font-weight:700;font-size:15px;margin-top:16px;">${lbl}</div>`
+      if (parsed.instrumento === 'M-CHAT') {
+        const isAlto = parsed.resultadoGeral === 'ALTO_RISCO'
+        const isMod = parsed.resultadoGeral === 'RISCO_MODERADO'
+        const cor = isAlto ? '#DC2626' : isMod ? '#D97706' : '#059669'
+        const bg = isAlto ? '#FEE2E2' : isMod ? '#FEF3C7' : '#D1FAE5'
+        geralHTML = `<div style="padding:12px 16px;border-radius:8px;background:${bg};color:${cor};font-weight:700;font-size:15px;margin-top:16px;">Resultado M-CHAT: ${parsed.riscoLabel} (Score: ${parsed.score}/20)</div>`
+      } else if (parsed.instrumento === 'CARS') {
+        const isSev = parsed.resultadoGeral === 'SEVERO'
+        const isMod = parsed.resultadoGeral === 'LEVE_MODERADO'
+        const cor = isSev ? '#DC2626' : isMod ? '#D97706' : '#059669'
+        const bg = isSev ? '#FEE2E2' : isMod ? '#FEF3C7' : '#D1FAE5'
+        geralHTML = `<div style="padding:12px 16px;border-radius:8px;background:${bg};color:${cor};font-weight:700;font-size:15px;margin-top:16px;">Classificação CARS: ${parsed.classificacao} (Total: ${parsed.totalScore}/60)</div>`
+      } else {
+        const r = parsed.resultadoGeral
+        const lbl = r === 'NORMAL' ? '✅ Normal' : r === 'SUSPEITO' ? '⚠️ Suspeito' : '➖ Não testável'
+        const cor = r === 'NORMAL' ? '#065F46' : r === 'SUSPEITO' ? '#92400E' : '#6B7280'
+        const bg = r === 'NORMAL' ? '#D1FAE5' : r === 'SUSPEITO' ? '#FEF3C7' : '#F3F4F6'
+        geralHTML = `<div style="padding:12px 16px;border-radius:8px;background:${bg};color:${cor};font-weight:700;font-size:15px;margin-top:16px;">${lbl}</div>`
+      }
     }
 
     // Seções de texto
@@ -256,7 +276,7 @@ export default function AvaliacoesTab() {
     const footerDate = format(new Date(), "dd/MM/yyyy 'às' HH:mm")
 
     const htmlBottom = [
-      hipoteseHTML, radarSVG, scoresHTML, denverHTML, faixaHTML,
+      hipoteseHTML, radarSVG, scoresHTML, geralHTML, faixaHTML,
       obsAvalHTML, orientHTML, obsGeraisHTML,
       `${String.fromCharCode(60)}footer>`,
       `${String.fromCharCode(60)}span>FonoSystem — Gerado em ${footerDate}${String.fromCharCode(60)}/span>`,
@@ -304,7 +324,10 @@ export default function AvaliacoesTab() {
     const instrKey = INSTRUMENTOS.find(i => i.label === av.instrumentoAvaliacao)?.key
       || (av.instrumentoAvaliacao?.includes('PORTAGE') ? 'PORTAGE'
         : av.instrumentoAvaliacao?.includes('DENVER') ? 'DENVER_II'
-          : av.instrumentoAvaliacao?.includes('PROC') ? 'PROC' : 'OUTRO')
+          : av.instrumentoAvaliacao?.includes('M-CHAT') ? 'MCHAT'
+            : av.instrumentoAvaliacao?.includes('CARS') ? 'CARS'
+              : av.instrumentoAvaliacao?.includes('ABFW') ? 'ABFW'
+                : av.instrumentoAvaliacao?.includes('PROC') ? 'PROC' : 'OUTRO')
 
     setInstrumentoSelecionado(instrKey)
     setInstrumentoData(parsed)
@@ -635,6 +658,15 @@ export default function AvaliacoesTab() {
                 {instrumentoSelecionado === 'DENVER_II' && (
                   <DenverForm value={instrumentoData} onChange={setInstrumentoData} />
                 )}
+                {instrumentoSelecionado === 'MCHAT' && (
+                  <MchatForm value={instrumentoData} onChange={setInstrumentoData} />
+                )}
+                {instrumentoSelecionado === 'CARS' && (
+                  <CarsForm value={instrumentoData} onChange={setInstrumentoData} />
+                )}
+                {instrumentoSelecionado === 'ABFW' && (
+                  <AbfwForm value={instrumentoData} onChange={setInstrumentoData} />
+                )}
                 {instrumentoSelecionado === 'PROC' && (
                   <ProcForm value={instrumentoData} onChange={setInstrumentoData} />
                 )}
@@ -741,19 +773,25 @@ export default function AvaliacoesTab() {
                   </div>
                 )}
 
-                {/* Denver II — Resultado Geral */}
+                {/* Resultado Geral */}
                 {parsed?.resultadoGeral && (
                   <div className="form-card" style={{ marginBottom: '16px' }}>
-                    <div className="form-section-title"><div className="section-icon" />Resultado Geral da Triagem</div>
+                    <div className="form-section-title"><div className="section-icon" />Resultado da Triagem/Avaliação</div>
                     <div style={{
                       padding: '14px 20px',
                       borderRadius: '10px',
-                      background: parsed.resultadoGeral === 'NORMAL' ? '#D1FAE5' : parsed.resultadoGeral === 'SUSPEITO' ? '#FEF3C7' : '#F3F4F6',
+                      background: parsed.instrumento === 'M-CHAT' ? (parsed.resultadoGeral === 'ALTO_RISCO' ? '#FEE2E2' : parsed.resultadoGeral === 'RISCO_MODERADO' ? '#FEF3C7' : '#D1FAE5')
+                                : parsed.instrumento === 'CARS' ? (parsed.resultadoGeral === 'SEVERO' ? '#FEE2E2' : parsed.resultadoGeral === 'LEVE_MODERADO' ? '#FEF3C7' : '#D1FAE5')
+                                : (parsed.resultadoGeral === 'NORMAL' ? '#D1FAE5' : parsed.resultadoGeral === 'SUSPEITO' ? '#FEF3C7' : '#F3F4F6'),
                       fontWeight: 700,
                       fontSize: '16px',
-                      color: parsed.resultadoGeral === 'NORMAL' ? '#065F46' : parsed.resultadoGeral === 'SUSPEITO' ? '#92400E' : '#6B7280',
+                      color: parsed.instrumento === 'M-CHAT' ? (parsed.resultadoGeral === 'ALTO_RISCO' ? '#DC2626' : parsed.resultadoGeral === 'RISCO_MODERADO' ? '#D97706' : '#059669')
+                             : parsed.instrumento === 'CARS' ? (parsed.resultadoGeral === 'SEVERO' ? '#DC2626' : parsed.resultadoGeral === 'LEVE_MODERADO' ? '#D97706' : '#059669')
+                             : (parsed.resultadoGeral === 'NORMAL' ? '#065F46' : parsed.resultadoGeral === 'SUSPEITO' ? '#92400E' : '#6B7280'),
                     }}>
-                      {parsed.resultadoGeral === 'NORMAL' ? '✅ Normal' : parsed.resultadoGeral === 'SUSPEITO' ? '⚠️ Suspeito' : '➖ Não testável'}
+                      {parsed.instrumento === 'M-CHAT' ? `M-CHAT: ${parsed.riscoLabel} (Score: ${parsed.score}/20)`
+                       : parsed.instrumento === 'CARS' ? `CARS: ${parsed.classificacao} (Total: ${parsed.totalScore}/60)`
+                       : (parsed.resultadoGeral === 'NORMAL' ? '✅ Normal' : parsed.resultadoGeral === 'SUSPEITO' ? '⚠️ Suspeito' : '➖ Não testável')}
                     </div>
                   </div>
                 )}

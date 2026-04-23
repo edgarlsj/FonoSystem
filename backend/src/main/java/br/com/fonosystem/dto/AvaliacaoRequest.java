@@ -28,15 +28,15 @@ public class AvaliacaoRequest {
     @PastOrPresent(message = "Data da avaliação não pode ser futura")
     private LocalDate dataAvaliacao;
 
-    @Size(max = 500, message = "Hipótese diagnóstica deve ter no máximo 500 caracteres")
+    @Size(max = 2000, message = "Hipótese diagnóstica deve ter no máximo 2000 caracteres")
     private String hipoteseDiagnostica;
 
-    @Size(max = 3000, message = "Resultados deve ter no máximo 3000 caracteres")
+    @Size(max = 30000, message = "Resultados pode ter no máximo 30000 caracteres")
     private String resultados;
 
-    @Size(max = 1000, message = "Orientações à família deve ter no máximo 1000 caracteres")
+    @Size(max = 5000, message = "Orientações à família deve ter no máximo 5000 caracteres")
     private String orientacoesFamilia;
 
-    @Size(max = 1000, message = "Observações deve ter no máximo 1000 caracteres")
+    @Size(max = 5000, message = "Observações deve ter no máximo 5000 caracteres")
     private String observacoes;
 }
