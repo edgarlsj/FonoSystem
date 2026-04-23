@@ -51,7 +51,7 @@ export default function Dashboard() {
   useEffect(() => {
     const carregarDados = async () => {
       try {
-        const pacRes = await api.get('/v1/pacientes?size=100&sort=nomeCompleto,asc')
+        const pacRes = await api.get('/v1/pacientes?size=100&sort=nome_completo,asc')
         const lista: Paciente[] = pacRes.data.content || []
         setTotalPacientes(pacRes.data.totalElements || lista.length)
         setAtivos(lista.filter((p: Paciente) => p.status === 'ATIVO').length)
