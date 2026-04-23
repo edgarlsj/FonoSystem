@@ -187,33 +187,30 @@ export default function AvaliacoesTab() {
       if (n >= 3) {
         const cx = 160, cy = 160, r = 120
         const angleStep = (2 * Math.PI) / n
-        const startAngle = -Math.PI / 2 // Começar pelo topo
+        const startAngle = -Math.PI / 2
+        const t = '\x3c' // '<' escaped para não confundir o TSX parser
 
-        // Grid circles
         const gridCircles = [20, 40, 60, 80, 100].map(pct => {
           const gr = (r * pct) / 100
-          return `<circle cx="${cx}" cy="${cy}" r="${gr}" fill="none" stroke="#E5E7EB" stroke-width="1"/>`
+          return t + `circle cx="${cx}" cy="${cy}" r="${gr}" fill="none" stroke="#E5E7EB" stroke-width="1"/>`
         }).join('')
 
-        // Grid lines (raios)
         const gridLines = entries.map((_, i) => {
           const angle = startAngle + i * angleStep
           const x = cx + r * Math.cos(angle)
           const y = cy + r * Math.sin(angle)
-          return `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#E5E7EB" stroke-width="1"/>`
+          return t + `line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#E5E7EB" stroke-width="1"/>`
         }).join('')
 
-        // Labels
         const labels = entries.map(([k], i) => {
           const angle = startAngle + i * angleStep
           const labelR = r + 28
           const x = cx + labelR * Math.cos(angle)
           const y = cy + labelR * Math.sin(angle)
           const anchor = Math.abs(x - cx) < 5 ? 'middle' : x > cx ? 'start' : 'end'
-          return `<text x="${x}" y="${y}" text-anchor="${anchor}" dominant-baseline="central" font-size="11" font-weight="600" fill="#6B7280">${k}</text>`
+          return t + `text x="${x}" y="${y}" text-anchor="${anchor}" dominant-baseline="central" font-size="11" font-weight="600" fill="#6B7280">${k}` + t + '/text>'
         }).join('')
 
-        // Data polygon
         const points = entries.map(([, v], i) => {
           const angle = startAngle + i * angleStep
           const pr = (r * (v as number)) / 100
@@ -222,35 +219,29 @@ export default function AvaliacoesTab() {
           return `${x},${y}`
         }).join(' ')
 
-        // Data dots
         const dots = entries.map(([, v], i) => {
           const angle = startAngle + i * angleStep
           const pr = (r * (v as number)) / 100
           const x = cx + pr * Math.cos(angle)
           const y = cy + pr * Math.sin(angle)
-          return `<circle cx="${x}" cy="${y}" r="4" fill="#29B6D1" stroke="#fff" stroke-width="2"/>`
+          return t + `circle cx="${x}" cy="${y}" r="4" fill="#29B6D1" stroke="#fff" stroke-width="2"/>`
         }).join('')
 
-        // Percent labels on axis
         const pctLabels = [20, 40, 60, 80, 100].map(pct => {
           const y = cy - (r * pct) / 100
-          return `<text x="${cx + 4}" y="${y - 4}" font-size="9" fill="#9CA3AF">${pct}%</text>`
+          return t + `text x="${cx + 4}" y="${y - 4}" font-size="9" fill="#9CA3AF">${pct}%` + t + '/text>'
         }).join('')
 
-        radarSVG = `
-          <div style="text-align:center;margin:24px 0 8px;">
-            <h3 style="color:#29B6D1;border-bottom:2px solid #29B6D1;padding-bottom:6px;display:inline-block;">Perfil de Desenvolvimento</h3>
-            <div style="display:flex;justify-content:center;margin-top:8px;">
-              <svg width="320" height="320" viewBox="0 0 320 320" style="max-width:100%;">
-                ${gridCircles}
-                ${gridLines}
-                ${pctLabels}
-                <polygon points="${points}" fill="rgba(41,182,209,0.2)" stroke="#29B6D1" stroke-width="2"/>
-                ${dots}
-                ${labels}
-              </svg>
-            </div>
-          </div>`
+        radarSVG = [
+          t + 'div style="text-align:center;margin:24px 0 8px;">',
+          t + 'h3 style="color:#29B6D1;border-bottom:2px solid #29B6D1;padding-bottom:6px;display:inline-block;">Perfil de Desenvolvimento' + t + '/h3>',
+          t + 'div style="display:flex;justify-content:center;margin-top:8px;">',
+          t + 'svg width="320" height="320" viewBox="0 0 320 320" style="max-width:100%;">',
+          gridCircles, gridLines, pctLabels,
+          t + `polygon points="${points}" fill="rgba(41,182,209,0.2)" stroke="#29B6D1" stroke-width="2"/>`,
+          dots, labels,
+          t + '/svg>' + t + '/div>' + t + '/div>',
+        ].join('')
       }
     }
 
