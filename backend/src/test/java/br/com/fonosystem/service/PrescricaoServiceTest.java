@@ -33,7 +33,7 @@ class PrescricaoServiceTest {
     private PrescricaoRepository prescricaoRepository;
 
     @Mock
-    private PacienteRepository pacienteRepository;
+    private PacienteService pacienteService;
 
     @Mock
     private UserRepository userRepository;
@@ -109,10 +109,7 @@ class PrescricaoServiceTest {
 
     @Test
     void criar_WhenValid_ShouldSavePrescricao() {
-        when(pacienteRepository.findById(1L)).thenReturn(Optional.of(paciente));
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn("medico@teste.com");
-        when(userRepository.findByEmail("medico@teste.com")).thenReturn(Optional.of(profissional));
+        when(pacienteService.buscarEntidadePorId(1L)).thenReturn(paciente);
         when(prescricaoRepository.save(any(Prescricao.class))).thenReturn(prescricao);
 
         Prescricao result = prescricaoService.criar(request);
@@ -123,7 +120,7 @@ class PrescricaoServiceTest {
 
     @Test
     void criar_WhenPacienteNotFound_ShouldThrowException() {
-        when(pacienteRepository.findById(1L)).thenReturn(Optional.empty());
+        when(pacienteService.buscarEntidadePorId(1L)).thenThrow(new ResourceNotFoundException("Paciente não encontrado"));
 
         assertThrows(ResourceNotFoundException.class, () -> prescricaoService.criar(request));
         verify(prescricaoRepository, never()).save(any());

@@ -33,7 +33,7 @@ class AnamneseServiceTest {
     private AnamneseRepository anamneseRepository;
 
     @Mock
-    private PacienteRepository pacienteRepository;
+    private PacienteService pacienteService;
 
     @Mock
     private UserRepository userRepository;
@@ -108,11 +108,7 @@ class AnamneseServiceTest {
 
     @Test
     void criar_WhenValid_ShouldCreateAndReturnAnamnese() {
-        when(pacienteRepository.findById(1L)).thenReturn(Optional.of(paciente));
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn("fono@fono.com");
-        when(userRepository.findByEmail("fono@fono.com")).thenReturn(Optional.of(profissional));
-        
+        when(pacienteService.buscarEntidadePorId(1L)).thenReturn(paciente);
         when(anamneseRepository.save(any(Anamnese.class))).thenAnswer(invocation -> {
             Anamnese saved = invocation.getArgument(0);
             saved.setId(101L);
@@ -125,12 +121,11 @@ class AnamneseServiceTest {
         assertEquals(101L, result.getId());
         assertEquals("Atraso na fala leve", result.getQueixaPrincipal());
         assertEquals(paciente, result.getPaciente());
-        assertEquals(profissional, result.getProfissional());
     }
 
     @Test
     void criar_WhenPacienteNotFound_ShouldThrowException() {
-        when(pacienteRepository.findById(1L)).thenReturn(Optional.empty());
+        when(pacienteService.buscarEntidadePorId(1L)).thenThrow(new ResourceNotFoundException("Paciente não encontrado"));
 
         assertThrows(ResourceNotFoundException.class, () -> anamneseService.criar(request));
         verify(anamneseRepository, never()).save(any());

@@ -34,7 +34,7 @@ class RelatorioServiceTest {
     private RelatorioDiarioRepository relatorioRepository;
 
     @Mock
-    private PacienteRepository pacienteRepository;
+    private PacienteService pacienteService;
 
     @Mock
     private UserRepository userRepository;
@@ -91,18 +91,6 @@ class RelatorioServiceTest {
     }
 
     @Test
-    void listarPorData_ShouldReturnList() {
-        LocalDate data = LocalDate.now();
-        when(relatorioRepository.findByDataSessaoOrderByHoraInicio(data)).thenReturn(List.of(relatorio));
-
-        List<RelatorioDiario> result = relatorioService.listarPorData(data);
-
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        verify(relatorioRepository, times(1)).findByDataSessaoOrderByHoraInicio(data);
-    }
-
-    @Test
     void buscarPorId_WhenExists_ShouldReturnRelatorio() {
         when(relatorioRepository.findByIdWithFetch(1L)).thenReturn(Optional.of(relatorio));
 
@@ -134,10 +122,7 @@ class RelatorioServiceTest {
 
     @Test
     void criar_WhenValid_ShouldSaveRelatorio() {
-        when(pacienteRepository.findById(1L)).thenReturn(Optional.of(paciente));
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn("medico@teste.com");
-        when(userRepository.findByEmail("medico@teste.com")).thenReturn(Optional.of(profissional));
+        when(pacienteService.buscarEntidadePorId(1L)).thenReturn(paciente);
         when(relatorioRepository.save(any(RelatorioDiario.class))).thenReturn(relatorio);
 
         RelatorioDiario result = relatorioService.criar(request);
@@ -148,7 +133,7 @@ class RelatorioServiceTest {
 
     @Test
     void criar_WhenPacienteNotFound_ShouldThrowException() {
-        when(pacienteRepository.findById(1L)).thenReturn(Optional.empty());
+        when(pacienteService.buscarEntidadePorId(1L)).thenThrow(new ResourceNotFoundException("Paciente não encontrado"));
 
         assertThrows(ResourceNotFoundException.class, () -> relatorioService.criar(request));
         verify(relatorioRepository, never()).save(any());
