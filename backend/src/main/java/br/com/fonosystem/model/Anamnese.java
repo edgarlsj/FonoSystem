@@ -86,6 +86,133 @@ public class Anamnese {
     @Column(name = "marca_modelo", length = 100)
     private String marcaModelo;
 
+    // --- Novos Campos Fonoaudiológicos ---
+    @Column(columnDefinition = "TEXT")
+    private String alergias;
+
+    @Column(columnDefinition = "TEXT")
+    private String medicacoes;
+
+    @Column(name = "nome_mae", length = 200)
+    private String nomeMae;
+
+    @Column(name = "data_nasc_mae", length = 20)
+    private String dataNascMae;
+
+    @Column(name = "telefone_mae", length = 20)
+    private String telefoneMae;
+
+    @Column(name = "profissao_mae", length = 100)
+    private String profissaoMae;
+
+    @Column(name = "nome_pai", length = 200)
+    private String nomePai;
+
+    @Column(name = "data_nasc_pai", length = 20)
+    private String dataNascPai;
+
+    @Column(name = "telefone_pai", length = 20)
+    private String telefonePai;
+
+    @Column(name = "profissao_pai", length = 100)
+    private String profissaoPai;
+
+    @Column(columnDefinition = "TEXT")
+    private String irmaos;
+
+    @Column(name = "outros_familiares", columnDefinition = "TEXT")
+    private String outrosFamiliares;
+
+    @Column(name = "periodo_cuidadores", length = 100)
+    private String periodoCuidadores;
+
+    @Column(name = "semanas_gestacao", length = 50)
+    private String semanasGestacao;
+
+    @Column(name = "tipo_parto", length = 50)
+    private String tipoParto;
+
+    @Column(name = "intercorrencias_parto", columnDefinition = "TEXT")
+    private String intercorrenciasParto;
+
+    @Column(name = "teste_orelhinha", length = 50)
+    private String testeOrelhinha;
+
+    @Column(name = "teste_linguinha", length = 50)
+    private String testeLinguinha;
+
+    @Column(name = "amamentacao_chupeta", columnDefinition = "TEXT")
+    private String amamentacaoChupeta;
+
+    @Column(name = "hist_perda_auditiva")
+    private Boolean histPerdaAuditiva;
+
+    @Column(name = "hist_transtornos_neurologicos")
+    private Boolean histTranstornosNeurologicos;
+
+    @Column(name = "hist_convulsoes")
+    private Boolean histConvulsoes;
+
+    @Column(name = "hist_malformacao_fetal")
+    private Boolean histMalformacaoFetal;
+
+    @Column(name = "hist_gagueira")
+    private Boolean histGagueira;
+
+    @Column(name = "hist_outros", columnDefinition = "TEXT")
+    private String histOutros;
+
+    @Column(name = "idade_firmou_pescoco", length = 50)
+    private String idadeFirmouPescoco;
+
+    @Column(name = "idade_sentou", length = 50)
+    private String idadeSentou;
+
+    @Column(name = "idade_engatinhou", length = 50)
+    private String idadeEngatinhou;
+
+    @Column(name = "idade_andou", length = 50)
+    private String idadeAndou;
+
+    @Column(name = "mao_referencia", length = 50)
+    private String maoReferencia;
+
+    @Column(name = "anda_ponta_pe", length = 20)
+    private String andaPontaPe;
+
+    @Column(name = "autonomia_vestir", length = 20)
+    private String autonomiaVestir;
+
+    @Column(name = "senta_w", length = 20)
+    private String sentaW;
+
+    @Column(name = "idade_balbuciou", length = 50)
+    private String idadeBalbuciou;
+
+    @Column(name = "idade_primeiras_palavras", length = 50)
+    private String idadePrimeirasPalavras;
+
+    @Column(length = 20)
+    private String gagueja;
+
+    @Column(name = "comunicacao_atual", columnDefinition = "TEXT")
+    private String comunicacaoAtual;
+
+    @Column(name = "trocas_fala", columnDefinition = "TEXT")
+    private String trocasFala;
+
+    @Column(name = "rotina_sono", columnDefinition = "TEXT")
+    private String rotinaSono;
+
+    @Column(name = "rotina_alimentacao", columnDefinition = "TEXT")
+    private String rotinaAlimentacao;
+
+    @Column(name = "restricao_alimentar", columnDefinition = "TEXT")
+    private String restricaoAlimentar;
+
+    @Column(name = "rotina_socializacao", columnDefinition = "TEXT")
+    private String rotinaSocializacao;
+
     // --- Metadados ---
     @Column(columnDefinition = "TEXT")
     private String observacoes;

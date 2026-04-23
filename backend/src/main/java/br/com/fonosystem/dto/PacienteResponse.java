@@ -21,8 +21,11 @@ public class PacienteResponse {
     private String telefoneResponsavel;
     private String convenio;
     private String numeroConvenio;
-    private String tipoAtendimento;
     private String status;
+    private String endereco;
+    private String bairro;
+    private String cidadeUf;
+    private String contatoEmergencia;
     private LocalDateTime createdAt;
 
     public static PacienteResponse fromEntity(Paciente p) {
@@ -41,6 +44,10 @@ public class PacienteResponse {
                 .numeroConvenio(p.getNumeroConvenio())
                 .tipoAtendimento(p.getTipoAtendimento())
                 .status(p.getStatus())
+                .endereco(p.getEndereco())
+                .bairro(p.getBairro())
+                .cidadeUf(p.getCidadeUf())
+                .contatoEmergencia(p.getContatoEmergencia())
                 .createdAt(p.getCreatedAt())
                 .build();
     }

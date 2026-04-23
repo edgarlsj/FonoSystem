@@ -63,6 +63,18 @@ public class Paciente {
     @Column(nullable = false, length = 10)
     private String status = "ATIVO";
 
+    @Column(length = 255)
+    private String endereco;
+
+    @Column(length = 100)
+    private String bairro;
+
+    @Column(name = "cidade_uf", length = 100)
+    private String cidadeUf;
+
+    @Column(name = "contato_emergencia", length = 100)
+    private String contatoEmergencia;
+
     @Column(name = "data_consentimento")
     private LocalDateTime dataConsentimento;
 

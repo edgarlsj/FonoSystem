@@ -56,6 +56,10 @@ public class PacienteService {
                 .numeroConvenio(request.getNumeroConvenio())
                 .tipoAtendimento(request.getTipoAtendimento() != null ? request.getTipoAtendimento() : "CONVENIO")
                 .status("ATIVO")
+                .endereco(request.getEndereco())
+                .bairro(request.getBairro())
+                .cidadeUf(request.getCidadeUf())
+                .contatoEmergencia(request.getContatoEmergencia())
                 .dataConsentimento(LocalDateTime.now())
                 .build();
 
@@ -77,6 +81,11 @@ public class PacienteService {
         paciente.setConvenio(request.getConvenio());
         paciente.setNumeroConvenio(request.getNumeroConvenio());
         paciente.setTipoAtendimento(request.getTipoAtendimento());
+        
+        paciente.setEndereco(request.getEndereco());
+        paciente.setBairro(request.getBairro());
+        paciente.setCidadeUf(request.getCidadeUf());
+        paciente.setContatoEmergencia(request.getContatoEmergencia());
 
         return PacienteResponse.fromEntity(pacienteRepository.save(paciente));
     }

@@ -62,6 +62,48 @@ public class AnamneseService {
                 .dataAtivacao(request.getDataAtivacao())
                 .marcaModelo(request.getMarcaModelo())
                 .observacoes(request.getObservacoes())
+                .alergias(request.getAlergias())
+                .medicacoes(request.getMedicacoes())
+                .nomeMae(request.getNomeMae())
+                .dataNascMae(request.getDataNascMae())
+                .telefoneMae(request.getTelefoneMae())
+                .profissaoMae(request.getProfissaoMae())
+                .nomePai(request.getNomePai())
+                .dataNascPai(request.getDataNascPai())
+                .telefonePai(request.getTelefonePai())
+                .profissaoPai(request.getProfissaoPai())
+                .irmaos(request.getIrmaos())
+                .outrosFamiliares(request.getOutrosFamiliares())
+                .periodoCuidadores(request.getPeriodoCuidadores())
+                .semanasGestacao(request.getSemanasGestacao())
+                .tipoParto(request.getTipoParto())
+                .intercorrenciasParto(request.getIntercorrenciasParto())
+                .testeOrelhinha(request.getTesteOrelhinha())
+                .testeLinguinha(request.getTesteLinguinha())
+                .amamentacaoChupeta(request.getAmamentacaoChupeta())
+                .histPerdaAuditiva(request.getHistPerdaAuditiva())
+                .histTranstornosNeurologicos(request.getHistTranstornosNeurologicos())
+                .histConvulsoes(request.getHistConvulsoes())
+                .histMalformacaoFetal(request.getHistMalformacaoFetal())
+                .histGagueira(request.getHistGagueira())
+                .histOutros(request.getHistOutros())
+                .idadeFirmouPescoco(request.getIdadeFirmouPescoco())
+                .idadeSentou(request.getIdadeSentou())
+                .idadeEngatinhou(request.getIdadeEngatinhou())
+                .idadeAndou(request.getIdadeAndou())
+                .maoReferencia(request.getMaoReferencia())
+                .andaPontaPe(request.getAndaPontaPe())
+                .autonomiaVestir(request.getAutonomiaVestir())
+                .sentaW(request.getSentaW())
+                .idadeBalbuciou(request.getIdadeBalbuciou())
+                .idadePrimeirasPalavras(request.getIdadePrimeirasPalavras())
+                .gagueja(request.getGagueja())
+                .comunicacaoAtual(request.getComunicacaoAtual())
+                .trocasFala(request.getTrocasFala())
+                .rotinaSono(request.getRotinaSono())
+                .rotinaAlimentacao(request.getRotinaAlimentacao())
+                .restricaoAlimentar(request.getRestricaoAlimentar())
+                .rotinaSocializacao(request.getRotinaSocializacao())
                 .build();
 
         return anamneseRepository.save(anamnese);
@@ -91,6 +133,49 @@ public class AnamneseService {
         anamnese.setDataAtivacao(request.getDataAtivacao());
         anamnese.setMarcaModelo(request.getMarcaModelo());
         anamnese.setObservacoes(request.getObservacoes());
+        
+        anamnese.setAlergias(request.getAlergias());
+        anamnese.setMedicacoes(request.getMedicacoes());
+        anamnese.setNomeMae(request.getNomeMae());
+        anamnese.setDataNascMae(request.getDataNascMae());
+        anamnese.setTelefoneMae(request.getTelefoneMae());
+        anamnese.setProfissaoMae(request.getProfissaoMae());
+        anamnese.setNomePai(request.getNomePai());
+        anamnese.setDataNascPai(request.getDataNascPai());
+        anamnese.setTelefonePai(request.getTelefonePai());
+        anamnese.setProfissaoPai(request.getProfissaoPai());
+        anamnese.setIrmaos(request.getIrmaos());
+        anamnese.setOutrosFamiliares(request.getOutrosFamiliares());
+        anamnese.setPeriodoCuidadores(request.getPeriodoCuidadores());
+        anamnese.setSemanasGestacao(request.getSemanasGestacao());
+        anamnese.setTipoParto(request.getTipoParto());
+        anamnese.setIntercorrenciasParto(request.getIntercorrenciasParto());
+        anamnese.setTesteOrelhinha(request.getTesteOrelhinha());
+        anamnese.setTesteLinguinha(request.getTesteLinguinha());
+        anamnese.setAmamentacaoChupeta(request.getAmamentacaoChupeta());
+        anamnese.setHistPerdaAuditiva(request.getHistPerdaAuditiva());
+        anamnese.setHistTranstornosNeurologicos(request.getHistTranstornosNeurologicos());
+        anamnese.setHistConvulsoes(request.getHistConvulsoes());
+        anamnese.setHistMalformacaoFetal(request.getHistMalformacaoFetal());
+        anamnese.setHistGagueira(request.getHistGagueira());
+        anamnese.setHistOutros(request.getHistOutros());
+        anamnese.setIdadeFirmouPescoco(request.getIdadeFirmouPescoco());
+        anamnese.setIdadeSentou(request.getIdadeSentou());
+        anamnese.setIdadeEngatinhou(request.getIdadeEngatinhou());
+        anamnese.setIdadeAndou(request.getIdadeAndou());
+        anamnese.setMaoReferencia(request.getMaoReferencia());
+        anamnese.setAndaPontaPe(request.getAndaPontaPe());
+        anamnese.setAutonomiaVestir(request.getAutonomiaVestir());
+        anamnese.setSentaW(request.getSentaW());
+        anamnese.setIdadeBalbuciou(request.getIdadeBalbuciou());
+        anamnese.setIdadePrimeirasPalavras(request.getIdadePrimeirasPalavras());
+        anamnese.setGagueja(request.getGagueja());
+        anamnese.setComunicacaoAtual(request.getComunicacaoAtual());
+        anamnese.setTrocasFala(request.getTrocasFala());
+        anamnese.setRotinaSono(request.getRotinaSono());
+        anamnese.setRotinaAlimentacao(request.getRotinaAlimentacao());
+        anamnese.setRestricaoAlimentar(request.getRestricaoAlimentar());
+        anamnese.setRotinaSocializacao(request.getRotinaSocializacao());
 
         return anamneseRepository.save(anamnese);
     }

@@ -16,6 +16,10 @@ interface Paciente {
   tipoAtendimento: string
   convenio: string
   numeroConvenio: string
+  endereco: string
+  bairro: string
+  cidadeUf: string
+  contatoEmergencia: string
 }
 
 export default function PacienteForm() {
@@ -62,6 +66,10 @@ export default function PacienteForm() {
       tipoAtendimento: form.get('tipoAtendimento'),
       convenio: form.get('convenio'),
       numeroConvenio: form.get('carteirinha'),
+      endereco: form.get('endereco'),
+      bairro: form.get('bairro'),
+      cidadeUf: form.get('cidadeUf'),
+      contatoEmergencia: form.get('contatoEmergencia'),
       consentimentoLgpd: form.get('lgpd') === 'on',
     }
 
@@ -151,6 +159,28 @@ export default function PacienteForm() {
               <select className="form-control" name="parentesco" defaultValue={paciente?.grauParentesco || ''}>
                 <option>Mãe</option><option>Pai</option><option>Avó/Avô</option><option>Outro</option>
               </select>
+            </div>
+          </div>
+        </div>
+
+        <div className="form-card">
+          <div className="form-section-title"><div className="section-icon"></div>Endereço e Contato</div>
+          <div className="form-grid form-grid-3">
+            <div className="form-group" style={{ gridColumn: 'span 2' }}>
+              <label>Endereço</label>
+              <input className="form-control" name="endereco" placeholder="Rua, Número, Complemento" defaultValue={paciente?.endereco || ''} />
+            </div>
+            <div className="form-group">
+              <label>Contato de Emergência</label>
+              <input className="form-control" name="contatoEmergencia" placeholder="Nome e telefone" defaultValue={paciente?.contatoEmergencia || ''} />
+            </div>
+            <div className="form-group">
+              <label>Bairro</label>
+              <input className="form-control" name="bairro" placeholder="Bairro" defaultValue={paciente?.bairro || ''} />
+            </div>
+            <div className="form-group" style={{ gridColumn: 'span 2' }}>
+              <label>Cidade/UF</label>
+              <input className="form-control" name="cidadeUf" placeholder="Cidade / Sigla Estado" defaultValue={paciente?.cidadeUf || ''} />
             </div>
           </div>
         </div>

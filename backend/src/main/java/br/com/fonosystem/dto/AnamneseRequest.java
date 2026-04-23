@@ -52,6 +52,55 @@ public class AnamneseRequest {
 
     private String marcaModelo;
 
+    // --- Novos Campos Fonoaudiológicos ---
+    private String alergias;
+    private String medicacoes;
+    private String nomeMae;
+    private String dataNascMae;
+    private String telefoneMae;
+    private String profissaoMae;
+    private String nomePai;
+    private String dataNascPai;
+    private String telefonePai;
+    private String profissaoPai;
+    private String irmaos;
+    private String outrosFamiliares;
+    private String periodoCuidadores;
+
+    private String semanasGestacao;
+    private String tipoParto;
+    private String intercorrenciasParto;
+    private String testeOrelhinha;
+    private String testeLinguinha;
+    private String amamentacaoChupeta;
+
+    private Boolean histPerdaAuditiva;
+    private Boolean histTranstornosNeurologicos;
+    private Boolean histConvulsoes;
+    private Boolean histMalformacaoFetal;
+    private Boolean histGagueira;
+    private String histOutros;
+
+    private String idadeFirmouPescoco;
+    private String idadeSentou;
+    private String idadeEngatinhou;
+    private String idadeAndou;
+    private String maoReferencia;
+    private String andaPontaPe;
+    private String autonomiaVestir;
+    private String sentaW;
+
+    private String idadeBalbuciou;
+    private String idadePrimeirasPalavras;
+    private String gagueja;
+    private String comunicacaoAtual;
+    private String trocasFala;
+
+    private String rotinaSono;
+    private String rotinaAlimentacao;
+    private String restricaoAlimentar;
+    private String rotinaSocializacao;
+
     @Size(max = 2000, message = "Observações deve ter no máximo 2000 caracteres")
     private String observacoes;
 }

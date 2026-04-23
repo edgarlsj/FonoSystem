@@ -48,4 +48,10 @@ public class PacienteRequest {
     private String numeroConvenio;
     private String tipoAtendimento;
     private boolean consentimentoLgpd;
+
+    private String endereco;
+    private String bairro;
+    private String cidadeUf;
+    private String contatoEmergencia;
 }
+
