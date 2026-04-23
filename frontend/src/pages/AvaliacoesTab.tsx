@@ -34,6 +34,7 @@ export default function AvaliacoesTab() {
   const { id } = useParams()
   const [avaliacoes, setAvaliacoes] = useState<AvaliacaoData[]>([])
   const [loading, setLoading] = useState(true)
+  const [pacienteNome, setPacienteNome] = useState('')
 
   // Modal nova avaliação
   const [showModal, setShowModal] = useState(false)
@@ -63,6 +64,11 @@ export default function AvaliacoesTab() {
 
   useEffect(() => {
     carregarAvaliacoes()
+    if (id) {
+      api.get(`/v1/pacientes/${id}`)
+        .then(({ data }) => setPacienteNome(data.nomeCompleto || ''))
+        .catch(() => {})
+    }
   }, [id])
 
   const carregarAvaliacoes = async () => {
@@ -81,6 +87,118 @@ export default function AvaliacoesTab() {
   const showToast = (msg: string, type: 'success' | 'error') => {
     setToast({ show: true, msg, type })
     setTimeout(() => setToast(prev => ({ ...prev, show: false })), 3000)
+  }
+
+  const handleImprimir = (av: AvaliacaoData) => {
+    const parsed = parseResultados(av.resultados)
+    const instrInfo = getInstrumentoInfo(av.instrumentoAvaliacao)
+    const dataFormatada = format(new Date(av.dataAvaliacao + 'T00:00:00'), "dd/MM/yyyy")
+
+    // Gerar tabela de scores se houver
+    let scoresHTML = ''
+    const scores = parsed?.scores || parsed?.areaScores
+    if (scores) {
+      const rows = Object.entries(scores as Record<string, number>)
+        .map(([k, v]) => {
+          const cor = (v as number) >= 70 ? '#059669' : (v as number) >= 40 ? '#D97706' : '#DC2626'
+          return `<tr>
+            <td style="padding:8px 12px;border-bottom:1px solid #E5E7EB;font-size:13px;">${k}</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #E5E7EB;font-weight:700;color:${cor};text-align:center;">${v}%</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #E5E7EB;">
+              <div style="background:#E5E7EB;border-radius:4px;height:8px;overflow:hidden;">
+                <div style="background:${cor};height:100%;width:${v}%;border-radius:4px;"></div>
+              </div>
+            </td>
+          </tr>`
+        }).join('')
+      scoresHTML = `
+        <h3 style="color:#29B6D1;border-bottom:2px solid #29B6D1;padding-bottom:6px;margin-top:24px;">Resultados por Domínio</h3>
+        <table style="width:100%;border-collapse:collapse;margin-top:8px;">
+          <thead><tr style="background:#F9FAFB;">
+            <th style="padding:8px 12px;text-align:left;font-size:12px;color:#6B7280;border-bottom:2px solid #E5E7EB;">Domínio</th>
+            <th style="padding:8px 12px;text-align:center;font-size:12px;color:#6B7280;border-bottom:2px solid #E5E7EB;width:80px;">Score</th>
+            <th style="padding:8px 12px;text-align:left;font-size:12px;color:#6B7280;border-bottom:2px solid #E5E7EB;width:200px;">Progresso</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`
+    }
+
+    // Denver resultado geral
+    let denverHTML = ''
+    if (parsed?.resultadoGeral) {
+      const r = parsed.resultadoGeral
+      const lbl = r === 'NORMAL' ? '✅ Normal' : r === 'SUSPEITO' ? '⚠️ Suspeito' : '➖ Não testável'
+      const cor = r === 'NORMAL' ? '#065F46' : r === 'SUSPEITO' ? '#92400E' : '#6B7280'
+      const bg = r === 'NORMAL' ? '#D1FAE5' : r === 'SUSPEITO' ? '#FEF3C7' : '#F3F4F6'
+      denverHTML = `<div style="padding:12px 16px;border-radius:8px;background:${bg};color:${cor};font-weight:700;font-size:15px;margin-top:16px;">${lbl}</div>`
+    }
+
+    // Seções de texto
+    const secao = (titulo: string, texto?: string) => {
+      if (!texto) return ''
+      return `<h3 style="color:#29B6D1;border-bottom:2px solid #29B6D1;padding-bottom:6px;margin-top:24px;">${titulo}</h3>
+        <p style="font-size:13px;color:#374151;white-space:pre-wrap;line-height:1.6;">${texto}</p>`
+    }
+
+    const html = `<!DOCTYPE html>
+<html><head>
+  <meta charset="UTF-8">
+  <title>Avaliação — ${pacienteNome || 'Paciente'}</title>
+  <style>
+    @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px 32px; color: #111827; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #29B6D1; padding-bottom: 16px; margin-bottom: 24px; }
+    .badge { display: inline-block; font-size: 11px; font-weight: 600; border-radius: 999px; padding: 3px 12px; margin-right: 6px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 16px; }
+    .info-item label { font-size: 10px; font-weight: 600; color: #9CA3AF; text-transform: uppercase; }
+    .info-item p { margin: 4px 0 0; font-size: 13px; }
+    h3 { font-size: 14px; margin-bottom: 8px; }
+    footer { margin-top: 60px; padding-top: 16px; border-top: 1px solid #E5E7EB; display: flex; justify-content: space-between; font-size: 11px; color: #9CA3AF; }
+  </style>
+</head><body>
+  <div class="header">
+    <div>
+      <div style="font-size:20px;font-weight:700;color:#29B6D1;">🎙️ FonoSystem</div>
+      <div style="font-size:12px;color:#6B7280;margin-top:4px;">Relatório de Avaliação</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:16px;font-weight:700;">${pacienteNome || 'Paciente'}</div>
+      <div style="font-size:12px;color:#6B7280;margin-top:4px;">Data: ${dataFormatada}</div>
+    </div>
+  </div>
+
+  <div>
+    <span class="badge" style="background:${instrInfo?.bg || '#F3F4F6'};color:${instrInfo?.color || '#6B7280'};">${instrInfo?.emoji || '📊'} ${av.instrumentoAvaliacao || 'Avaliação'}</span>
+    <span class="badge" style="background:#DBEAFE;color:#1D4ED8;">${labelTipo(av.tipoAvaliacao)}</span>
+    <span class="badge" style="background:#EDE9FE;color:#5B21B6;">${labelArea(av.areaEspecialidade)}</span>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-item"><label>Abordagem</label><p>${av.abordagemTerapeutica || '—'}</p></div>
+    <div class="info-item"><label>Sessões/Semana</label><p>${av.sessoesPorSemana ?? '—'}x</p></div>
+    <div class="info-item"><label>Instrumento</label><p>${av.instrumentoAvaliacao || '—'}</p></div>
+  </div>
+
+  ${secao('Hipótese Diagnóstica', av.hipoteseDiagnostica)}
+  ${scoresHTML}
+  ${denverHTML}
+  ${parsed?.faixaEtaria ? `<p style="margin-top:16px;font-size:13px;"><strong>Faixa Etária Avaliada:</strong> ${parsed.faixaEtaria} anos</p>` : ''}
+  ${secao('Observações da Avaliação', parsed?.observacoes)}
+  ${secao('Orientações à Família', av.orientacoesFamilia)}
+  ${secao('Observações Gerais', av.observacoes)}
+
+  <footer>
+    <span>FonoSystem — Gerado em ${format(new Date(), "dd/MM/yyyy 'às' HH:mm")}</span>
+    <span>Documento para uso profissional</span>
+  </footer>
+</body></html>`
+
+    const win = window.open('', '_blank')
+    if (win) {
+      win.document.write(html)
+      win.document.close()
+      setTimeout(() => win.print(), 400)
+    }
   }
 
   const abrirNovaAvaliacao = () => {
@@ -584,6 +702,7 @@ export default function AvaliacoesTab() {
 
                 <div className="form-actions">
                   <button className="btn btn-outline" onClick={() => setShowDetalhes(null)}>Fechar</button>
+                  <button className="btn btn-primary" onClick={() => handleImprimir(showDetalhes)}>🖨️ Imprimir</button>
                 </div>
               </div>
             )
