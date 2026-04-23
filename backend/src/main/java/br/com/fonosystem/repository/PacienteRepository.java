@@ -10,19 +10,22 @@ import org.springframework.data.repository.query.Param;
 public interface PacienteRepository extends JpaRepository<Paciente, Long> {
 
     @Query(value = "SELECT * FROM pacientes p WHERE " +
+           "p.profissional_id = :profissionalId AND " +
            "(:nome IS NULL OR lower(p.nome_completo) LIKE lower(CONCAT('%', CAST(:nome AS TEXT), '%'))) AND " +
            "(:status IS NULL OR p.status = CAST(:status AS TEXT)) AND " +
            "p.deleted_at IS NULL",
            countQuery = "SELECT count(*) FROM pacientes p WHERE " +
+           "p.profissional_id = :profissionalId AND " +
            "(:nome IS NULL OR lower(p.nome_completo) LIKE lower(CONCAT('%', CAST(:nome AS TEXT), '%'))) AND " +
            "(:status IS NULL OR p.status = CAST(:status AS TEXT)) AND " +
            "p.deleted_at IS NULL",
            nativeQuery = true)
     Page<Paciente> findByFilters(@Param("nome") String nome,
                                   @Param("status") String status,
+                                  @Param("profissionalId") Long profissionalId,
                                   Pageable pageable);
 
-    long countByStatus(String status);
+    long countByStatusAndProfissionalId(String status, Long profissionalId);
 
     boolean existsByCpf(String cpf);
 }

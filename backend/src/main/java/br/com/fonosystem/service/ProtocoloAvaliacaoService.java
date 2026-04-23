@@ -22,10 +22,11 @@ import java.util.List;
 public class ProtocoloAvaliacaoService {
 
     private final ProtocoloAvaliacaoRepository repository;
-    private final PacienteRepository pacienteRepository;
+    private final PacienteService pacienteService;
     private final UserRepository userRepository;
 
     public List<ProtocoloAvaliacaoResponse> listarPorPaciente(Long pacienteId) {
+        pacienteService.buscarEntidadePorId(pacienteId);
         return repository.findByPacienteIdOrderByDataAplicacaoDesc(pacienteId)
                 .stream()
                 .map(ProtocoloAvaliacaoResponse::fromEntity)
@@ -33,6 +34,7 @@ public class ProtocoloAvaliacaoService {
     }
 
     public List<ProtocoloAvaliacaoResponse> listarPorPacienteETipo(Long pacienteId, TipoProtocolo tipo) {
+        pacienteService.buscarEntidadePorId(pacienteId);
         return repository.findByPacienteIdAndTipoOrderByDataAplicacaoDesc(pacienteId, tipo)
                 .stream()
                 .map(ProtocoloAvaliacaoResponse::fromEntity)
@@ -45,11 +47,8 @@ public class ProtocoloAvaliacaoService {
 
     @Transactional
     public ProtocoloAvaliacaoResponse criar(Long pacienteId, ProtocoloAvaliacaoRequest request) {
-        Paciente paciente = pacienteRepository.findById(pacienteId)
-                .orElseThrow(() -> new ResourceNotFoundException("Paciente não encontrado: " + pacienteId));
-
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User profissional = userRepository.findByEmail(email).orElseThrow();
+        Paciente paciente = pacienteService.buscarEntidadePorId(pacienteId);
+        User profissional = paciente.getProfissional();
 
         ProtocoloAvaliacao protocolo = ProtocoloAvaliacao.builder()
                 .paciente(paciente)
@@ -79,7 +78,9 @@ public class ProtocoloAvaliacaoService {
     }
 
     private ProtocoloAvaliacao findById(Long id) {
-        return repository.findById(id)
+        ProtocoloAvaliacao protocolo = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Protocolo não encontrado: " + id));
+        pacienteService.buscarEntidadePorId(protocolo.getPaciente().getId());
+        return protocolo;
     }
 }

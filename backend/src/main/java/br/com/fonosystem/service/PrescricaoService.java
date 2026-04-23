@@ -20,26 +20,26 @@ import java.util.List;
 public class PrescricaoService {
 
     private final PrescricaoRepository prescricaoRepository;
-    private final PacienteRepository pacienteRepository;
+    private final PacienteService pacienteService;
     private final UserRepository userRepository;
     private final PdfService pdfService;
 
     public List<Prescricao> listarPorPaciente(Long pacienteId) {
+        pacienteService.buscarEntidadePorId(pacienteId);
         return prescricaoRepository.findByPacienteIdOrderByDataPrescricaoDesc(pacienteId);
     }
 
     public Prescricao buscarPorId(Long id) {
-        return prescricaoRepository.findByIdWithRelations(id)
+        Prescricao prescricao = prescricaoRepository.findByIdWithRelations(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Prescrição não encontrada: " + id));
+        pacienteService.buscarEntidadePorId(prescricao.getPaciente().getId());
+        return prescricao;
     }
 
     @Transactional
     public Prescricao criar(PrescricaoRequest request) {
-        Paciente paciente = pacienteRepository.findById(request.getPacienteId())
-                .orElseThrow(() -> new ResourceNotFoundException("Paciente não encontrado"));
-
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User profissional = userRepository.findByEmail(email).orElseThrow();
+        Paciente paciente = pacienteService.buscarEntidadePorId(request.getPacienteId());
+        User profissional = paciente.getProfissional();
 
         Prescricao prescricao = Prescricao.builder()
                 .paciente(paciente)

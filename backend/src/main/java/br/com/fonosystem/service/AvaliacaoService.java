@@ -20,25 +20,25 @@ import java.util.List;
 public class AvaliacaoService {
 
     private final AvaliacaoRepository avaliacaoRepository;
-    private final PacienteRepository pacienteRepository;
+    private final PacienteService pacienteService;
     private final UserRepository userRepository;
 
     public List<Avaliacao> listarPorPaciente(Long pacienteId) {
+        pacienteService.buscarEntidadePorId(pacienteId);
         return avaliacaoRepository.findByPacienteIdOrderByDataAvaliacaoDesc(pacienteId);
     }
 
     public Avaliacao buscarPorId(Long id) {
-        return avaliacaoRepository.findById(id)
+        Avaliacao avaliacao = avaliacaoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Avaliação não encontrada: " + id));
+        pacienteService.buscarEntidadePorId(avaliacao.getPaciente().getId());
+        return avaliacao;
     }
 
     @Transactional
     public Avaliacao criar(AvaliacaoRequest request) {
-        Paciente paciente = pacienteRepository.findById(request.getPacienteId())
-                .orElseThrow(() -> new ResourceNotFoundException("Paciente não encontrado"));
-
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User profissional = userRepository.findByEmail(email).orElseThrow();
+        Paciente paciente = pacienteService.buscarEntidadePorId(request.getPacienteId());
+        User profissional = paciente.getProfissional();
 
         Avaliacao avaliacao = Avaliacao.builder()
                 .paciente(paciente)

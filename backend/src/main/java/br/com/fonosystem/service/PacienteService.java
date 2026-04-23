@@ -5,10 +5,14 @@ import br.com.fonosystem.dto.PacienteResponse;
 import br.com.fonosystem.exception.BusinessException;
 import br.com.fonosystem.exception.ResourceNotFoundException;
 import br.com.fonosystem.model.Paciente;
+import br.com.fonosystem.model.User;
 import br.com.fonosystem.repository.PacienteRepository;
+import br.com.fonosystem.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,14 +23,22 @@ import java.time.LocalDateTime;
 public class PacienteService {
 
     private final PacienteRepository pacienteRepository;
+    private final UserRepository userRepository;
+
+    private User getUsuarioLogado() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado."));
+    }
 
     public Page<PacienteResponse> listar(String nome, String status, Pageable pageable) {
-        return pacienteRepository.findByFilters(nome, status, pageable)
+        User user = getUsuarioLogado();
+        return pacienteRepository.findByFilters(nome, status, user.getId(), pageable)
                 .map(PacienteResponse::fromEntity);
     }
 
     public PacienteResponse buscarPorId(Long id) {
-        Paciente paciente = findById(id);
+        Paciente paciente = buscarEntidadePorId(id);
         return PacienteResponse.fromEntity(paciente);
     }
 
@@ -40,6 +52,8 @@ public class PacienteService {
         if (!request.isConsentimentoLgpd()) {
             throw new BusinessException("Consentimento LGPD é obrigatório");
         }
+
+        User user = getUsuarioLogado();
 
         Paciente paciente = Paciente.builder()
                 .nomeCompleto(request.getNomeCompleto())
@@ -61,6 +75,7 @@ public class PacienteService {
                 .cidadeUf(request.getCidadeUf())
                 .contatoEmergencia(request.getContatoEmergencia())
                 .dataConsentimento(LocalDateTime.now())
+                .profissional(user)
                 .build();
 
         return PacienteResponse.fromEntity(pacienteRepository.save(paciente));
@@ -68,7 +83,7 @@ public class PacienteService {
 
     @Transactional
     public PacienteResponse atualizar(Long id, PacienteRequest request) {
-        Paciente paciente = findById(id);
+        Paciente paciente = buscarEntidadePorId(id);
 
         paciente.setNomeCompleto(request.getNomeCompleto());
         paciente.setDataNascimento(request.getDataNascimento());
@@ -92,7 +107,7 @@ public class PacienteService {
 
     @Transactional
     public void alterarStatus(Long id, String novoStatus) {
-        Paciente paciente = findById(id);
+        Paciente paciente = buscarEntidadePorId(id);
         paciente.setStatus(novoStatus);
         if ("INATIVO".equals(novoStatus)) {
             paciente.setDeletedAt(LocalDateTime.now());
@@ -103,11 +118,19 @@ public class PacienteService {
     }
 
     public long contarAtivos() {
-        return pacienteRepository.countByStatus("ATIVO");
+        User user = getUsuarioLogado();
+        return pacienteRepository.countByStatusAndProfissionalId("ATIVO", user.getId());
     }
 
-    private Paciente findById(Long id) {
-        return pacienteRepository.findById(id)
+    public Paciente buscarEntidadePorId(Long id) {
+        User user = getUsuarioLogado();
+        Paciente paciente = pacienteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Paciente não encontrado: " + id));
+        
+        if (!paciente.getProfissional().getId().equals(user.getId())) {
+            throw new AccessDeniedException("Acesso negado: o paciente não pertence a este profissional.");
+        }
+        
+        return paciente;
     }
 }

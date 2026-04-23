@@ -22,33 +22,35 @@ import java.util.List;
 public class RelatorioService {
 
     private final RelatorioDiarioRepository relatorioRepository;
-    private final PacienteRepository pacienteRepository;
+    private final PacienteService pacienteService;
     private final UserRepository userRepository;
 
     public List<RelatorioDiario> listarPorPaciente(Long pacienteId) {
+        pacienteService.buscarEntidadePorId(pacienteId);
         return relatorioRepository.findByPacienteIdOrderByDataSessaoDesc(pacienteId);
     }
 
     public List<RelatorioDiario> filtrar(Long pacienteId, LocalDate data, LocalTime hora) {
+        pacienteService.buscarEntidadePorId(pacienteId);
         return relatorioRepository.filtrar(pacienteId, data, hora);
     }
 
     public RelatorioDiario buscarPorId(Long id) {
-        return relatorioRepository.findByIdWithFetch(id)
+        RelatorioDiario relatorio = relatorioRepository.findByIdWithFetch(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Relatório não encontrado: " + id));
+        pacienteService.buscarEntidadePorId(relatorio.getPaciente().getId());
+        return relatorio;
     }
 
     public List<RelatorioDiario> buscarEvolucao(Long pacienteId, LocalDate inicio, LocalDate fim) {
+        pacienteService.buscarEntidadePorId(pacienteId);
         return relatorioRepository.findByPacienteIdAndDataSessaoBetween(pacienteId, inicio, fim);
     }
 
     @Transactional
     public RelatorioDiario criar(RelatorioRequest request) {
-        Paciente paciente = pacienteRepository.findById(request.getPacienteId())
-                .orElseThrow(() -> new ResourceNotFoundException("Paciente não encontrado"));
-
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User profissional = userRepository.findByEmail(email).orElseThrow();
+        Paciente paciente = pacienteService.buscarEntidadePorId(request.getPacienteId());
+        User profissional = paciente.getProfissional();
 
         RelatorioDiario relatorio = RelatorioDiario.builder()
                 .paciente(paciente)
