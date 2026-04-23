@@ -32,6 +32,9 @@ public class User {
     @Column(nullable = false, length = 20)
     private Perfil perfil;
 
+    @Column(name = "numero_conselho", length = 50)
+    private String numeroConselho;
+
     @Column(nullable = false)
     private Boolean ativo = true;
 

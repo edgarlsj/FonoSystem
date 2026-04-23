@@ -52,6 +52,7 @@ public class UserService {
                 .email(request.getEmail())
                 .senhaHash(passwordEncoder.encode(request.getSenha()))
                 .perfil(request.getPerfil())
+                .numeroConselho(request.getNumeroConselho())
                 .ativo(request.getAtivo() != null ? request.getAtivo() : true)
                 .build();
 
@@ -77,6 +78,7 @@ public class UserService {
         user.setNome(request.getNome());
         user.setEmail(request.getEmail());
         user.setPerfil(request.getPerfil());
+        user.setNumeroConselho(request.getNumeroConselho());
         user.setAtivo(request.getAtivo() != null ? request.getAtivo() : user.getAtivo());
 
         if (request.getSenha() != null && !request.getSenha().isBlank()) {

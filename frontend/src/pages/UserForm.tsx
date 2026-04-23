@@ -7,6 +7,7 @@ interface User {
   nome: string
   email: string
   perfil: 'ADMIN' | 'FONOAUDIOLOGO' | 'SECRETARIA'
+  numeroConselho: string | null
   ativo: boolean
 }
 
@@ -20,6 +21,7 @@ export default function UserForm() {
     email: '',
     senha: '',
     perfil: 'FONOAUDIOLOGO' as const,
+    numeroConselho: '',
     ativo: true
   })
 
@@ -42,6 +44,7 @@ export default function UserForm() {
         email: user.email,
         senha: '',
         perfil: user.perfil,
+        numeroConselho: user.numeroConselho || '',
         ativo: user.ativo
       })
     } catch (err) {
@@ -81,6 +84,7 @@ export default function UserForm() {
         nome: form.nome,
         email: form.email,
         perfil: form.perfil,
+        numeroConselho: form.numeroConselho || null,
         ativo: form.ativo
       } as Record<string, any>
 
@@ -179,6 +183,26 @@ export default function UserForm() {
               {validationErrors.email}
             </p>
           )}
+        </div>
+
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: '600' }}>
+            Nº do Conselho (CRFa)
+          </label>
+          <input
+            type="text"
+            name="numeroConselho"
+            value={form.numeroConselho}
+            onChange={handleChange}
+            style={{
+              width: '100%',
+              padding: '10px',
+              borderRadius: '8px',
+              border: '1px solid #ddd',
+              boxSizing: 'border-box'
+            }}
+            placeholder="Ex: CRFa 2-12345"
+          />
         </div>
 
         <div style={{ marginBottom: '20px' }}>

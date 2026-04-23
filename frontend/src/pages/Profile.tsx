@@ -6,6 +6,7 @@ import api from '../services/api'
 interface ProfileData {
   nome: string
   email: string
+  numeroConselho: string
   senhaAtual: string
   senhaNova: string
   confirmarSenha: string
@@ -17,6 +18,7 @@ export default function Profile() {
   const [form, setForm] = useState<ProfileData>({
     nome: '',
     email: '',
+    numeroConselho: '',
     senhaAtual: '',
     senhaNova: '',
     confirmarSenha: ''
@@ -32,7 +34,8 @@ export default function Profile() {
       setForm(prev => ({
         ...prev,
         nome: user.nome,
-        email: user.email
+        email: user.email,
+        numeroConselho: user.numeroConselho || ''
       }))
     }
   }, [user])
@@ -73,6 +76,7 @@ export default function Profile() {
       const payload: any = {
         nome: form.nome,
         email: form.email,
+        numeroConselho: form.numeroConselho || null,
         perfil: user?.perfil
       }
 
@@ -82,6 +86,16 @@ export default function Profile() {
 
       await api.put(`/v1/users/${user?.id}`, payload)
       setSuccess('Perfil atualizado com sucesso! Redirecionando...')
+
+      // Atualizar localStorage com os novos dados do perfil
+      const updatedUser = {
+        id: user?.id,
+        nome: form.nome,
+        email: form.email,
+        perfil: user?.perfil,
+        numeroConselho: form.numeroConselho || null
+      }
+      localStorage.setItem('user', JSON.stringify(updatedUser))
 
       // Limpar apenas os campos de senha (não limpar nome e email)
       setForm(prev => ({
@@ -231,6 +245,29 @@ export default function Profile() {
               {validationErrors.email}
             </p>
           )}
+        </div>
+
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: '600' }}>
+            Nº do Conselho (CRFa)
+          </label>
+          <input
+            type="text"
+            name="numeroConselho"
+            value={form.numeroConselho}
+            onChange={handleChange}
+            placeholder="Ex: CRFa 2-12345"
+            style={{
+              width: '100%',
+              padding: '10px',
+              borderRadius: '8px',
+              border: '1px solid #ddd',
+              boxSizing: 'border-box'
+            }}
+          />
+          <p style={{ color: '#6b7280', fontSize: '11px', marginTop: '5px' }}>
+            Será exibido nos documentos impressos junto com o nome: <strong>{form.nome || '—'}</strong>
+          </p>
         </div>
 
         <div style={{

@@ -44,6 +44,11 @@ public class Prescricao {
         return profissional != null ? profissional.getNome() : null;
     }
 
+    @Transient
+    public String getProfissionalConselho() {
+        return profissional != null ? profissional.getNumeroConselho() : null;
+    }
+
     @Column(name = "data_prescricao", nullable = false)
     private LocalDate dataPrescricao;
 

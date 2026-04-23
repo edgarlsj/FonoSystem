@@ -19,6 +19,7 @@ public class UserResponse {
     private String nome;
     private String email;
     private Perfil perfil;
+    private String numeroConselho;
     private Boolean ativo;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -29,6 +30,7 @@ public class UserResponse {
                 .nome(user.getNome())
                 .email(user.getEmail())
                 .perfil(user.getPerfil())
+                .numeroConselho(user.getNumeroConselho())
                 .ativo(user.getAtivo())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())

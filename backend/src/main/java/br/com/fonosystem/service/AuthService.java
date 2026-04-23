@@ -33,11 +33,13 @@ public class AuthService {
         String refreshToken = jwtUtils.generateRefreshToken(userDetails);
 
         return LoginResponse.builder()
+                .id(user.getId())
                 .token(token)
                 .refreshToken(refreshToken)
                 .nome(user.getNome())
                 .email(user.getEmail())
                 .perfil(user.getPerfil().name())
+                .numeroConselho(user.getNumeroConselho())
                 .build();
     }
 
@@ -53,11 +55,13 @@ public class AuthService {
         String newToken = jwtUtils.generateToken(userDetails);
 
         return LoginResponse.builder()
+                .id(user.getId())
                 .token(newToken)
                 .refreshToken(refreshToken)
                 .nome(user.getNome())
                 .email(user.getEmail())
                 .perfil(user.getPerfil().name())
+                .numeroConselho(user.getNumeroConselho())
                 .build();
     }
 }

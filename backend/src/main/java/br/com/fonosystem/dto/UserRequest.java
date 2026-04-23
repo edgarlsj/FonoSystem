@@ -27,5 +27,8 @@ public class UserRequest {
     @NotNull(message = "Perfil é obrigatório")
     private Perfil perfil;
 
+    @Size(max = 50, message = "Número do conselho deve ter no máximo 50 caracteres")
+    private String numeroConselho;
+
     private Boolean ativo = true;
 }

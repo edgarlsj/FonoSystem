@@ -6,6 +6,7 @@ interface AuthUser {
   nome: string
   email: string
   perfil: string
+  numeroConselho: string | null
 }
 
 interface AuthContextType {
@@ -27,10 +28,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, senha: string) => {
     const { data } = await api.post('/v1/auth/login', { email, senha })
     setToken(data.token)
-    setUser({ id: data.id, nome: data.nome, email: data.email, perfil: data.perfil })
+    setUser({ id: data.id, nome: data.nome, email: data.email, perfil: data.perfil, numeroConselho: data.numeroConselho })
     localStorage.setItem('token', data.token)
     localStorage.setItem('refreshToken', data.refreshToken)
-    localStorage.setItem('user', JSON.stringify({ id: data.id, nome: data.nome, email: data.email, perfil: data.perfil }))
+    localStorage.setItem('user', JSON.stringify({ id: data.id, nome: data.nome, email: data.email, perfil: data.perfil, numeroConselho: data.numeroConselho }))
   }, [])
 
   const logout = useCallback(() => {

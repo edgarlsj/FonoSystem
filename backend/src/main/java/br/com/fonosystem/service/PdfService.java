@@ -188,6 +188,10 @@ public class PdfService {
                     .setTextAlignment(TextAlignment.CENTER);
             assinaturaCell.add(new Paragraph(prescricao.getProfissionalNome())
                     .setFont(fontBold).setFontSize(11).setFontColor(PRIMARY_DARK));
+            if (prescricao.getProfissionalConselho() != null && !prescricao.getProfissionalConselho().isBlank()) {
+                assinaturaCell.add(new Paragraph(prescricao.getProfissionalConselho())
+                        .setFont(fontRegular).setFontSize(9).setFontColor(GRAY_600).setMarginTop(2));
+            }
             assinaturaCell.add(new Paragraph("Fonoaudiólogo(a)")
                     .setFont(fontItalic).setFontSize(9).setFontColor(GRAY_600));
             assinaturaTable.addCell(assinaturaCell);

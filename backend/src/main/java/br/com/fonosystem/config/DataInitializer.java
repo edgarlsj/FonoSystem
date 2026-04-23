@@ -43,6 +43,7 @@ public class DataInitializer {
                         .email("viviane@fonosystem.com")
                         .senhaHash(passwordEncoder.encode("admin123"))
                         .perfil(Perfil.FONOAUDIOLOGO)
+                        .numeroConselho("CRFa 2-12345")
                         .ativo(true)
                         .build();
 
