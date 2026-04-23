@@ -65,7 +65,7 @@ class AvaliacaoControllerTest {
     void criar_WhenValid_ShouldReturnCreated() throws Exception {
         when(avaliacaoService.criar(any(AvaliacaoRequest.class))).thenReturn(avaliacao);
 
-        mockMvc.perform(post("/api/v1/pacientes/1/avaliacoes")
+        mockMvc.perform(post("/v1/pacientes/1/avaliacoes")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -78,7 +78,7 @@ class AvaliacaoControllerTest {
     void listar_ShouldReturnOk() throws Exception {
         when(avaliacaoService.listarPorPaciente(1L)).thenReturn(List.of(avaliacao));
 
-        mockMvc.perform(get("/api/v1/pacientes/1/avaliacoes"))
+        mockMvc.perform(get("/v1/pacientes/1/avaliacoes"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1L))
                 .andExpect(jsonPath("$[0].tipoAvaliacao").value("INICIAL"));
@@ -89,7 +89,7 @@ class AvaliacaoControllerTest {
     void atualizar_WhenValid_ShouldReturnOk() throws Exception {
         when(avaliacaoService.atualizar(eq(1L), any(AvaliacaoRequest.class))).thenReturn(avaliacao);
 
-        mockMvc.perform(put("/api/v1/avaliacoes/1")
+        mockMvc.perform(put("/v1/avaliacoes/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -99,7 +99,7 @@ class AvaliacaoControllerTest {
 
     @Test
     void criar_WhenUnauthenticated_ShouldReturnForbidden() throws Exception {
-        mockMvc.perform(post("/api/v1/pacientes/1/avaliacoes")
+        mockMvc.perform(post("/v1/pacientes/1/avaliacoes")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
