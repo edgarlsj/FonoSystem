@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useCallback, ReactNode } from 'rea
 import api from '../services/api'
 
 interface AuthUser {
+  id: number
   nome: string
   email: string
   perfil: string
@@ -26,10 +27,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, senha: string) => {
     const { data } = await api.post('/v1/auth/login', { email, senha })
     setToken(data.token)
-    setUser({ nome: data.nome, email: data.email, perfil: data.perfil })
+    setUser({ id: data.id, nome: data.nome, email: data.email, perfil: data.perfil })
     localStorage.setItem('token', data.token)
     localStorage.setItem('refreshToken', data.refreshToken)
-    localStorage.setItem('user', JSON.stringify({ nome: data.nome, email: data.email, perfil: data.perfil }))
+    localStorage.setItem('user', JSON.stringify({ id: data.id, nome: data.nome, email: data.email, perfil: data.perfil }))
   }, [])
 
   const logout = useCallback(() => {

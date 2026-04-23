@@ -19,6 +19,8 @@ export default function Login() {
       navigate('/')
     } catch {
       setErro('Email ou senha inválidos')
+      // Limpar apenas a senha, mantém o email preenchido
+      setSenha('')
     } finally {
       setLoading(false)
     }
@@ -79,8 +81,26 @@ export default function Login() {
               background: '#FEF2F2', color: '#991B1B', padding: '10px 14px',
               borderRadius: '8px', fontSize: '13px', marginBottom: '16px',
               border: '1px solid #FECACA',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
             }}>
-              {erro}
+              <span>{erro}</span>
+              <button
+                type="button"
+                onClick={() => setErro('')}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#991B1B',
+                  cursor: 'pointer',
+                  fontSize: '18px',
+                  padding: '0',
+                  marginLeft: '10px'
+                }}
+              >
+                ✕
+              </button>
             </div>
           )}
 

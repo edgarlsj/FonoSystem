@@ -9,9 +9,3 @@ CREATE TABLE users (
     created_at  TIMESTAMP    NOT NULL DEFAULT NOW(),
     updated_at  TIMESTAMP    NOT NULL DEFAULT NOW()
 );
-
--- Usuário admin padrão (senha: admin123)
-INSERT INTO users (nome, email, senha_hash, perfil)
-VALUES ('Dra. Viviane Cardoso da Silva', 'viviane@fonosystem.com',
-        '$2a$12$LJ3mFGMBJxHGq3Y5ZN1RVuqJGhKF.1xBx8xvTiXxJx6HJB5FZWF9a',
-        'ADMIN');
