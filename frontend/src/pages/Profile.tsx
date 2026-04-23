@@ -84,18 +84,18 @@ export default function Profile() {
         payload.senha = form.senhaNova
       }
 
-      await api.put(`/v1/users/${user?.id}`, payload)
+      const response = await api.put(`/v1/users/${user?.id}`, payload)
+      const updatedUserData = response.data
       setSuccess('Perfil atualizado com sucesso! Redirecionando...')
 
-      // Atualizar localStorage com os novos dados do perfil
-      const updatedUser = {
-        id: user?.id,
-        nome: form.nome,
-        email: form.email,
-        perfil: user?.perfil,
-        numeroConselho: form.numeroConselho || null
-      }
-      localStorage.setItem('user', JSON.stringify(updatedUser))
+      // Atualizar localStorage com os dados retornados pelo servidor
+      localStorage.setItem('user', JSON.stringify({
+        id: updatedUserData.id,
+        nome: updatedUserData.nome,
+        email: updatedUserData.email,
+        perfil: updatedUserData.perfil,
+        numeroConselho: updatedUserData.numeroConselho
+      }))
 
       // Limpar apenas os campos de senha (não limpar nome e email)
       setForm(prev => ({

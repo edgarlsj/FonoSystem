@@ -49,7 +49,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserResponse> update(
             @PathVariable Long id,
             @Valid @RequestBody UserRequest request,

@@ -99,8 +99,22 @@ export default function PacienteRelatorios() {
     setRelatorioEditando(null)
   }
 
+  const isFutureDate = (dateStr: string): boolean => {
+    const sessaoDate = new Date(dateStr + 'T00:00:00').getTime()
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    return sessaoDate > today.getTime()
+  }
+
   const handleAtualizar = async () => {
     if (!relatorioEditando) return
+
+    if (isFutureDate(relatorioEditando.dataSessao)) {
+      const confirmacao = window.confirm(
+        'A data da sessão é futura. Deseja continuar mesmo assim?'
+      )
+      if (!confirmacao) return
+    }
 
     try {
       setSalvando(true)

@@ -88,7 +88,21 @@ export default function Relatorios() {
     setTimeout(() => setToast(prev => ({ ...prev, show: false })), 3000)
   }
 
+  const isFutureDate = (dateStr: string): boolean => {
+    const sessaoDate = new Date(dateStr + 'T00:00:00').getTime()
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    return sessaoDate > today.getTime()
+  }
+
   const onSubmit = async (formData: FormData) => {
+    if (isFutureDate(formData.dataSessao)) {
+      const confirmacao = window.confirm(
+        'A data da sessão é futura. Deseja continuar mesmo assim?'
+      )
+      if (!confirmacao) return
+    }
+
     try {
       setLoading(true)
       const payload = {
@@ -97,7 +111,7 @@ export default function Relatorios() {
         percentualAcerto: formData.percentualAcerto ? Number(formData.percentualAcerto) : null,
         nivelEngajamento: formData.nivelEngajamento ? Number(formData.nivelEngajamento) : null,
       }
-      
+
       await api.post(`/v1/pacientes/${payload.pacienteId}/relatorios`, payload)
       
       showToast('Sessão registrada com sucesso!', 'success')

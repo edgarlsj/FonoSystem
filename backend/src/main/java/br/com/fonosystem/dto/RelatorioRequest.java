@@ -14,7 +14,6 @@ public class RelatorioRequest {
     private Long pacienteId;
 
     @NotNull(message = "Data da sessão é obrigatória")
-    @PastOrPresent(message = "Data da sessão não pode ser futura")
     private LocalDate dataSessao;
 
     @NotNull(message = "Hora de início é obrigatória")

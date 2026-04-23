@@ -5,6 +5,7 @@ import br.com.fonosystem.dto.UserResponse;
 import br.com.fonosystem.exception.BusinessException;
 import br.com.fonosystem.exception.ResourceNotFoundException;
 import br.com.fonosystem.model.User;
+import br.com.fonosystem.model.enums.Perfil;
 import br.com.fonosystem.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -69,6 +70,14 @@ public class UserService {
     public UserResponse update(Long id, UserRequest request, String emailAdmin) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+
+        User currentUser = userRepository.findByEmail(emailAdmin)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+
+        // Validar permissão: usuário só pode editar seu próprio perfil, ou é ADMIN
+        if (!user.getId().equals(currentUser.getId()) && !currentUser.getPerfil().equals(Perfil.ADMIN)) {
+            throw new BusinessException("Você só pode editar seu próprio perfil");
+        }
 
         if (!user.getEmail().equals(request.getEmail()) &&
             userRepository.existsByEmail(request.getEmail())) {
