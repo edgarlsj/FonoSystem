@@ -31,7 +31,9 @@ public class RelatorioService {
     }
 
     public List<RelatorioDiario> filtrar(Long pacienteId, LocalDate data, LocalTime hora) {
-        pacienteService.buscarEntidadePorId(pacienteId);
+        if (pacienteId != null) {
+            pacienteService.buscarEntidadePorId(pacienteId);
+        }
         return relatorioRepository.filtrar(pacienteId, data, hora);
     }
 
