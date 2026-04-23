@@ -140,7 +140,7 @@ export default function AvaliacoesTab() {
         <p style="font-size:13px;color:#374151;white-space:pre-wrap;line-height:1.6;">${texto}</p>`
     }
 
-    const html = `<!DOCTYPE html>
+    const htmlTop = `<!DOCTYPE html>
 <html><head>
   <meta charset="UTF-8">
   <title>Avaliação — ${pacienteNome || 'Paciente'}</title>
@@ -178,6 +178,7 @@ export default function AvaliacoesTab() {
     <div class="info-item"><label>Sessões/Semana</label><p>${av.sessoesPorSemana ?? '—'}x</p></div>
     <div class="info-item"><label>Instrumento</label><p>${av.instrumentoAvaliacao || '—'}</p></div>
   </div>
+`
 
     // Gerar gráfico radar SVG para impressão
     let radarSVG = ''
@@ -188,18 +189,19 @@ export default function AvaliacoesTab() {
         const cx = 160, cy = 160, r = 120
         const angleStep = (2 * Math.PI) / n
         const startAngle = -Math.PI / 2
-        const t = '\x3c' // '<' escaped para não confundir o TSX parser
+        // Use String.fromCharCode(60) para gerar '<' sem confundir o TSX parser
+        const lt = String.fromCharCode(60)
 
         const gridCircles = [20, 40, 60, 80, 100].map(pct => {
           const gr = (r * pct) / 100
-          return t + `circle cx="${cx}" cy="${cy}" r="${gr}" fill="none" stroke="#E5E7EB" stroke-width="1"/>`
+          return `${lt}circle cx="${cx}" cy="${cy}" r="${gr}" fill="none" stroke="#E5E7EB" stroke-width="1"/>`
         }).join('')
 
         const gridLines = entries.map((_, i) => {
           const angle = startAngle + i * angleStep
           const x = cx + r * Math.cos(angle)
           const y = cy + r * Math.sin(angle)
-          return t + `line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#E5E7EB" stroke-width="1"/>`
+          return `${lt}line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#E5E7EB" stroke-width="1"/>`
         }).join('')
 
         const labels = entries.map(([k], i) => {
@@ -208,7 +210,7 @@ export default function AvaliacoesTab() {
           const x = cx + labelR * Math.cos(angle)
           const y = cy + labelR * Math.sin(angle)
           const anchor = Math.abs(x - cx) < 5 ? 'middle' : x > cx ? 'start' : 'end'
-          return t + `text x="${x}" y="${y}" text-anchor="${anchor}" dominant-baseline="central" font-size="11" font-weight="600" fill="#6B7280">${k}` + t + '/text>'
+          return `${lt}text x="${x}" y="${y}" text-anchor="${anchor}" dominant-baseline="central" font-size="11" font-weight="600" fill="#6B7280">${k}${lt}/text>`
         }).join('')
 
         const points = entries.map(([, v], i) => {
@@ -224,41 +226,45 @@ export default function AvaliacoesTab() {
           const pr = (r * (v as number)) / 100
           const x = cx + pr * Math.cos(angle)
           const y = cy + pr * Math.sin(angle)
-          return t + `circle cx="${x}" cy="${y}" r="4" fill="#29B6D1" stroke="#fff" stroke-width="2"/>`
+          return `${lt}circle cx="${x}" cy="${y}" r="4" fill="#29B6D1" stroke="#fff" stroke-width="2"/>`
         }).join('')
 
         const pctLabels = [20, 40, 60, 80, 100].map(pct => {
           const y = cy - (r * pct) / 100
-          return t + `text x="${cx + 4}" y="${y - 4}" font-size="9" fill="#9CA3AF">${pct}%` + t + '/text>'
+          return `${lt}text x="${cx + 4}" y="${y - 4}" font-size="9" fill="#9CA3AF">${pct}%${lt}/text>`
         }).join('')
 
         radarSVG = [
-          t + 'div style="text-align:center;margin:24px 0 8px;">',
-          t + 'h3 style="color:#29B6D1;border-bottom:2px solid #29B6D1;padding-bottom:6px;display:inline-block;">Perfil de Desenvolvimento' + t + '/h3>',
-          t + 'div style="display:flex;justify-content:center;margin-top:8px;">',
-          t + 'svg width="320" height="320" viewBox="0 0 320 320" style="max-width:100%;">',
+          `${lt}div style="text-align:center;margin:24px 0 8px;">`,
+          `${lt}h3 style="color:#29B6D1;border-bottom:2px solid #29B6D1;padding-bottom:6px;display:inline-block;">Perfil de Desenvolvimento${lt}/h3>`,
+          `${lt}div style="display:flex;justify-content:center;margin-top:8px;">`,
+          `${lt}svg width="320" height="320" viewBox="0 0 320 320" style="max-width:100%;">`,
           gridCircles, gridLines, pctLabels,
-          t + `polygon points="${points}" fill="rgba(41,182,209,0.2)" stroke="#29B6D1" stroke-width="2"/>`,
+          `${lt}polygon points="${points}" fill="rgba(41,182,209,0.2)" stroke="#29B6D1" stroke-width="2"/>`,
           dots, labels,
-          t + '/svg>' + t + '/div>' + t + '/div>',
+          `${lt}/svg>${lt}/div>${lt}/div>`,
         ].join('')
       }
     }
 
-  ${secao('Hipótese Diagnóstica', av.hipoteseDiagnostica)}
-  ${radarSVG}
-  ${scoresHTML}
-  ${denverHTML}
-  ${parsed?.faixaEtaria ? `<p style="margin-top:16px;font-size:13px;"><strong>Faixa Etária Avaliada:</strong> ${parsed.faixaEtaria} anos</p>` : ''}
-  ${secao('Observações da Avaliação', parsed?.observacoes)}
-  ${secao('Orientações à Família', av.orientacoesFamilia)}
-  ${secao('Observações Gerais', av.observacoes)}
+    const hipoteseHTML = secao('Hipótese Diagnóstica', av.hipoteseDiagnostica)
+    const obsAvalHTML = secao('Observações da Avaliação', parsed?.observacoes)
+    const orientHTML = secao('Orientações à Família', av.orientacoesFamilia)
+    const obsGeraisHTML = secao('Observações Gerais', av.observacoes)
+    const faixaHTML = parsed?.faixaEtaria ? String.fromCharCode(60) + `p style="margin-top:16px;font-size:13px;">${String.fromCharCode(60)}strong>Faixa Etária Avaliada:${String.fromCharCode(60)}/strong> ${parsed.faixaEtaria} anos${String.fromCharCode(60)}/p>` : ''
+    const footerDate = format(new Date(), "dd/MM/yyyy 'às' HH:mm")
 
-  <footer>
-    <span>FonoSystem — Gerado em ${format(new Date(), "dd/MM/yyyy 'às' HH:mm")}</span>
-    <span>Documento para uso profissional</span>
-  </footer>
-</body></html>`
+    const htmlBottom = [
+      hipoteseHTML, radarSVG, scoresHTML, denverHTML, faixaHTML,
+      obsAvalHTML, orientHTML, obsGeraisHTML,
+      `${String.fromCharCode(60)}footer>`,
+      `${String.fromCharCode(60)}span>FonoSystem — Gerado em ${footerDate}${String.fromCharCode(60)}/span>`,
+      `${String.fromCharCode(60)}span>Documento para uso profissional${String.fromCharCode(60)}/span>`,
+      `${String.fromCharCode(60)}/footer>`,
+      `${String.fromCharCode(60)}/body>${String.fromCharCode(60)}/html>`,
+    ].join('\n')
+
+    const html = htmlTop + htmlBottom
 
     const win = window.open('', '_blank')
     if (win) {
