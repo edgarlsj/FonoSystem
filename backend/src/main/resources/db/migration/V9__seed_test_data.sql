@@ -12,6 +12,11 @@ DECLARE
 BEGIN
     SELECT id INTO v_id_viviane FROM users WHERE email = 'viviane@fonosystem.com';
 
+    IF v_id_viviane IS NULL THEN
+        RAISE NOTICE 'Usuário viviane@fonosystem.com não encontrado, pulando seed de dados.';
+        RETURN;
+    END IF;
+
     -- PACIENTES
     INSERT INTO pacientes (nome_completo, data_nascimento, cpf, sexo, telefone, nome_responsavel, telefone_responsavel, convenio, tipo_atendimento, status, profissional_id, data_consentimento)
     VALUES ('Arthur Lima Santos', '2019-03-15', '123.456.789-01', 'MASCULINO', '(11) 98765-4321', 'Carla Santos', '(11) 98765-4321', 'Unimed', 'CONVENIO', 'ATIVO', v_id_viviane, NOW())

@@ -153,7 +153,7 @@ class RelatorioServiceTest {
 
     @Test
     void excluir_WhenExists_ShouldDelete() {
-        when(relatorioRepository.existsById(1L)).thenReturn(true);
+        when(relatorioRepository.findByIdWithFetch(1L)).thenReturn(Optional.of(relatorio));
 
         relatorioService.excluir(1L);
 
@@ -162,7 +162,7 @@ class RelatorioServiceTest {
 
     @Test
     void excluir_WhenNotExists_ShouldThrowException() {
-        when(relatorioRepository.existsById(99L)).thenReturn(false);
+        when(relatorioRepository.findByIdWithFetch(99L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> relatorioService.excluir(99L));
         verify(relatorioRepository, never()).deleteById(anyLong());

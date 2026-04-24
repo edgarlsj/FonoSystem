@@ -112,8 +112,7 @@ public class AnamneseService {
 
     @Transactional
     public Anamnese atualizar(Long id, AnamneseRequest request) {
-        Anamnese anamnese = anamneseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Anamnese não encontrada: " + id));
+        Anamnese anamnese = buscarPorId(id);
 
         anamnese.setQueixaPrincipal(request.getQueixaPrincipal());
         anamnese.setHistoricoClinico(request.getHistoricoClinico());

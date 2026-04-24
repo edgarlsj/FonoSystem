@@ -33,7 +33,8 @@ public class PacienteService {
 
     public Page<PacienteResponse> listar(String nome, String status, Pageable pageable) {
         User user = getUsuarioLogado();
-        return pacienteRepository.findByFilters(nome, status, user.getId(), pageable)
+        String nomeSanitizado = nome != null ? nome.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") : null;
+        return pacienteRepository.findByFilters(nomeSanitizado, status, user.getId(), pageable)
                 .map(PacienteResponse::fromEntity);
     }
 

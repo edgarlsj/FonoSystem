@@ -60,8 +60,7 @@ public class AvaliacaoService {
 
     @Transactional
     public Avaliacao atualizar(Long id, AvaliacaoRequest request) {
-        Avaliacao avaliacao = avaliacaoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Avaliação não encontrada: " + id));
+        Avaliacao avaliacao = buscarPorId(id);
 
         avaliacao.setTipoAvaliacao(request.getTipoAvaliacao());
         avaliacao.setAreaEspecialidade(request.getAreaEspecialidade());

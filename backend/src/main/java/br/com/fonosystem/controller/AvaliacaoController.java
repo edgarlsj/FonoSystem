@@ -42,6 +42,7 @@ public class AvaliacaoController {
 
     @GetMapping("/v1/avaliacoes/{id}/plano")
     public ResponseEntity<List<PlanoTerapeutico>> listarPlano(@PathVariable Long id) {
+        avaliacaoService.buscarPorId(id);
         return ResponseEntity.ok(planoRepository.findByAvaliacaoId(id));
     }
 
@@ -49,7 +50,8 @@ public class AvaliacaoController {
     public ResponseEntity<PlanoTerapeutico> atualizarStatusPlano(@PathVariable Long id,
                                                                    @RequestBody Map<String, String> body) {
         PlanoTerapeutico plano = planoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Plano terapêutico não encontrado: " + id));
+                .orElseThrow(() -> new RuntimeException("Plano terapêutico não encontrado"));
+        avaliacaoService.buscarPorId(plano.getAvaliacao().getId());
         plano.setStatus(StatusPlano.valueOf(body.get("status")));
         if (body.containsKey("progresso")) {
             plano.setProgresso(Integer.parseInt(body.get("progresso")));

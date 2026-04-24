@@ -98,9 +98,7 @@ public class RelatorioService {
 
     @Transactional
     public void excluir(Long id) {
-        if (!relatorioRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Relatório não encontrado: " + id);
-        }
+        buscarPorId(id);
         relatorioRepository.deleteById(id);
     }
 }
