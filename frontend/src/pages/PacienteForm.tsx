@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import api from '../services/api'
 
 interface Paciente {
@@ -30,6 +30,15 @@ export default function PacienteForm() {
   const [loading, setLoading] = useState(isEditing)
   const [erro, setErro] = useState('')
   const [paciente, setPaciente] = useState<Paciente | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+
+  // Refs para campos obrigatórios
+  const nomeRef = useRef<HTMLInputElement>(null)
+  const nascimentoRef = useRef<HTMLInputElement>(null)
+  const sexoRef = useRef<HTMLSelectElement>(null)
+  const responsavelRef = useRef<HTMLInputElement>(null)
+  const telResponsavelRef = useRef<HTMLInputElement>(null)
+  const tipoAtendimentoRef = useRef<HTMLSelectElement>(null)
 
   useEffect(() => {
     if (isEditing && id) {
@@ -50,9 +59,43 @@ export default function PacienteForm() {
     }
   }
 
+  const validateForm = (form: FormData): Record<string, string> => {
+    const errors: Record<string, string> = {}
+    const nome = form.get('nome')?.toString().trim()
+    const nascimento = form.get('nascimento')?.toString().trim()
+    const sexo = form.get('sexo')?.toString().trim()
+    const responsavel = form.get('responsavel')?.toString().trim()
+    const telResponsavel = form.get('telResponsavel')?.toString().trim()
+    const tipoAtendimento = form.get('tipoAtendimento')?.toString().trim()
+
+    if (!nome) errors.nome = 'Nome Completo é obrigatório'
+    if (!nascimento) errors.nascimento = 'Data de Nascimento é obrigatória'
+    if (!sexo) errors.sexo = 'Sexo é obrigatório'
+    if (!responsavel) errors.responsavel = 'Nome do Responsável é obrigatório'
+    if (!telResponsavel) errors.telResponsavel = 'Telefone do Responsável é obrigatório'
+    if (!tipoAtendimento) errors.tipoAtendimento = 'Tipo de Atendimento é obrigatório'
+
+    setFieldErrors(errors)
+    return errors
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const form = new FormData(e.currentTarget)
+
+    // Validar campos obrigatórios
+    const errors = validateForm(form)
+    if (Object.keys(errors).length > 0) {
+      // Fazer scroll até o primeiro campo com erro
+      if (errors.nome) nomeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      else if (errors.nascimento) nascimentoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      else if (errors.sexo) sexoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      else if (errors.responsavel) responsavelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      else if (errors.telResponsavel) telResponsavelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      else if (errors.tipoAtendimento) tipoAtendimentoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      return
+    }
+
     const dados = {
       nomeCompleto: form.get('nome'),
       dataNascimento: form.get('nascimento'),
@@ -113,20 +156,46 @@ export default function PacienteForm() {
           <div className="form-grid form-grid-3">
             <div className="form-group" style={{ gridColumn: 'span 2' }}>
               <label>Nome Completo *</label>
-              <input className="form-control" name="nome" required placeholder="Nome completo" defaultValue={paciente?.nomeCompleto || ''} />
+              <input
+                ref={nomeRef}
+                className="form-control"
+                name="nome"
+                required
+                placeholder="Nome completo"
+                defaultValue={paciente?.nomeCompleto || ''}
+                style={{ border: fieldErrors.nome ? '2px solid #dc2626' : undefined }}
+              />
+              {fieldErrors.nome && <div style={{ color: '#dc2626', fontSize: '12px', marginTop: '4px' }}>⚠ {fieldErrors.nome}</div>}
             </div>
             <div className="form-group">
               <label>Data de Nascimento *</label>
-              <input className="form-control" type="date" name="nascimento" required defaultValue={paciente?.dataNascimento || ''} />
+              <input
+                ref={nascimentoRef}
+                className="form-control"
+                type="date"
+                name="nascimento"
+                required
+                defaultValue={paciente?.dataNascimento || ''}
+                style={{ border: fieldErrors.nascimento ? '2px solid #dc2626' : undefined }}
+              />
+              {fieldErrors.nascimento && <div style={{ color: '#dc2626', fontSize: '12px', marginTop: '4px' }}>⚠ {fieldErrors.nascimento}</div>}
             </div>
             <div className="form-group">
               <label>Sexo *</label>
-              <select className="form-control" name="sexo" required defaultValue={paciente?.sexo || ''}>
+              <select
+                ref={sexoRef}
+                className="form-control"
+                name="sexo"
+                required
+                defaultValue={paciente?.sexo || ''}
+                style={{ border: fieldErrors.sexo ? '2px solid #dc2626' : undefined }}
+              >
                 <option value="">Selecione...</option>
                 <option value="M">Masculino</option>
                 <option value="F">Feminino</option>
                 <option value="O">Outro</option>
               </select>
+              {fieldErrors.sexo && <div style={{ color: '#dc2626', fontSize: '12px', marginTop: '4px' }}>⚠ {fieldErrors.sexo}</div>}
             </div>
             <div className="form-group">
               <label>CPF</label>
@@ -144,11 +213,29 @@ export default function PacienteForm() {
           <div className="form-grid form-grid-3">
             <div className="form-group" style={{ gridColumn: 'span 2' }}>
               <label>Nome do Responsável *</label>
-              <input className="form-control" name="responsavel" required placeholder="Nome completo" defaultValue={paciente?.nomeResponsavel || ''} />
+              <input
+                ref={responsavelRef}
+                className="form-control"
+                name="responsavel"
+                required
+                placeholder="Nome completo"
+                defaultValue={paciente?.nomeResponsavel || ''}
+                style={{ border: fieldErrors.responsavel ? '2px solid #dc2626' : undefined }}
+              />
+              {fieldErrors.responsavel && <div style={{ color: '#dc2626', fontSize: '12px', marginTop: '4px' }}>⚠ {fieldErrors.responsavel}</div>}
             </div>
             <div className="form-group">
               <label>Telefone Responsável *</label>
-              <input className="form-control" name="telResponsavel" required placeholder="(11) 99999-9999" defaultValue={paciente?.telefoneResponsavel || ''} />
+              <input
+                ref={telResponsavelRef}
+                className="form-control"
+                name="telResponsavel"
+                required
+                placeholder="(11) 99999-9999"
+                defaultValue={paciente?.telefoneResponsavel || ''}
+                style={{ border: fieldErrors.telResponsavel ? '2px solid #dc2626' : undefined }}
+              />
+              {fieldErrors.telResponsavel && <div style={{ color: '#dc2626', fontSize: '12px', marginTop: '4px' }}>⚠ {fieldErrors.telResponsavel}</div>}
             </div>
             <div className="form-group" style={{ gridColumn: 'span 2'}}>
               <label>E-mail</label>
@@ -190,9 +277,16 @@ export default function PacienteForm() {
           <div className="form-grid form-grid-3">
             <div className="form-group">
               <label>Tipo de Atendimento *</label>
-              <select className="form-control" name="tipoAtendimento" defaultValue={paciente?.tipoAtendimento || ''}>
+              <select
+                ref={tipoAtendimentoRef}
+                className="form-control"
+                name="tipoAtendimento"
+                defaultValue={paciente?.tipoAtendimento || ''}
+                style={{ border: fieldErrors.tipoAtendimento ? '2px solid #dc2626' : undefined }}
+              >
                 <option value="CONVENIO">Convênio</option><option value="PARTICULAR">Particular</option>
               </select>
+              {fieldErrors.tipoAtendimento && <div style={{ color: '#dc2626', fontSize: '12px', marginTop: '4px' }}>⚠ {fieldErrors.tipoAtendimento}</div>}
             </div>
             <div className="form-group">
               <label>Convênio</label>

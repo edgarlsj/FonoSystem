@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import api from '../services/api'
 
@@ -28,6 +28,10 @@ export default function UserForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
+
+  const nomeRef = useRef<HTMLInputElement>(null)
+  const emailRef = useRef<HTMLInputElement>(null)
+  const perfilRef = useRef<HTMLSelectElement>(null)
 
   useEffect(() => {
     if (isEdit) {
@@ -76,7 +80,23 @@ export default function UserForm() {
     e.preventDefault()
     setError('')
 
-    if (!validateForm()) return
+    if (!validateForm()) {
+      // Fazer scroll até o primeiro campo com erro
+      setTimeout(() => {
+        if (validationErrors.nome) {
+          nomeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        } else if (validationErrors.email) {
+          emailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        } else if (validationErrors.perfil) {
+          perfilRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        } else if (validationErrors.senha) {
+          // Senha pode estar na tela, procurar dinamicamente
+          const senhaInput = document.querySelector('input[name="senha"]')
+          ;(senhaInput as HTMLElement)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }, 0)
+      return
+    }
 
     setLoading(true)
     try {
@@ -140,6 +160,7 @@ export default function UserForm() {
             Nome *
           </label>
           <input
+            ref={nomeRef}
             type="text"
             name="nome"
             value={form.nome}
@@ -165,6 +186,7 @@ export default function UserForm() {
             Email *
           </label>
           <input
+            ref={emailRef}
             type="email"
             name="email"
             value={form.email}
@@ -235,6 +257,7 @@ export default function UserForm() {
             Perfil *
           </label>
           <select
+            ref={perfilRef}
             name="perfil"
             value={form.perfil}
             onChange={handleChange}

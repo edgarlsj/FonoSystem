@@ -58,7 +58,7 @@ public class PacienteService {
         Paciente paciente = Paciente.builder()
                 .nomeCompleto(request.getNomeCompleto())
                 .dataNascimento(request.getDataNascimento())
-                .cpf(request.getCpf())
+                .cpf(request.getCpf() != null && !request.getCpf().isEmpty() ? request.getCpf() : null)
                 .sexo(request.getSexo())
                 .telefone(request.getTelefone())
                 .email(request.getEmail())
@@ -87,7 +87,7 @@ public class PacienteService {
 
         paciente.setNomeCompleto(request.getNomeCompleto());
         paciente.setDataNascimento(request.getDataNascimento());
-        paciente.setCpf(request.getCpf());
+        paciente.setCpf(request.getCpf() != null && !request.getCpf().isEmpty() ? request.getCpf() : null);
         paciente.setSexo(request.getSexo());
         paciente.setTelefone(request.getTelefone());
         paciente.setEmail(request.getEmail());

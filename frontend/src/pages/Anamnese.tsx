@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import PacienteAcoesMenu from '../components/PacienteAcoesMenu'
@@ -154,6 +154,8 @@ export default function Anamnese() {
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const queixaPrincipalRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
     // 1. Carregar dados do paciente
@@ -182,14 +184,33 @@ export default function Anamnese() {
     setForm(prev => ({ ...prev, [field]: value }))
     setSucesso(false)
     setErro('')
+    // Limpar erro específico do campo quando usuário começa a editar
+    if (fieldErrors[field as string]) {
+      setFieldErrors(prev => {
+        const newErrors = { ...prev }
+        delete newErrors[field as string]
+        return newErrors
+      })
+    }
   }
 
   const handleSalvar = async () => {
+    // Validar campos obrigatórios
+    const errors: Record<string, string> = {}
     if (!form.queixaPrincipal.trim()) {
-      setErro('Queixa principal é obrigatória.')
-      window.scrollTo(0, 0)
+      errors.queixaPrincipal = 'Queixa principal é obrigatória.'
+    }
+
+    // Se há erros, mostrar e navegar até primeiro campo inválido
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors)
+      // Navegar até o primeiro campo com erro
+      queixaPrincipalRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
       return
     }
+
+    // Limpar erros se validação passou
+    setFieldErrors({})
     setSalvando(true)
     setErro('')
     setSucesso(false)
@@ -316,7 +337,23 @@ export default function Anamnese() {
           
           <div className="form-group" style={{ gridColumn: 'span 2' }}>
             <label>Queixas Principais *</label>
-            <textarea className="form-control" rows={3} value={form.queixaPrincipal} onChange={e => set('queixaPrincipal', e.target.value)} />
+            <textarea
+              ref={queixaPrincipalRef}
+              className="form-control"
+              rows={3}
+              value={form.queixaPrincipal}
+              onChange={e => set('queixaPrincipal', e.target.value)}
+              style={{
+                border: fieldErrors.queixaPrincipal ? '2px solid #dc2626' : '1px solid #ddd',
+                outline: fieldErrors.queixaPrincipal ? '2px solid #fecaca' : 'none',
+                outlineOffset: '-1px'
+              }}
+            />
+            {fieldErrors.queixaPrincipal && (
+              <div style={{ color: '#dc2626', fontSize: '0.875rem', marginTop: '4px' }}>
+                ⚠ {fieldErrors.queixaPrincipal}
+              </div>
+            )}
           </div>
         </div>
       </div>
