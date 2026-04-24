@@ -10,6 +10,11 @@ DECLARE
     v_id_aval_arthur BIGINT;
     v_id_aval_sofia BIGINT;
 BEGIN
+    -- Criar usuário Viviane se não existir
+    INSERT INTO users (nome, email, senha, role, data_criacao)
+    VALUES ('Dra. Viviane', 'viviane@fonosystem.com', '$2a$10$dXJ3SW6G7P50eS3Ej0IHeOSvkJHPjLfLjKfwqN5iH9wVo7z7Z0aIi', 'FONOAUDIOLOGA', NOW())
+    ON CONFLICT (email) DO NOTHING;
+
     SELECT id INTO v_id_viviane FROM users WHERE email = 'viviane@fonosystem.com';
 
     -- PACIENTES
