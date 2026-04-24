@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: fonosystem-backend
+    env: java
+    buildCommand: |
+      cd frontend && npm install && npm run build && \
+      mkdir -p ../backend/src/main/resources/static && \
+      cp -r dist/* ../backend/src/main/resources/static/ && \
+      cd ../backend && \
+      mvn clean package -DskipTests
+    startCommand: "java -jar backend/target/fonosystem-backend-1.0.0.jar"
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        scope: build
+      - key: SPRING_DATASOURCE_USERNAME
+        scope: build
+      - key: SPRING_DATASOURCE_PASSWORD
+        scope: build
+        isSecret: true
+      - key: JWT_SECRET
+        scope: build
+        isSecret: true
+      - key: ADMIN_PASSWORD
+        scope: build
+        isSecret: true
+      - key: VIVIANE_PASSWORD
+        scope: build
+        isSecret: true
+      - key: TZ
+        value: America/Sao_Paulo
+
+  - type: pserv
+    name: fonosystem-db
+    dbName: fonosystem
+    user: fono_admin
+    envVars:
+      - key: POSTGRES_PASSWORD
+        isSecret: true
