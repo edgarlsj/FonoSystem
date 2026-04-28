@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://dpg-d7ldum67r5hc739kpfd0-a.oregon-postgres.render.com:5432/fonosystem
+    username: fono_admin
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  flyway:
+    enabled: false
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+logging:
+  level:
+    br.com.fonosystem: DEBUG
+    org.springframework.security: INFO
