@@ -1,7 +1,5 @@
--- V11: Garantir que usuários padrão existem com senha correta (admin123)
+-- V20: Garantir que usuários padrão existem com senha correta (admin123)
 -- Hash BCrypt de "admin123" com strength 10: $2a$10$zfKVTy0SnVSGdnfQxvLZLOTnJJwHb5EtL6h.B7PFQq4M8eevMOlCK
-
-DELETE FROM users WHERE email IN ('test@fonosystem.com', 'viviane@fonosystem.com');
 
 INSERT INTO users (nome, email, senha_hash, perfil, ativo)
 VALUES (
@@ -10,7 +8,10 @@ VALUES (
     '$2a$10$zfKVTy0SnVSGdnfQxvLZLOTnJJwHb5EtL6h.B7PFQq4M8eevMOlCK',
     'ADMIN',
     true
-);
+)
+ON CONFLICT (email) DO UPDATE SET
+    senha_hash = '$2a$10$zfKVTy0SnVSGdnfQxvLZLOTnJJwHb5EtL6h.B7PFQq4M8eevMOlCK',
+    ativo = true;
 
 INSERT INTO users (nome, email, senha_hash, perfil, ativo)
 VALUES (
@@ -19,4 +20,7 @@ VALUES (
     '$2a$10$zfKVTy0SnVSGdnfQxvLZLOTnJJwHb5EtL6h.B7PFQq4M8eevMOlCK',
     'FONOAUDIOLOGO',
     true
-);
+)
+ON CONFLICT (email) DO UPDATE SET
+    senha_hash = '$2a$10$zfKVTy0SnVSGdnfQxvLZLOTnJJwHb5EtL6h.B7PFQq4M8eevMOlCK',
+    ativo = true;
