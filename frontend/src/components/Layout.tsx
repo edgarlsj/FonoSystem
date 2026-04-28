@@ -85,12 +85,18 @@ export default function Layout() {
           </NavLink>
         </div>
 
-        {user?.perfil === 'ADMIN' && (
+        {(user?.perfil === 'ADMIN' || user?.perfil === 'FONOAUDIOLOGO') && (
           <div className="sidebar-section">
-            <div className="sidebar-section-label">ADMIN</div>
+            <div className="sidebar-section-label">SISTEMA</div>
             <NavLink to="/logs" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}>
               <span className="sidebar-item-icon">📋</span> Logs
             </NavLink>
+          </div>
+        )}
+
+        {user?.perfil === 'ADMIN' && (
+          <div className="sidebar-section">
+            <div className="sidebar-section-label">ADMIN</div>
             <NavLink to="/usuarios" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}>
               <span className="sidebar-item-icon">👤</span> Usuários
             </NavLink>

@@ -26,6 +26,7 @@ const acoesCorMap: { [key: string]: string } = {
 export default function Logs() {
   const [logs, setLogs] = useState<LogData[]>([])
   const [loading, setLoading] = useState(true)
+  const [erro, setErro] = useState<string | null>(null)
   const [acao, setAcao] = useState('')
   const [entidade, setEntidade] = useState('')
   const [dataInicio, setDataInicio] = useState('')
@@ -40,7 +41,8 @@ export default function Logs() {
   const carregarLogs = async () => {
     try {
       setLoading(true)
-      const params: any = { page, size: 20, sort: 'dataCriacao,desc' }
+      setErro(null)
+      const params: any = { page, size: 20, sort: 'data_criacao,desc' }
       if (acao) params.acao = acao
       if (entidade) params.entidade = entidade
       if (dataInicio) params.dataInicio = dataInicio
@@ -49,8 +51,16 @@ export default function Logs() {
       const { data } = await api.get('/v1/logs', { params })
       setLogs(data.content || [])
       setTotalPages(data.totalPages || 0)
-    } catch (err) {
+    } catch (err: any) {
       console.error('Erro ao carregar logs:', err)
+      const status = err?.response?.status
+      if (status === 403) {
+        setErro('Acesso negado. Apenas administradores podem visualizar os logs.')
+      } else if (status === 401) {
+        setErro('Sessão expirada. Faça login novamente.')
+      } else {
+        setErro('Erro ao carregar logs. Verifique sua conexão ou contate o suporte.')
+      }
     } finally {
       setLoading(false)
     }
@@ -149,6 +159,21 @@ export default function Logs() {
           </div>
         </div>
       </div>
+
+      {/* ERRO */}
+      {erro && (
+        <div style={{
+          background: '#FEE2E2',
+          border: '1px solid #FCA5A5',
+          borderRadius: '8px',
+          padding: '12px 16px',
+          marginBottom: '16px',
+          color: '#B91C1C',
+          fontSize: '14px'
+        }}>
+          ⚠️ {erro}
+        </div>
+      )}
 
       {/* LOGS */}
       <div className="table-card">
