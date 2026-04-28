@@ -5,6 +5,7 @@ import br.com.fonosystem.model.User;
 import br.com.fonosystem.repository.LogRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LogService {
@@ -34,8 +36,7 @@ public class LogService {
 
             logRepository.save(log);
         } catch (Exception e) {
-            // Log não deve bloquear a operação principal
-            e.printStackTrace();
+            log.error("Erro ao registrar log [{} {}#{}]: {}", acao, entidade, entidadeId, e.getMessage(), e);
         }
     }
 

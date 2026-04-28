@@ -114,9 +114,7 @@ export default function Login() {
           </button>
         </form>
 
-        <p style={{ textAlign: 'center', fontSize: '11px', color: '#9CA3AF', marginTop: '24px' }}>
-          Credenciais padrão: viviane@fonosystem.com / admin123
-        </p>
+
       </div>
     </div>
   )

@@ -20,7 +20,7 @@ import java.time.LocalTime;
 @RestController
 @RequestMapping("/v1/logs")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN', 'FONOAUDIOLOGO')")
 public class LogController {
 
     private final LogService logService;
@@ -32,7 +32,7 @@ public class LogController {
             @RequestParam(required = false) String entidade,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim,
-            @PageableDefault(size = 20, sort = "dataCriacao", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(size = 20, sort = "data_criacao", direction = Sort.Direction.DESC) Pageable pageable) {
 
         LocalDateTime dataInicioTime = dataInicio != null ? dataInicio.atStartOfDay() : null;
         LocalDateTime dataFimTime = dataFim != null ? dataFim.atTime(LocalTime.MAX) : null;
@@ -45,7 +45,7 @@ public class LogController {
     public ResponseEntity<Page<Log>> listarPorEntidade(
             @PathVariable String entidade,
             @PathVariable Long entidadeId,
-            @PageableDefault(size = 20, sort = "dataCriacao", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(size = 20, sort = "data_criacao", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(logService.listarPorEntidade(entidade, entidadeId, pageable));
     }
 }
