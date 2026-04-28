@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -X POST http://localhost:8080/api/v1/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"viviane@fonosystem.com\",\"senha\":\"admin123\"}')",
+      "Bash(docker exec *)",
+      "Bash(curl -s -X POST http://localhost:8080/api/v1/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"edgar@fonosystem.com\",\"senha\":\"481635\"}')",
+      "Bash(pkill -f FonoSystemApplication)",
+      "Bash(taskkill /IM java.exe /F)",
+      "Bash(mvn test *)",
+      "Bash(curl -s -X POST http://localhost:8080/api/v1/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"test@fonosystem.com\",\"senha\":\"test123\"}')",
+      "Bash(curl -s -X POST http://localhost:8080/api/v1/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"test@fonosystem.com\",\"senha\":\"password\"}')",
+      "Bash(npm start *)",
+      "Bash(mvn clean *)",
+      "Bash(PGPASSWORD=fonosystem psql -h localhost -U fonosystem -d fonosystem -c \"ALTER TABLE pacientes ALTER COLUMN nome_completo TYPE VARCHAR\\(200\\) USING nome_completo::text;\")",
+      "Bash(xargs cat *)",
+      "WebFetch(domain:app.odapp.com.br)",
+      "Bash(npm run *)",
+      "Bash(./mvnw spring-boot:run)",
+      "Bash(curl -s http://localhost:8080/v1/users/1 -H \"Authorization: Bearer test\")",
+      "Bash(mvn spring-boot:run)"
+    ]
+  }
+}
