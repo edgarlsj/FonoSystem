@@ -22,8 +22,6 @@ public class DataInitializer {
         return args -> {
             // Cria admin se não existir
             if (!userRepository.existsByEmail("admin@fonosystem.com")) {
-                log.info("=== Criando usuários padrão ===");
-
                 User admin = User.builder()
                         .nome("Admin Master")
                         .email("admin@fonosystem.com")
