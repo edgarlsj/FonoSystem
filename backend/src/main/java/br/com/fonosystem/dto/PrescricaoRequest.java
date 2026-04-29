@@ -24,6 +24,7 @@ public class PrescricaoRequest {
     @Size(max = 255, message = "Título deve ter no máximo 255 caracteres")
     private String titulo;
 
+    @NotBlank(message = "Descrição dos exercícios é obrigatória")
     @Size(max = 5000, message = "Descrição deve ter no máximo 5000 caracteres")
     private String descricaoExercicios;
 

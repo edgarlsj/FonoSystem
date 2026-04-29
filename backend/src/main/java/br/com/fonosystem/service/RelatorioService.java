@@ -13,6 +13,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.fonosystem.exception.BusinessException;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -51,6 +53,11 @@ public class RelatorioService {
 
     @Transactional
     public RelatorioDiario criar(RelatorioRequest request) {
+        if (request.getHoraInicio() != null && request.getHoraFim() != null
+                && !request.getHoraFim().isAfter(request.getHoraInicio())) {
+            throw new BusinessException("Hora de fim deve ser posterior à hora de início.");
+        }
+
         Paciente paciente = pacienteService.buscarEntidadePorId(request.getPacienteId());
         User profissional = paciente.getProfissional();
 

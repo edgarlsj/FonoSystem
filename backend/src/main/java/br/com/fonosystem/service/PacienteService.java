@@ -107,6 +107,9 @@ public class PacienteService {
 
     @Transactional
     public void alterarStatus(Long id, String novoStatus) {
+        if (novoStatus == null || (!"ATIVO".equals(novoStatus) && !"INATIVO".equals(novoStatus))) {
+            throw new BusinessException("Status inválido. Use 'ATIVO' ou 'INATIVO'.");
+        }
         Paciente paciente = buscarEntidadePorId(id);
         paciente.setStatus(novoStatus);
         if ("INATIVO".equals(novoStatus)) {
