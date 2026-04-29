@@ -61,13 +61,6 @@ public class RelatorioDiario {
     @Column(name = "meta_trabalhada", nullable = false, columnDefinition = "TEXT")
     private String metaTrabalhada;
 
-    // --- TEA ---
-    @Column(name = "percentual_acerto", precision = 5, scale = 2)
-    private BigDecimal percentualAcerto;
-
-    @Column(name = "nivel_engajamento")
-    private Short nivelEngajamento;
-
     @Column(name = "uso_caa_sessao")
     private Boolean usoCaaSessao = false;
 

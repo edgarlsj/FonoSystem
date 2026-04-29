@@ -62,8 +62,6 @@ public class RelatorioService {
                 .horaFim(request.getHoraFim())
                 .atividadesRealizadas(request.getAtividadesRealizadas())
                 .metaTrabalhada(request.getMetaTrabalhada())
-                .percentualAcerto(request.getPercentualAcerto())
-                .nivelEngajamento(request.getNivelEngajamento())
                 .usoCaaSessao(request.getUsoCaaSessao())
                 .recursoCaaUtilizado(request.getRecursoCaaUtilizado())
                 .respostaEstimulacaoAuditiva(request.getRespostaEstimulacaoAuditiva())
@@ -83,8 +81,6 @@ public class RelatorioService {
         relatorio.setHoraFim(request.getHoraFim());
         relatorio.setAtividadesRealizadas(request.getAtividadesRealizadas());
         relatorio.setMetaTrabalhada(request.getMetaTrabalhada());
-        relatorio.setPercentualAcerto(request.getPercentualAcerto());
-        relatorio.setNivelEngajamento(request.getNivelEngajamento());
         relatorio.setUsoCaaSessao(request.getUsoCaaSessao());
         relatorio.setRecursoCaaUtilizado(request.getRecursoCaaUtilizado());
         relatorio.setRespostaEstimulacaoAuditiva(request.getRespostaEstimulacaoAuditiva());

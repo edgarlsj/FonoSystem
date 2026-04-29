@@ -14,8 +14,6 @@ const schema = z.object({
   horaFim: z.string().min(1, 'Hora fim é obrigatória'),
   atividadesRealizadas: z.string().min(3, 'Mínimo 3 caracteres'),
   metaTrabalhada: z.string().min(3, 'Mínimo 3 caracteres'),
-  percentualAcerto: z.string().optional(),
-  nivelEngajamento: z.string().optional(),
   evolucaoObservada: z.string().optional(),
   orientacoesFamilia: z.string().optional(),
   planejamentoProximaSessao: z.string().optional(),
@@ -108,8 +106,6 @@ export default function Relatorios() {
       const payload = {
         ...formData,
         pacienteId: Number(formData.pacienteId),
-        percentualAcerto: formData.percentualAcerto ? Number(formData.percentualAcerto) : null,
-        nivelEngajamento: formData.nivelEngajamento ? Number(formData.nivelEngajamento) : null,
       }
 
       await api.post(`/v1/pacientes/${payload.pacienteId}/relatorios`, payload)
@@ -301,20 +297,6 @@ export default function Relatorios() {
                 {errors.atividadesRealizadas && <span className="hint" style={{ color: 'red' }}>{errors.atividadesRealizadas.message}</span>}
               </div>
 
-              <div className="form-grid-2">
-                <div className="form-group">
-                  <label>% de Acerto (TEA)</label>
-                  <input type="number" step="0.1" className="form-control" {...register('percentualAcerto')} />
-                </div>
-                <div className="form-group">
-                  <label>Engajamento (1-5)</label>
-                  <select className="form-control" {...register('nivelEngajamento')}>
-                    <option value="">N/A</option>
-                    {[1, 2, 3, 4, 5].map(v => <option key={v} value={v}>{v}</option>)}
-                  </select>
-                </div>
-              </div>
-
               <div className="form-group">
                 <label>Evolução Observada</label>
                 <textarea className="form-control" rows={2} {...register('evolucaoObservada')} />
@@ -375,26 +357,6 @@ export default function Relatorios() {
                 </div>
 
                 <div className="form-grid-2">
-                  <div className="form-card">
-                    <div className="form-section-title"><div className="section-icon" />Desempenho</div>
-                    <div className="session-metrics" style={{ gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                      <div>
-                        <div className="metric-label">Acerto</div>
-                        <div className={`metric-value ${Number(relatorioVisualizar.percentualAcerto) >= 70 ? 'green' : 'blue'}`}>
-                          {relatorioVisualizar.percentualAcerto != null ? `${relatorioVisualizar.percentualAcerto}%` : 'N/A'}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="metric-label">Engajamento</div>
-                        <div className="engagement-dots" style={{ marginTop: '8px' }}>
-                           {[1, 2, 3, 4, 5].map(v => (
-                             <div key={v} className={`dot ${v <= (relatorioVisualizar.nivelEngajamento || 0) ? 'filled' : ''}`} />
-                           ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
                   <div className="form-card">
                     <div className="form-section-title"><div className="section-icon" />Comunicação Auxiliar</div>
                     <div className="view-group">

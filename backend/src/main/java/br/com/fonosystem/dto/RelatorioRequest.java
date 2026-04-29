@@ -3,7 +3,6 @@ package br.com.fonosystem.dto;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -29,15 +28,6 @@ public class RelatorioRequest {
     @NotBlank(message = "Meta trabalhada é obrigatória")
     @Size(max = 1000, message = "Meta trabalhada deve ter no máximo 1000 caracteres")
     private String metaTrabalhada;
-
-    // TEA
-    @DecimalMin(value = "0.0", message = "Percentual de acerto não pode ser negativo")
-    @DecimalMax(value = "100.0", message = "Percentual de acerto não pode passar de 100")
-    private BigDecimal percentualAcerto;
-
-    @Min(value = 1, message = "Nível de engajamento mínimo é 1")
-    @Max(value = 5, message = "Nível de engajamento máximo é 5")
-    private Short nivelEngajamento;
 
     private Boolean usoCaaSessao;
     private String recursoCaaUtilizado;

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import api from '../services/api'
@@ -22,8 +21,6 @@ interface Relatorio {
   horaInicio: string
   horaFim: string
   metaTrabalhada: string
-  percentualAcerto: number
-  nivelEngajamento?: number
   evolucaoObservada?: string
 }
 
@@ -74,14 +71,6 @@ export default function Dashboard() {
 
     carregarDados()
   }, [])
-
-  const chartData = sessoesHoje
-    .filter(r => r.percentualAcerto != null)
-    .map(r => ({
-      nome: r.paciente?.nomeCompleto?.split(' ')[0] || 'Paciente',
-      acerto: Number(r.percentualAcerto),
-      engajamento: (r.nivelEngajamento || 0) * 20,
-    }))
 
   return (
     <div>
@@ -148,33 +137,19 @@ export default function Dashboard() {
                       Meta: {r.metaTrabalhada}
                     </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <button
-                      className="btn-icon-secondary"
-                      title="Visualizar detalhes"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleVisualizar(r.id);
-                      }}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                      </svg>
-                    </button>
-                    <div style={{ textAlign: 'right' }}>
-                      <div
-                        style={{
-                          fontSize: '20px',
-                          fontWeight: 700,
-                          color: Number(r.percentualAcerto) >= 70 ? '#10B981' : Number(r.percentualAcerto) >= 50 ? '#F59E0B' : '#EF4444',
-                        }}
-                      >
-                        {r.percentualAcerto != null ? `${r.percentualAcerto}%` : '–'}
-                      </div>
-                      <div style={{ fontSize: '11px', color: '#9CA3AF' }}>acerto</div>
-                    </div>
-                  </div>
+                  <button
+                    className="btn-icon-secondary"
+                    title="Visualizar detalhes"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleVisualizar(r.id);
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </button>
                 </div>
                 {r.evolucaoObservada && (
                   <div
@@ -311,26 +286,6 @@ export default function Dashboard() {
                 </div>
 
                 <div className="form-grid-2">
-                  <div className="form-card">
-                    <div className="form-section-title"><div className="section-icon" />Desempenho</div>
-                    <div className="session-metrics" style={{ gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                      <div>
-                        <div className="metric-label">Acerto</div>
-                        <div className={`metric-value ${Number(relatorioVisualizar.percentualAcerto) >= 70 ? 'green' : 'blue'}`}>
-                          {relatorioVisualizar.percentualAcerto != null ? `${relatorioVisualizar.percentualAcerto}%` : 'N/A'}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="metric-label">Engajamento</div>
-                        <div className="engagement-dots" style={{ marginTop: '8px' }}>
-                           {[1, 2, 3, 4, 5].map(v => (
-                             <div key={v} className={`dot ${v <= (relatorioVisualizar.nivelEngajamento || 0) ? 'filled' : ''}`} />
-                           ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
                   <div className="form-card">
                     <div className="form-section-title"><div className="section-icon" />Comunicação Auxiliar</div>
                     <div className="view-group">

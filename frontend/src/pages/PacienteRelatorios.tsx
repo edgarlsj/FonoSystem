@@ -125,8 +125,6 @@ export default function PacienteRelatorios() {
         horaFim: relatorioEditando.horaFim,
         atividadesRealizadas: relatorioEditando.atividadesRealizadas,
         metaTrabalhada: relatorioEditando.metaTrabalhada,
-        percentualAcerto: relatorioEditando.percentualAcerto,
-        nivelEngajamento: relatorioEditando.nivelEngajamento,
         usoCaaSessao: relatorioEditando.usoCaaSessao,
         recursoCaaUtilizado: relatorioEditando.recursoCaaUtilizado,
         respostaEstimulacaoAuditiva: relatorioEditando.respostaEstimulacaoAuditiva,
@@ -285,26 +283,6 @@ export default function PacienteRelatorios() {
 
                 <div className="form-grid-2">
                   <div className="form-card">
-                    <div className="form-section-title"><div className="section-icon" />Desempenho</div>
-                    <div className="session-metrics" style={{ gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                      <div>
-                        <div className="metric-label">Acerto</div>
-                        <div className={`metric-value ${Number(relatorioVisualizar.percentualAcerto) >= 70 ? 'green' : 'blue'}`}>
-                          {relatorioVisualizar.percentualAcerto != null ? `${relatorioVisualizar.percentualAcerto}%` : 'N/A'}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="metric-label">Engajamento</div>
-                        <div className="engagement-dots" style={{ marginTop: '8px' }}>
-                           {[1, 2, 3, 4, 5].map(v => (
-                             <div key={v} className={`dot ${v <= (relatorioVisualizar.nivelEngajamento || 0) ? 'filled' : ''}`} />
-                           ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="form-card">
                     <div className="form-section-title"><div className="section-icon" />Comunicação Auxiliar</div>
                     <div className="view-group">
                       <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--gray-500)' }}>USO DE CAA</label>
@@ -385,27 +363,14 @@ export default function PacienteRelatorios() {
                 </div>
               </div>
 
-              <div className="form-grid form-grid-2">
-                <div className="form-group">
-                  <label>Hora Fim *</label>
-                  <input
-                    type="time"
-                    className="form-control"
-                    value={relatorioEditando.horaFim}
-                    onChange={(e) => setRelatorioEditando({...relatorioEditando, horaFim: e.target.value})}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Percentual de Acerto (%)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    className="form-control"
-                    value={relatorioEditando.percentualAcerto || ''}
-                    onChange={(e) => setRelatorioEditando({...relatorioEditando, percentualAcerto: e.target.value ? parseInt(e.target.value) : null})}
-                  />
-                </div>
+              <div className="form-group">
+                <label>Hora Fim *</label>
+                <input
+                  type="time"
+                  className="form-control"
+                  value={relatorioEditando.horaFim}
+                  onChange={(e) => setRelatorioEditando({...relatorioEditando, horaFim: e.target.value})}
+                />
               </div>
 
               <div className="form-group">
@@ -428,20 +393,8 @@ export default function PacienteRelatorios() {
                 />
               </div>
 
-              <div className="form-grid form-grid-2">
-                <div className="form-group">
-                  <label>Nível de Engajamento (1-5)</label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="5"
-                    className="form-control"
-                    value={relatorioEditando.nivelEngajamento || ''}
-                    onChange={(e) => setRelatorioEditando({...relatorioEditando, nivelEngajamento: e.target.value ? parseInt(e.target.value) : null})}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Uso de CAA neste Atendimento</label>
+              <div className="form-group">
+                <label>Uso de CAA neste Atendimento</label>
                   <select
                     className="form-control"
                     value={relatorioEditando.usoCaaSessao ? 'sim' : 'nao'}
@@ -450,7 +403,6 @@ export default function PacienteRelatorios() {
                     <option value="nao">Não</option>
                     <option value="sim">Sim</option>
                   </select>
-                </div>
               </div>
 
               <div className="form-group">
