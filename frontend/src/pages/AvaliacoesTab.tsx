@@ -179,7 +179,7 @@ export default function AvaliacoesTab() {
 </head><body>
   <div class="header">
     <div>
-      <div style="font-size:20px;font-weight:700;color:#29B6D1;">🎙️ FonoSystem</div>
+      <div style="font-size:20px;font-weight:700;color:#29B6D1;">🎙️ Live System</div>
       <div style="font-size:12px;color:#6B7280;margin-top:4px;">Relatório de Avaliação</div>
     </div>
     <div style="text-align:right;">
@@ -279,7 +279,7 @@ export default function AvaliacoesTab() {
       hipoteseHTML, radarSVG, scoresHTML, geralHTML, faixaHTML,
       obsAvalHTML, orientHTML, obsGeraisHTML,
       `${String.fromCharCode(60)}footer>`,
-      `${String.fromCharCode(60)}span>FonoSystem — Gerado em ${footerDate}${String.fromCharCode(60)}/span>`,
+      `${String.fromCharCode(60)}span>Live System — Gerado em ${footerDate}${String.fromCharCode(60)}/span>`,
       `${String.fromCharCode(60)}span>Documento para uso profissional${String.fromCharCode(60)}/span>`,
       `${String.fromCharCode(60)}/footer>`,
       `${String.fromCharCode(60)}/body>${String.fromCharCode(60)}/html>`,

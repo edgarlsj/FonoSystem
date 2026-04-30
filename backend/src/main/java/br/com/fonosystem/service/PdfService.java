@@ -51,7 +51,7 @@ public class PdfService {
             PdfFont fontItalic = PdfFontFactory.createFont(StandardFonts.HELVETICA_OBLIQUE);
 
             // ═══ CABEÇALHO ═══
-            Paragraph header = new Paragraph("FonoSystem")
+            Paragraph header = new Paragraph("Live System")
                     .setFont(fontBold)
                     .setFontSize(22)
                     .setFontColor(PRIMARY_DARK)
@@ -200,7 +200,7 @@ public class PdfService {
 
             // Rodapé com data de geração
             doc.add(new Paragraph("").setMarginTop(20));
-            doc.add(new Paragraph("Documento gerado pelo FonoSystem em " +
+            doc.add(new Paragraph("Documento gerado pelo Live System em " +
                     java.time.LocalDateTime.now().format(
                             DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm")))
                     .setFont(fontItalic).setFontSize(8).setFontColor(GRAY_400)
@@ -225,7 +225,7 @@ public class PdfService {
             PdfFont fontItalic = PdfFontFactory.createFont(StandardFonts.HELVETICA_OBLIQUE);
 
             // ═══ CABEÇALHO ═══
-            Paragraph header = new Paragraph("FonoSystem")
+            Paragraph header = new Paragraph("Live System")
                     .setFont(fontBold)
                     .setFontSize(22)
                     .setFontColor(PRIMARY_DARK)
@@ -327,7 +327,7 @@ public class PdfService {
 
             // Rodapé com data de geração
             doc.add(new Paragraph("").setMarginTop(20));
-            doc.add(new Paragraph("Documento gerado pelo FonoSystem em " +
+            doc.add(new Paragraph("Documento gerado pelo Live System em " +
                     java.time.LocalDateTime.now().format(
                             DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm")))
                     .setFont(fontItalic).setFontSize(8).setFontColor(GRAY_400)

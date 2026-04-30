@@ -460,9 +460,9 @@ export default function Anamnese() {
         </div>
       </div>
 
-      {/* VIII. Específico TEA e Reabilitação Auditiva (Componentes pré-existentes vitais do FonoSystem) */}
+      {/* VIII. Específico TEA e Reabilitação Auditiva (Componentes pré-existentes vitais do Live System) */}
       <div className="form-card section-tea">
-        <div className="form-section-title">VIII. Componentes FonoSystem (TEA e Reabilitação Auditiva)</div>
+        <div className="form-section-title">VIII. Componentes Live System (TEA e Reabilitação Auditiva)</div>
         <div className="form-grid form-grid-3">
           <div className="form-group">
             <label>Diagnóstico TEA</label>
