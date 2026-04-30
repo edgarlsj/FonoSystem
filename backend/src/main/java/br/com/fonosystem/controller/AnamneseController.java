@@ -32,7 +32,7 @@ public class AnamneseController {
     public ResponseEntity<List<Anamnese>> listar(@PathVariable Long pacienteId) {
         return ResponseEntity.ok(anamneseService.listarPorPaciente(pacienteId));
     }
-
+   // get
     @GetMapping("/{id}")
     public ResponseEntity<Anamnese> buscarPorId(@PathVariable Long pacienteId, @PathVariable Long id) {
         return ResponseEntity.ok(anamneseService.buscarPorId(id));
