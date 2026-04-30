@@ -45,7 +45,7 @@ export default function Login() {
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <div style={{ fontSize: '40px', marginBottom: '8px' }}>🎙️</div>
           <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#0C2D48' }}>
-            Fono<span style={{ color: '#6BACE0', fontWeight: 400 }}>System</span>
+            Live<span style={{ color: '#6BACE0', fontWeight: 400 }}>System</span>
           </h1>
           <p style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px' }}>
             Sistema de Gestão Fonoaudiológica
