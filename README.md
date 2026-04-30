@@ -14,7 +14,8 @@ Sistema de Gestão Fonoaudiológica — TEA · Reabilitação Auditiva · Fala
 - Java 17+
 - Node.js 20+
 - Docker + Docker Compose
-- Maven 3.8+
+- Maven 3.8+ 
+- test
 
 ## Início Rápido
 
