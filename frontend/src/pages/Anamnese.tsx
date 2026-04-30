@@ -238,6 +238,30 @@ export default function Anamnese() {
     }
   }
 
+  const handleGerarPdf = async () => {
+    try {
+      const response = await api.get(`/v1/pacientes/${id}/anamneses/pdf`, {
+        responseType: 'blob'
+      })
+      const blob = new Blob([response.data], { type: 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      const nomePaciente = pacienteInfo?.nomeCompleto?.replace(/\s+/g, '_') || 'Anamnese'
+      const data = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')
+      link.download = `Anamnese_${nomePaciente}_${data}.pdf`
+      link.click()
+      window.URL.revokeObjectURL(url)
+      setSucesso(true)
+      setTimeout(() => setSucesso(false), 3000)
+    } catch (e: any) {
+      console.error('Erro ao gerar PDF:', e)
+      const errMsg = e?.response?.data?.message || 'Erro ao gerar PDF da anamnese.'
+      setErro(typeof errMsg === 'string' ? errMsg : 'Erro ao gerar PDF da anamnese.')
+      window.scrollTo(0, 0)
+    }
+  }
+
   if (loading) {
     return (
       <div style={{ textAlign: 'center', padding: '80px', color: '#6B7280' }}>
@@ -268,7 +292,10 @@ export default function Anamnese() {
                 </div>
               </div>
             </div>
-            <PacienteAcoesMenu pacienteId={id!} paginaAtual="anamnese" />
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <button className="btn btn-primary" onClick={handleGerarPdf} title="Gerar PDF da anamnese">📥 Gerar PDF</button>
+              <PacienteAcoesMenu pacienteId={id!} paginaAtual="anamnese" />
+            </div>
           </div>
         </>
       )}
