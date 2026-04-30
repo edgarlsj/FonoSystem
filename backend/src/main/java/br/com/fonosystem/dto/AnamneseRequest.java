@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Data
 public class AnamneseRequest {
 
-    // Setado pelo controller via path variable, não precisa de validação
+    // Setado pelo controller via path variable, não precisa de validação o
     private Long pacienteId;
 
     @NotBlank(message = "Queixa principal é obrigatória")
