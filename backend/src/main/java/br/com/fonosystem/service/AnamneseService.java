@@ -1,6 +1,7 @@
 package br.com.fonosystem.service;
 
 import br.com.fonosystem.dto.AnamneseRequest;
+import br.com.fonosystem.dto.AnamnesePdfResult;
 import br.com.fonosystem.exception.ResourceNotFoundException;
 import br.com.fonosystem.model.Anamnese;
 import br.com.fonosystem.model.Paciente;
@@ -12,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -21,6 +23,7 @@ public class AnamneseService {
     private final AnamneseRepository anamneseRepository;
     private final PacienteService pacienteService;
     private final UserRepository userRepository;
+    private final PdfService pdfService;
 
     public List<Anamnese> listarPorPaciente(Long pacienteId) {
         // Valida se o paciente pertence ao usuário logado
@@ -179,5 +182,26 @@ public class AnamneseService {
         anamnese.setRotinaSocializacao(request.getRotinaSocializacao());
 
         return anamneseRepository.save(anamnese);
+    }
+
+    @Transactional
+    public AnamnesePdfResult gerarPdf(Long pacienteId) {
+        pacienteService.buscarPorId(pacienteId);
+
+        List<Anamnese> anamneses = anamneseRepository.findByPacienteIdOrderByCreatedAtDesc(pacienteId);
+        if (anamneses.isEmpty()) {
+            throw new ResourceNotFoundException("Nenhuma anamnese encontrada para o paciente: " + pacienteId);
+        }
+
+        Anamnese anamnese = anamneses.get(0);
+        byte[] bytes = pdfService.gerarAnamnesePdf(anamnese);
+
+        String nomePaciente = anamnese.getPacienteNome() != null
+                ? anamnese.getPacienteNome().replaceAll("[^a-zA-ZÀ-ú0-9 ]", "").trim().replace(" ", "_")
+                : "Paciente";
+        String data = anamnese.getCreatedAt().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+        String filename = "Anamnese_" + nomePaciente + "_" + data + ".pdf";
+
+        return new AnamnesePdfResult(bytes, filename);
     }
 }

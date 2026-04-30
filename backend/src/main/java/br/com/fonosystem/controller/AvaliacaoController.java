@@ -9,6 +9,7 @@ import br.com.fonosystem.repository.PlanoTerapeuticoRepository;
 import br.com.fonosystem.repository.UserRepository;
 import br.com.fonosystem.service.AvaliacaoService;
 import br.com.fonosystem.service.LogService;
+import br.com.fonosystem.service.PacienteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,7 @@ public class AvaliacaoController {
     private final PlanoTerapeuticoRepository planoRepository;
     private final LogService logService;
     private final UserRepository userRepository;
+    private final PacienteService pacienteService;
 
     @GetMapping("/v1/pacientes/{pacienteId}/avaliacoes")
     public ResponseEntity<List<Avaliacao>> listar(@PathVariable Long pacienteId) {
@@ -80,13 +82,30 @@ public class AvaliacaoController {
 
     @PutMapping("/v1/planos/{id}/status")
     public ResponseEntity<PlanoTerapeutico> atualizarStatusPlano(@PathVariable Long id,
-                                                                   @RequestBody Map<String, String> body) {
+                                                                   @RequestBody Map<String, String> body,
+                                                                   Authentication authentication) {
         PlanoTerapeutico plano = planoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Plano terapêutico não encontrado: " + id));
+
+        // Validar que o paciente do plano pertence ao profissional logado
+        Long pacienteId = plano.getAvaliacao().getPaciente().getId();
+        pacienteService.buscarEntidadePorId(pacienteId);
+
         plano.setStatus(StatusPlano.valueOf(body.get("status")));
         if (body.containsKey("progresso")) {
             plano.setProgresso(Integer.parseInt(body.get("progresso")));
         }
+
+        Optional<User> usuario = userRepository.findByEmail(authentication.getName());
+        usuario.ifPresent(user -> logService.registrar(
+                "ATUALIZOU",
+                "PLANO_TERAPEUTICO",
+                id,
+                "Status do plano terapêutico ID " + id + " atualizado para " + body.get("status"),
+                null,
+                user
+        ));
+
         return ResponseEntity.ok(planoRepository.save(plano));
     }
 }

@@ -25,20 +25,30 @@ public class RelatorioService {
     private final PacienteService pacienteService;
     private final UserRepository userRepository;
 
+    private Long obterProfissionalIdLogado() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + email))
+                .getId();
+    }
+
     public List<RelatorioDiario> listarPorPaciente(Long pacienteId) {
         pacienteService.buscarEntidadePorId(pacienteId);
-        return relatorioRepository.findByPacienteIdOrderByDataSessaoDesc(pacienteId);
+        Long profissionalId = obterProfissionalIdLogado();
+        return relatorioRepository.findByPacienteIdOrderByDataSessaoDesc(profissionalId, pacienteId);
     }
 
     public List<RelatorioDiario> filtrar(Long pacienteId, LocalDate data, LocalTime hora) {
         if (pacienteId != null) {
             pacienteService.buscarEntidadePorId(pacienteId);
         }
-        return relatorioRepository.filtrar(pacienteId, data, hora);
+        Long profissionalId = obterProfissionalIdLogado();
+        return relatorioRepository.filtrar(profissionalId, pacienteId, data, hora);
     }
 
     public RelatorioDiario buscarPorId(Long id) {
-        RelatorioDiario relatorio = relatorioRepository.findByIdWithFetch(id)
+        Long profissionalId = obterProfissionalIdLogado();
+        RelatorioDiario relatorio = relatorioRepository.findByIdWithFetch(profissionalId, id)
                 .orElseThrow(() -> new ResourceNotFoundException("Relatório não encontrado: " + id));
         pacienteService.buscarEntidadePorId(relatorio.getPaciente().getId());
         return relatorio;
@@ -46,7 +56,8 @@ public class RelatorioService {
 
     public List<RelatorioDiario> buscarEvolucao(Long pacienteId, LocalDate inicio, LocalDate fim) {
         pacienteService.buscarEntidadePorId(pacienteId);
-        return relatorioRepository.findByPacienteIdAndDataSessaoBetween(pacienteId, inicio, fim);
+        Long profissionalId = obterProfissionalIdLogado();
+        return relatorioRepository.findByPacienteIdAndDataSessaoBetween(profissionalId, pacienteId, inicio, fim);
     }
 
     @Transactional

@@ -1,5 +1,6 @@
 package br.com.fonosystem.service;
 
+import br.com.fonosystem.model.Anamnese;
 import br.com.fonosystem.model.Prescricao;
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.colors.ColorConstants;
@@ -209,6 +210,156 @@ public class PdfService {
             return baos.toByteArray();
         } catch (Exception e) {
             throw new RuntimeException("Erro ao gerar PDF da prescrição", e);
+        }
+    }
+
+    public byte[] gerarAnamnesePdf(Anamnese anamnese) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            PdfWriter writer = new PdfWriter(baos);
+            PdfDocument pdf = new PdfDocument(writer);
+            Document doc = new Document(pdf, PageSize.A4);
+            doc.setMargins(40, 50, 40, 50);
+
+            PdfFont fontBold = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+            PdfFont fontRegular = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+            PdfFont fontItalic = PdfFontFactory.createFont(StandardFonts.HELVETICA_OBLIQUE);
+
+            // ═══ CABEÇALHO ═══
+            Paragraph header = new Paragraph("FonoSystem")
+                    .setFont(fontBold)
+                    .setFontSize(22)
+                    .setFontColor(PRIMARY_DARK)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setMarginBottom(2);
+            doc.add(header);
+
+            Paragraph subHeader = new Paragraph("Sistema de Gestão Fonoaudiológica")
+                    .setFont(fontRegular)
+                    .setFontSize(10)
+                    .setFontColor(GRAY_400)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setMarginBottom(16);
+            doc.add(subHeader);
+
+            // Linha separadora
+            Table lineTop = new Table(1).useAllAvailableWidth();
+            lineTop.addCell(new Cell().setBorder(Border.NO_BORDER)
+                    .setBorderBottom(new SolidBorder(PRIMARY_MID, 2))
+                    .setHeight(1));
+            doc.add(lineTop);
+            doc.add(new Paragraph("").setMarginBottom(12));
+
+            // ═══ TÍTULO ═══
+            Paragraph titulo = new Paragraph("ANAMNESE")
+                    .setFont(fontBold)
+                    .setFontSize(14)
+                    .setFontColor(PRIMARY_DARK)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setMarginBottom(16);
+            doc.add(titulo);
+
+            // ═══ INFO DO PACIENTE E PROFISSIONAL ═══
+            Table infoTable = new Table(UnitValue.createPercentArray(new float[]{1, 1}))
+                    .useAllAvailableWidth()
+                    .setMarginBottom(16);
+
+            // Coluna esquerda — Paciente
+            Cell leftCell = new Cell().setBorder(Border.NO_BORDER).setPadding(8);
+            leftCell.add(new Paragraph("PACIENTE").setFont(fontBold).setFontSize(9)
+                    .setFontColor(PRIMARY_MID).setMarginBottom(4));
+            leftCell.add(new Paragraph(anamnese.getPacienteNome())
+                    .setFont(fontBold).setFontSize(13).setFontColor(PRIMARY_DARK));
+            if (anamnese.getPacienteDataNascimento() != null) {
+                leftCell.add(new Paragraph("Data de nascimento: " + anamnese.getPacienteDataNascimento().format(DATE_FMT))
+                        .setFont(fontRegular).setFontSize(9).setFontColor(GRAY_600).setMarginTop(4));
+            }
+            infoTable.addCell(leftCell);
+
+            // Coluna direita — Profissional e Data
+            Cell rightCell = new Cell().setBorder(Border.NO_BORDER).setPadding(8)
+                    .setTextAlignment(TextAlignment.RIGHT);
+            rightCell.add(new Paragraph("PROFISSIONAL").setFont(fontBold).setFontSize(9)
+                    .setFontColor(PRIMARY_MID).setMarginBottom(4));
+            rightCell.add(new Paragraph(anamnese.getProfissionalNome())
+                    .setFont(fontBold).setFontSize(13).setFontColor(PRIMARY_DARK));
+            rightCell.add(new Paragraph("Data: " + anamnese.getCreatedAt().format(
+                    DateTimeFormatter.ofPattern("dd/MM/yyyy", new Locale("pt", "BR"))))
+                    .setFont(fontRegular).setFontSize(10).setFontColor(GRAY_600).setMarginTop(4));
+            infoTable.addCell(rightCell);
+
+            doc.add(infoTable);
+
+            // ═══ SEÇÕES DE ANAMNESE ═══
+            adicionarSecaoAnamnese(doc, "Queixa Principal", anamnese.getQueixaPrincipal(), fontBold, fontRegular);
+            adicionarSecaoAnamnese(doc, "Histórico Clínico", anamnese.getHistoricoClinico(), fontBold, fontRegular);
+            adicionarSecaoAnamnese(doc, "Histórico Familiar", anamnese.getHistoricoFamiliar(), fontBold, fontRegular);
+            adicionarSecaoAnamnese(doc, "Desenvolvimento da Linguagem", anamnese.getDesenvolvimentoLinguagem(), fontBold, fontRegular);
+            adicionarSecaoAnamnese(doc, "Desenvolvimento Motor", anamnese.getDesenvolvimentoMotor(), fontBold, fontRegular);
+            adicionarSecaoAnamnese(doc, "Observações", anamnese.getObservacoes(), fontBold, fontRegular);
+
+            // ═══ RODAPÉ ═══
+            doc.add(new Paragraph("").setMarginTop(30));
+
+            Table lineBottom = new Table(1).useAllAvailableWidth();
+            lineBottom.addCell(new Cell().setBorder(Border.NO_BORDER)
+                    .setBorderBottom(new SolidBorder(GRAY_400, 0.5f))
+                    .setHeight(1));
+            doc.add(lineBottom);
+
+            // Assinatura
+            doc.add(new Paragraph("").setMarginTop(40));
+
+            Table assinaturaTable = new Table(1)
+                    .setWidth(UnitValue.createPercentValue(50))
+                    .setHorizontalAlignment(HorizontalAlignment.CENTER);
+
+            Cell assinaturaCell = new Cell()
+                    .setBorder(Border.NO_BORDER)
+                    .setBorderTop(new SolidBorder(GRAY_600, 1))
+                    .setPaddingTop(8)
+                    .setTextAlignment(TextAlignment.CENTER);
+            assinaturaCell.add(new Paragraph(anamnese.getProfissionalNome())
+                    .setFont(fontBold).setFontSize(11).setFontColor(PRIMARY_DARK));
+            assinaturaCell.add(new Paragraph("Fonoaudiólogo(a)")
+                    .setFont(fontItalic).setFontSize(9).setFontColor(GRAY_600));
+            assinaturaTable.addCell(assinaturaCell);
+            doc.add(assinaturaTable);
+
+            // Rodapé com data de geração
+            doc.add(new Paragraph("").setMarginTop(20));
+            doc.add(new Paragraph("Documento gerado pelo FonoSystem em " +
+                    java.time.LocalDateTime.now().format(
+                            DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm")))
+                    .setFont(fontItalic).setFontSize(8).setFontColor(GRAY_400)
+                    .setTextAlignment(TextAlignment.CENTER));
+
+            doc.close();
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao gerar PDF da anamnese", e);
+        }
+    }
+
+    private void adicionarSecaoAnamnese(Document doc, String titulo, String conteudo,
+                                       PdfFont fontBold, PdfFont fontRegular) {
+        if (conteudo == null || conteudo.isBlank()) {
+            return;
+        }
+
+        doc.add(new Paragraph(titulo)
+                .setFont(fontBold).setFontSize(11).setFontColor(PRIMARY_DARK)
+                .setMarginBottom(4).setMarginTop(12));
+
+        String[] linhas = conteudo.split("\\n");
+        for (String linha : linhas) {
+            String trimmed = linha.trim();
+            if (trimmed.isEmpty()) {
+                doc.add(new Paragraph("").setMarginBottom(4));
+                continue;
+            }
+            doc.add(new Paragraph(trimmed)
+                    .setFont(fontRegular).setFontSize(11).setFontColor(GRAY_600)
+                    .setMultipliedLeading(1.6f).setMarginBottom(2));
         }
     }
 }

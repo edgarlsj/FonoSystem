@@ -71,6 +71,10 @@ class RelatorioServiceTest {
         request.setDataSessao(LocalDate.now());
         request.setAtividadesRealizadas("Terapia da fala ajustada");
 
+        // Setup de autenticação - lenient para permitir stubbings não usados em todos os testes
+        lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
+        lenient().when(authentication.getName()).thenReturn("medico@teste.com");
+        lenient().when(userRepository.findByEmail("medico@teste.com")).thenReturn(Optional.of(profissional));
         SecurityContextHolder.setContext(securityContext);
     }
 
@@ -81,18 +85,20 @@ class RelatorioServiceTest {
 
     @Test
     void listarPorPaciente_ShouldReturnList() {
-        when(relatorioRepository.findByPacienteIdOrderByDataSessaoDesc(1L)).thenReturn(List.of(relatorio));
+        when(pacienteService.buscarEntidadePorId(1L)).thenReturn(paciente);
+        when(relatorioRepository.findByPacienteIdOrderByDataSessaoDesc(2L, 1L)).thenReturn(List.of(relatorio));
 
         List<RelatorioDiario> result = relatorioService.listarPorPaciente(1L);
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        verify(relatorioRepository, times(1)).findByPacienteIdOrderByDataSessaoDesc(1L);
+        verify(relatorioRepository, times(1)).findByPacienteIdOrderByDataSessaoDesc(2L, 1L);
     }
 
     @Test
     void buscarPorId_WhenExists_ShouldReturnRelatorio() {
-        when(relatorioRepository.findByIdWithFetch(1L)).thenReturn(Optional.of(relatorio));
+        when(pacienteService.buscarEntidadePorId(1L)).thenReturn(paciente);
+        when(relatorioRepository.findByIdWithFetch(2L, 1L)).thenReturn(Optional.of(relatorio));
 
         RelatorioDiario result = relatorioService.buscarPorId(1L);
 
@@ -102,7 +108,7 @@ class RelatorioServiceTest {
 
     @Test
     void buscarPorId_WhenNotExists_ShouldThrowException() {
-        when(relatorioRepository.findByIdWithFetch(99L)).thenReturn(Optional.empty());
+        when(relatorioRepository.findByIdWithFetch(2L, 99L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> relatorioService.buscarPorId(99L));
     }
@@ -111,13 +117,14 @@ class RelatorioServiceTest {
     void buscarEvolucao_ShouldReturnList() {
         LocalDate inicio = LocalDate.now().minusDays(10);
         LocalDate fim = LocalDate.now();
-        when(relatorioRepository.findByPacienteIdAndDataSessaoBetween(1L, inicio, fim)).thenReturn(List.of(relatorio));
+        when(pacienteService.buscarEntidadePorId(1L)).thenReturn(paciente);
+        when(relatorioRepository.findByPacienteIdAndDataSessaoBetween(2L, 1L, inicio, fim)).thenReturn(List.of(relatorio));
 
         List<RelatorioDiario> result = relatorioService.buscarEvolucao(1L, inicio, fim);
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        verify(relatorioRepository, times(1)).findByPacienteIdAndDataSessaoBetween(1L, inicio, fim);
+        verify(relatorioRepository, times(1)).findByPacienteIdAndDataSessaoBetween(2L, 1L, inicio, fim);
     }
 
     @Test
@@ -141,7 +148,8 @@ class RelatorioServiceTest {
 
     @Test
     void atualizar_WhenExists_ShouldUpdateFields() {
-        when(relatorioRepository.findByIdWithFetch(1L)).thenReturn(Optional.of(relatorio));
+        when(pacienteService.buscarEntidadePorId(1L)).thenReturn(paciente);
+        when(relatorioRepository.findByIdWithFetch(2L, 1L)).thenReturn(Optional.of(relatorio));
         when(relatorioRepository.save(any(RelatorioDiario.class))).thenReturn(relatorio);
 
         RelatorioDiario result = relatorioService.atualizar(1L, request);

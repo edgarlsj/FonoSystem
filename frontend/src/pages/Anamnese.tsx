@@ -245,13 +245,8 @@ export default function Anamnese() {
       })
       const blob = new Blob([response.data], { type: 'application/pdf' })
       const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      const nomePaciente = pacienteInfo?.nomeCompleto?.replace(/\s+/g, '_') || 'Anamnese'
-      const data = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')
-      link.download = `Anamnese_${nomePaciente}_${data}.pdf`
-      link.click()
-      window.URL.revokeObjectURL(url)
+      window.open(url, '_blank')
+      setTimeout(() => window.URL.revokeObjectURL(url), 100)
       setSucesso(true)
       setTimeout(() => setSucesso(false), 3000)
     } catch (e: any) {
@@ -298,6 +293,13 @@ export default function Anamnese() {
             </div>
           </div>
         </>
+      )}
+
+      {/* Botão de PDF em modo tab */}
+      {inTab && (
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '16px' }}>
+          <button className="btn btn-primary" onClick={handleGerarPdf} title="Gerar PDF da anamnese">📥 Gerar PDF</button>
+        </div>
       )}
 
       {/* Mensagens */}

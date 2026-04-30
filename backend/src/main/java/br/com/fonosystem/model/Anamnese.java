@@ -28,6 +28,24 @@ public class Anamnese {
     @JoinColumn(name = "profissional_id", nullable = false)
     private User profissional;
 
+    @Transient
+    @JsonIgnore
+    public String getPacienteNome() {
+        return paciente != null ? paciente.getNomeCompleto() : null;
+    }
+
+    @Transient
+    @JsonIgnore
+    public LocalDate getPacienteDataNascimento() {
+        return paciente != null ? paciente.getDataNascimento() : null;
+    }
+
+    @Transient
+    @JsonIgnore
+    public String getProfissionalNome() {
+        return profissional != null ? profissional.getNome() : null;
+    }
+
     // --- Queixa e histórico ---
     @Column(name = "queixa_principal", nullable = false, columnDefinition = "TEXT")
     private String queixaPrincipal;

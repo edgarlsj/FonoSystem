@@ -1,6 +1,7 @@
 package br.com.fonosystem.controller;
 
 import br.com.fonosystem.dto.AnamneseRequest;
+import br.com.fonosystem.dto.AnamnesePdfResult;
 import br.com.fonosystem.model.Anamnese;
 import br.com.fonosystem.model.User;
 import br.com.fonosystem.repository.UserRepository;
@@ -8,7 +9,9 @@ import br.com.fonosystem.service.AnamneseService;
 import br.com.fonosystem.service.LogService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -74,5 +77,17 @@ public class AnamneseController {
         ));
 
         return ResponseEntity.ok(anamnese);
+    }
+
+    @GetMapping("/pdf")
+    public ResponseEntity<byte[]> downloadPdf(@PathVariable Long pacienteId) {
+        AnamnesePdfResult result = anamneseService.gerarPdf(pacienteId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("inline", result.filename());
+        headers.setContentLength(result.bytes().length);
+
+        return ResponseEntity.ok().headers(headers).body(result.bytes());
     }
 }
