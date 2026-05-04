@@ -156,14 +156,25 @@ export default function ProcForm({ value, onChange }: ProcFormProps) {
 
   const emitChange = (sc: any, oa: any, obs: string) => {
     const areaScores: Record<string, number> = {}
+    const areaNames: Record<string, string> = {
+      habilidadesComunicativas: 'Habilidades Comunicativas',
+      compreensaoVerbal: 'Compreensão Verbal',
+      desenvolvimentoCognitivo: 'Desenvolvimento Cognitivo',
+    }
+    const radarScores: Record<string, number> = {}
     Object.keys(PROC_AREAS).forEach(k => {
-      areaScores[k] = calcMediaArea(k)
+      const score = calcMediaArea(k)
+      areaScores[k] = score
+      radarScores[areaNames[k as keyof typeof areaNames]] = score
     })
+    const mediaGeral = Object.values(areaScores).reduce((a, b) => a + b, 0) / Object.keys(areaScores).length
     onChange({
       instrumento: 'PROC',
       scores: sc,
       obsAreas: oa,
       areaScores,
+      radarScores,
+      resultadoGeral: mediaGeral >= 70 ? 'ADEQUADO' : mediaGeral >= 40 ? 'PARCIAL' : 'ALTERADO',
       observacoes: obs,
     })
   }

@@ -282,11 +282,22 @@ export default function PortageForm({ value, onChange }: PortageFormProps) {
       })
       scores[d] = itens.length > 0 ? Math.round(t / itens.length) : 0
     })
+
+    const scoreValues = Object.values(scores)
+    const adequados = scoreValues.filter(v => v >= 70).length
+    const alterados = scoreValues.filter(v => v < 40).length
+    let resultadoGeral: string
+    if (scoreValues.length === 0) resultadoGeral = 'INCOMPLETO'
+    else if (adequados === scoreValues.length) resultadoGeral = 'ADEQUADO'
+    else if (alterados === 0) resultadoGeral = 'PARCIAL'
+    else resultadoGeral = 'ALTERADO'
+
     onChange({
       instrumento: 'PORTAGE',
       faixaEtaria: fe,
       itensStatus: is,
       scores,
+      resultadoGeral,
       observacoes: obs,
     })
   }

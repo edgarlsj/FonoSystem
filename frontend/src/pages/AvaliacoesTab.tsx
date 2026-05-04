@@ -9,6 +9,14 @@ import ProcForm from './avaliacoes/ProcForm'
 import MchatForm from './avaliacoes/MchatForm'
 import CarsForm from './avaliacoes/CarsForm'
 import AbfwForm from './avaliacoes/AbfwForm'
+import PopTtForm from './avaliacoes/PopTtForm'
+import MatSimbolForm from './avaliacoes/MatSimbolForm'
+import PraxiasForm from './avaliacoes/PraxiasForm'
+import AfcForm from './avaliacoes/AfcForm'
+import PodcleForm from './avaliacoes/PodcleForm'
+import MotoraFalaForm from './avaliacoes/MotoraFalaForm'
+import FalaLinguagemForm from './avaliacoes/FalaLinguagemForm'
+import MbgrForm from './avaliacoes/MbgrForm'
 import AvaliacaoRadar from './avaliacoes/AvaliacaoRadar'
 
 interface AvaliacaoData {
@@ -33,6 +41,14 @@ const INSTRUMENTOS = [
   { key: 'CARS', label: 'Teste CARS', desc: '15 domínios · Severidade do TEA', emoji: '🧩', bg: '#FEF3C7', color: '#92400E' },
   { key: 'PROC', label: 'PROC (Zorzi & Hage)', desc: '3 áreas · Observação comportamental', emoji: '🗣️', bg: '#ECFDF5', color: '#065F46' },
   { key: 'ABFW', label: 'ABFW Pragmática', desc: '15 funções · Perfil funcional da comunicação', emoji: '💬', bg: '#E0F2FE', color: '#0369A1' },
+  { key: 'POP_TT', label: 'POP-TT (Borghi e Pântano, 2010)', desc: '3 seções · A/B/C/D · Observação psicomotora · 4-12 anos', emoji: '🎯', bg: '#FEF9C3', color: '#713F12' },
+  { key: 'MAT_SIMBOLICA', label: 'Aval. Maturidade Simbólica (Befi-Lopes, 2003)', desc: '7 estágios · Jogo simbólico · 2-5 anos', emoji: '🧸', bg: '#FFF7ED', color: '#C2410C' },
+  { key: 'PRAXIAS', label: 'Aval. Praxias Orofaciais (Marchezan, 2003)', desc: '36 itens · 4 grupos · Dispraxia orofacial', emoji: '🫦', bg: '#F0FDF4', color: '#15803D' },
+  { key: 'AFC', label: 'AFC — Aval. Fonológica da Criança (Yavas, 1991)', desc: 'PCC · Processos fonológicos · 3-8 anos', emoji: '🔤', bg: '#EDE9FE', color: '#5B21B6' },
+  { key: 'PODCLE', label: 'PODCLE (Bühler, 2008)', desc: 'Desenvolvimento cognitivo e linguagem expressiva · 0-14 meses', emoji: '👶', bg: '#ECFDF5', color: '#065F46' },
+  { key: 'MOTORA_FALA', label: 'Aval. Motora da Fala / DEMSS-BR (Fish, 2019)', desc: 'Precisão 0-4 · Consistência · 3-6 anos', emoji: '👄', bg: '#FCE7F3', color: '#9D174D' },
+  { key: 'FALA_LINGUAGEM', label: 'Aval. Fala e Linguagem (Giacheti e Ferrari, 2016)', desc: '8 domínios · Perfil obtido vs esperado', emoji: '💬', bg: '#E0F2FE', color: '#0369A1' },
+  { key: 'MBGR', label: 'MBGR (Marchesan, Berretin-Felix, Genaro, Rehder)', desc: '10 domínios · Score miofuncional orofacial', emoji: '📊', bg: '#CCFBF1', color: '#0F766E' },
   { key: 'OUTRO', label: 'Outro instrumento', desc: 'Formulário livre', emoji: '📝', bg: '#F3F4F6', color: '#6B7280' },
 ]
 
@@ -64,6 +80,7 @@ export default function AvaliacoesTab() {
 
   const [salvando, setSalvando] = useState(false)
   const [showDetalhes, setShowDetalhes] = useState<AvaliacaoData | null>(null)
+  const [showRespostasDetalhadas, setShowRespostasDetalhadas] = useState(true)
   const [editandoId, setEditandoId] = useState<number | null>(null)
   const [toast, setToast] = useState<{ show: boolean; msg: string; type: 'success' | 'error' }>({
     show: false, msg: '', type: 'success'
@@ -327,10 +344,20 @@ export default function AvaliacoesTab() {
           : av.instrumentoAvaliacao?.includes('M-CHAT') ? 'MCHAT'
             : av.instrumentoAvaliacao?.includes('CARS') ? 'CARS'
               : av.instrumentoAvaliacao?.includes('ABFW') ? 'ABFW'
-                : av.instrumentoAvaliacao?.includes('PROC') ? 'PROC' : 'OUTRO')
+                : av.instrumentoAvaliacao?.includes('PROC') ? 'PROC'
+                  : av.instrumentoAvaliacao?.includes('POP-TT') ? 'POP_TT'
+                    : av.instrumentoAvaliacao?.includes('Maturidade') ? 'MAT_SIMBOLICA'
+                      : av.instrumentoAvaliacao?.includes('Praxias') ? 'PRAXIAS'
+                        : av.instrumentoAvaliacao?.includes('AFC') ? 'AFC'
+                          : av.instrumentoAvaliacao?.includes('PODCLE') ? 'PODCLE'
+                            : av.instrumentoAvaliacao?.includes('Motora') ? 'MOTORA_FALA'
+                              : av.instrumentoAvaliacao?.includes('Fala') ? 'FALA_LINGUAGEM'
+                                : av.instrumentoAvaliacao?.includes('MBGR') ? 'MBGR' : 'OUTRO')
 
     setInstrumentoSelecionado(instrKey)
-    setInstrumentoData(parsed)
+    // Se for um dos novos instrumentos, usar dados parseados; caso contrário, resetar
+    const novoInstrumentos = ['POP_TT', 'MAT_SIMBOLICA', 'PRAXIAS', 'AFC', 'PODCLE', 'MOTORA_FALA', 'FALA_LINGUAGEM', 'MBGR']
+    setInstrumentoData(novoInstrumentos.includes(instrKey) ? parsed : undefined)
     setEtapa('formulario')
     setForm({
       tipoAvaliacao: av.tipoAvaliacao || 'INICIAL',
@@ -495,7 +522,10 @@ export default function AvaliacoesTab() {
                   </div>
                   <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
                     {/* Mini scores do instrumento */}
-                    {parsed?.scores && Object.entries(parsed.scores as Record<string, number>).slice(0, 3).map(([k, v]) => (
+                    {parsed?.scores && typeof parsed.scores === 'object' && Object.entries(parsed.scores as Record<string, any>)
+                      .filter(([, v]) => typeof v === 'number')
+                      .slice(0, 3)
+                      .map(([k, v]) => (
                       <span key={k} style={{
                         fontSize: '10px', fontWeight: 700,
                         background: (v as number) >= 70 ? '#D1FAE5' : (v as number) >= 40 ? '#FEF3C7' : '#FEE2E2',
@@ -505,7 +535,9 @@ export default function AvaliacoesTab() {
                         {v}%
                       </span>
                     ))}
-                    {parsed?.areaScores && Object.entries(parsed.areaScores as Record<string, number>).map(([k, v]) => (
+                    {parsed?.areaScores && typeof parsed.areaScores === 'object' && Object.entries(parsed.areaScores as Record<string, any>)
+                      .filter(([, v]) => typeof v === 'number')
+                      .map(([k, v]) => (
                       <span key={k} style={{
                         fontSize: '10px', fontWeight: 700,
                         background: (v as number) >= 70 ? '#D1FAE5' : (v as number) >= 40 ? '#FEF3C7' : '#FEE2E2',
@@ -670,6 +702,30 @@ export default function AvaliacoesTab() {
                 {instrumentoSelecionado === 'PROC' && (
                   <ProcForm value={instrumentoData} onChange={setInstrumentoData} />
                 )}
+                {instrumentoSelecionado === 'POP_TT' && (
+                  <PopTtForm value={instrumentoData} onChange={setInstrumentoData} />
+                )}
+                {instrumentoSelecionado === 'MAT_SIMBOLICA' && (
+                  <MatSimbolForm value={instrumentoData} onChange={setInstrumentoData} />
+                )}
+                {instrumentoSelecionado === 'PRAXIAS' && (
+                  <PraxiasForm value={instrumentoData} onChange={setInstrumentoData} />
+                )}
+                {instrumentoSelecionado === 'AFC' && (
+                  <AfcForm value={instrumentoData} onChange={setInstrumentoData} />
+                )}
+                {instrumentoSelecionado === 'PODCLE' && (
+                  <PodcleForm value={instrumentoData} onChange={setInstrumentoData} />
+                )}
+                {instrumentoSelecionado === 'MOTORA_FALA' && (
+                  <MotoraFalaForm value={instrumentoData} onChange={setInstrumentoData} />
+                )}
+                {instrumentoSelecionado === 'FALA_LINGUAGEM' && (
+                  <FalaLinguagemForm value={instrumentoData} onChange={setInstrumentoData} />
+                )}
+                {instrumentoSelecionado === 'MBGR' && (
+                  <MbgrForm value={instrumentoData} onChange={setInstrumentoData} />
+                )}
                 {instrumentoSelecionado === 'OUTRO' && (
                   <div className="form-card" style={{ marginBottom: '16px' }}>
                     <div className="form-section-title"><div className="section-icon" />Resultados</div>
@@ -714,9 +770,33 @@ export default function AvaliacoesTab() {
       {/* ============ MODAL DETALHES ============ */}
       <div className={`modal-overlay ${showDetalhes ? 'active' : ''}`}>
         <div className="modal" style={{ maxWidth: '800px', maxHeight: '92vh', overflowY: 'auto' }}>
-          <div className="modal-header">
+          <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h2 className="modal-title">Detalhes da Avaliação</h2>
-            <button className="modal-close" onClick={() => setShowDetalhes(null)}>×</button>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <button
+                onClick={() => setShowRespostasDetalhadas(!showRespostasDetalhadas)}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  border: showRespostasDetalhadas ? '2px solid #0369A1' : '1px solid #D1D5DB',
+                  background: showRespostasDetalhadas ? '#E0F2FE' : '#fff',
+                  color: showRespostasDetalhadas ? '#0369A1' : '#6B7280',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: showRespostasDetalhadas ? '0 0 0 3px rgba(3, 105, 161, 0.1)' : 'none',
+                }}
+                title={showRespostasDetalhadas ? 'Clique para ocultar as respostas detalhadas' : 'Clique para mostrar as respostas detalhadas'}
+              >
+                <span>{showRespostasDetalhadas ? '✓' : '○'}</span>
+                {showRespostasDetalhadas ? 'Respostas Detalhadas' : 'Ver Respostas'}
+              </button>
+              <button className="modal-close" onClick={() => setShowDetalhes(null)}>×</button>
+            </div>
           </div>
 
           {showDetalhes && (() => {
@@ -791,8 +871,49 @@ export default function AvaliacoesTab() {
                     }}>
                       {parsed.instrumento === 'M-CHAT' ? `M-CHAT: ${parsed.riscoLabel} (Score: ${parsed.score}/20)`
                        : parsed.instrumento === 'CARS' ? `CARS: ${parsed.classificacao} (Total: ${parsed.totalScore}/60)`
+                       : parsed.classificacao ? `${parsed.classificacao}`
+                       : parsed.pcc ? `PCC: ${parsed.pcc}% - ${parsed.classificacao || ''}`
+                       : parsed.scoreTotal ? `Score: ${parsed.scoreTotal}/${parsed.scoreMaximo || '?'}`
                        : (parsed.resultadoGeral === 'NORMAL' ? '✅ Normal' : parsed.resultadoGeral === 'SUSPEITO' ? '⚠️ Suspeito' : '➖ Não testável')}
                     </div>
+                    {/* Dados coletados por instrumento */}
+                    {parsed && (
+                      <div style={{ marginTop: '12px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px', fontSize: '12px' }}>
+                        {parsed.scoreTotal !== undefined && (
+                          <div style={{ padding: '8px 10px', background: '#F3F4F6', borderRadius: '6px' }}>
+                            <div style={{ color: '#9CA3AF', fontWeight: 600, marginBottom: '2px' }}>Score Total</div>
+                            <div style={{ fontSize: '14px', fontWeight: 700, color: '#374151' }}>{parsed.scoreTotal}/{parsed.scoreMaximo || '?'}</div>
+                          </div>
+                        )}
+                        {parsed.pcc !== undefined && (
+                          <div style={{ padding: '8px 10px', background: '#F3F4F6', borderRadius: '6px' }}>
+                            <div style={{ color: '#9CA3AF', fontWeight: 600, marginBottom: '2px' }}>PCC</div>
+                            <div style={{ fontSize: '14px', fontWeight: 700, color: '#374151' }}>{parsed.pcc}%</div>
+                          </div>
+                        )}
+                        {parsed.totalAvaliados !== undefined && (
+                          <div style={{ padding: '8px 10px', background: '#F3F4F6', borderRadius: '6px' }}>
+                            <div style={{ color: '#9CA3AF', fontWeight: 600, marginBottom: '2px' }}>Avaliados</div>
+                            <div style={{ fontSize: '14px', fontWeight: 700, color: '#374151' }}>{parsed.totalAvaliados} itens</div>
+                          </div>
+                        )}
+                        {parsed.totalCons !== undefined && (
+                          <div style={{ padding: '8px 10px', background: '#F3F4F6', borderRadius: '6px' }}>
+                            <div style={{ color: '#9CA3AF', fontWeight: 600, marginBottom: '2px' }}>Consistentes</div>
+                            <div style={{ fontSize: '14px', fontWeight: 700, color: '#374151' }}>{parsed.totalConsistentes || 0}/{parsed.totalCons || '?'}</div>
+                          </div>
+                        )}
+                        {/* Scores por domínio/dimensão */}
+                        {(parsed.radarScores || parsed.scores) && typeof (parsed.radarScores || parsed.scores) === 'object' && Object.entries(parsed.radarScores || parsed.scores)
+                          .filter(([, v]) => typeof v === 'number')
+                          .map(([dominio, score]) => (
+                            <div key={dominio} style={{ padding: '8px 10px', background: '#F3F4F6', borderRadius: '6px' }}>
+                              <div style={{ color: '#9CA3AF', fontWeight: 600, marginBottom: '2px', fontSize: '10px' }}>{dominio}</div>
+                              <div style={{ fontSize: '14px', fontWeight: 700, color: '#374151' }}>{Math.round(score)}%</div>
+                            </div>
+                          ))}
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -829,6 +950,293 @@ export default function AvaliacoesTab() {
                   <div className="form-card" style={{ marginBottom: '16px' }}>
                     <div className="form-section-title"><div className="section-icon" />Hipótese Diagnóstica</div>
                     <p style={{ fontSize: '14px', color: '#374151', whiteSpace: 'pre-wrap', margin: 0 }}>{showDetalhes.hipoteseDiagnostica}</p>
+                  </div>
+                )}
+
+                {/* Respostas Detalhadas por Instrumento */}
+                {showRespostasDetalhadas && parsed?.instrumento && (
+                  <div className="form-card" style={{ marginBottom: '16px' }}>
+                    <div className="form-section-title"><div className="section-icon" />Respostas Detalhadas</div>
+
+                    {/* M-CHAT */}
+                    {parsed.instrumento === 'M-CHAT' && parsed.respostas && (
+                      <div style={{ fontSize: '13px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                          {Object.entries(parsed.respostas as Record<string, string>).map(([id, resp]: [string, string]) => (
+                            <div key={id} style={{ padding: '8px', background: resp === 'sim' ? '#D1FAE5' : resp === 'nao' ? '#FEE2E2' : '#F3F4F6', borderRadius: '6px' }}>
+                              <div style={{ color: '#6B7280', fontSize: '11px', fontWeight: 600 }}>Item {id}</div>
+                              <div style={{ color: '#374151', fontWeight: 500, marginTop: '2px' }}>{resp === 'sim' ? '✓ Sim' : resp === 'nao' ? '✗ Não' : '—'}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* CARS */}
+                    {parsed.instrumento === 'CARS' && parsed.itens && (
+                      <div style={{ fontSize: '13px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                          {Object.entries(parsed.itens as Record<string, number>).map(([nome, score]: [string, number]) => (
+                            <div key={nome} style={{ padding: '8px', background: '#F3F4F6', borderRadius: '6px' }}>
+                              <div style={{ color: '#6B7280', fontSize: '11px', fontWeight: 600 }}>{nome}</div>
+                              <div style={{ color: '#374151', fontWeight: 700, marginTop: '2px' }}>Score: {score}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* AFC - Processos Fonológicos */}
+                    {parsed.instrumento === 'AFC' && parsed.processos && Array.isArray(parsed.processos) && (
+                      <div style={{ fontSize: '13px' }}>
+                        <div style={{ marginBottom: '12px' }}>
+                          <div style={{ color: '#6B7280', fontSize: '11px', fontWeight: 600, marginBottom: '6px' }}>Processos Fonológicos Observados:</div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                            {parsed.processos.map((proc: string, idx: number) => (
+                              <span key={idx} style={{ padding: '4px 10px', background: '#DBEAFE', color: '#1D4ED8', borderRadius: '999px', fontSize: '12px', fontWeight: 600 }}>
+                                {proc}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* PORTAGE - Status por Domínio */}
+                    {parsed.instrumento === 'PORTAGE' && parsed.itensStatus && (
+                      <div style={{ fontSize: '13px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                          {Object.entries(parsed.itensStatus as Record<string, Record<string, string>>).map(([dominio, items]: any) => {
+                            const adquiridos = Object.values(items).filter((v: any) => v === 'adquirido').length
+                            const emergentes = Object.values(items).filter((v: any) => v === 'emergente').length
+                            return (
+                              <div key={dominio} style={{ padding: '10px', background: '#F3F4F6', borderRadius: '6px' }}>
+                                <div style={{ color: '#6B7280', fontSize: '11px', fontWeight: 600 }}>{dominio}</div>
+                                <div style={{ color: '#374151', marginTop: '4px', fontSize: '12px' }}>
+                                  ✓ {adquiridos} · 🔄 {emergentes}
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* DENVER II - Status por Domínio */}
+                    {parsed.instrumento === 'DENVER_II' && parsed.itensStatus && (
+                      <div style={{ fontSize: '13px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                          {Object.entries(parsed.itensStatus as Record<string, Record<string, string>>).map(([dominio, items]: any) => {
+                            const passou = Object.values(items).filter((v: any) => v === 'passou').length
+                            const falhou = Object.values(items).filter((v: any) => v === 'falhou').length
+                            return (
+                              <div key={dominio} style={{ padding: '10px', background: '#F3F4F6', borderRadius: '6px' }}>
+                                <div style={{ color: '#6B7280', fontSize: '11px', fontWeight: 600 }}>{dominio}</div>
+                                <div style={{ color: '#374151', marginTop: '4px', fontSize: '12px' }}>
+                                  ✓ {passou} Passou · ❌ {falhou} Falhou
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ABFW - Frequências por Categoria */}
+                    {parsed.instrumento === 'ABFW' && parsed.frequencias && (
+                      <div style={{ fontSize: '13px' }}>
+                        <div style={{ marginBottom: '12px' }}>
+                          <div style={{ color: '#6B7280', fontSize: '11px', fontWeight: 600, marginBottom: '6px' }}>Frequência das Funções Comunicativas:</div>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                            {Object.entries(parsed.frequencias as Record<string, number>).map(([id, freq]: [string, number]) => (
+                              <div key={id} style={{ padding: '6px', background: '#F3F4F6', borderRadius: '4px', textAlign: 'center' }}>
+                                <div style={{ color: '#6B7280', fontSize: '10px' }}>{id}</div>
+                                <div style={{ color: '#374151', fontWeight: 700, marginTop: '2px' }}>{freq}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* PROC - Scores por Área com Cores */}
+                    {parsed.instrumento === 'PROC' && parsed.areaScores && (
+                      <div style={{ fontSize: '13px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                          {Object.entries(parsed.areaScores as Record<string, number>).map(([area, score]: [string, number]) => {
+                            const cor = score >= 70 ? '#D1FAE5' : score >= 40 ? '#FEF3C7' : '#FEE2E2'
+                            const corTexto = score >= 70 ? '#065F46' : score >= 40 ? '#92400E' : '#991B1B'
+                            return (
+                              <div key={area} style={{ padding: '12px', background: cor, borderRadius: '8px', textAlign: 'center', border: `1px solid ${cor}` }}>
+                                <div style={{ color: corTexto, fontSize: '12px', fontWeight: 600, marginBottom: '6px' }}>{area}</div>
+                                <div style={{ color: corTexto, fontWeight: 700, fontSize: '18px' }}>{Math.round(score)}%</div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* POP-TT - Níveis por Seção */}
+                    {parsed.instrumento === 'POP-TT' && parsed.niveis && (
+                      <div style={{ fontSize: '13px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                          {Object.entries(parsed.niveis as Record<string, string>).map(([secao, nivel]: [string, string]) => (
+                            <div key={secao} style={{ padding: '10px', background: '#F3F4F6', borderRadius: '6px', textAlign: 'center' }}>
+                              <div style={{ color: '#6B7280', fontSize: '11px', fontWeight: 600 }}>{secao}</div>
+                              <div style={{ color: '#374151', fontWeight: 700, marginTop: '4px', fontSize: '18px' }}>{nivel || '—'}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Maturidade Simbólica - Estágios */}
+                    {parsed.instrumento === 'MAT_SIMBOLICA' && parsed.jogoFrequente && (
+                      <div style={{ fontSize: '13px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                          <div style={{ padding: '10px', background: '#F3F4F6', borderRadius: '6px' }}>
+                            <div style={{ color: '#6B7280', fontSize: '11px', fontWeight: 600 }}>Jogo mais Frequente</div>
+                            <div style={{ color: '#374151', fontWeight: 600, marginTop: '4px' }}>{(parsed.jogoFrequente as any).sigla}</div>
+                            <div style={{ color: '#9CA3AF', fontSize: '11px', marginTop: '2px' }}>{(parsed.jogoFrequente as any).nome}</div>
+                          </div>
+                          <div style={{ padding: '10px', background: '#F3F4F6', borderRadius: '6px' }}>
+                            <div style={{ color: '#6B7280', fontSize: '11px', fontWeight: 600 }}>Jogo mais Elaborado</div>
+                            <div style={{ color: '#374151', fontWeight: 600, marginTop: '4px' }}>{(parsed.jogoElaborado as any).sigla}</div>
+                            <div style={{ color: '#9CA3AF', fontSize: '11px', marginTop: '2px' }}>{(parsed.jogoElaborado as any).nome}</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* MBGR - Scores por Domínio com Cores */}
+                    {parsed.instrumento === 'MBGR' && parsed.scores && (
+                      <div style={{ fontSize: '13px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                          {Object.entries(parsed.scores as Record<string, number>).map(([dominio, score]: [string, number], idx: number) => {
+                            const mbgrNomes = [
+                              'Postura (cabeça, ombros)',
+                              'Análise Facial/Extraoral',
+                              'Análise Intraoral (oroscopia)',
+                              'Mobilidade (língua, lábios)',
+                              'Tonicidade e Palpação',
+                              'Respiração (tipo/modo)',
+                              'Mastigação',
+                              'Deglutição',
+                              'Fala',
+                              'Voz'
+                            ]
+                            // Tenta usar o nome do domínio se for descritivo, senão usa índice
+                            const nomeDescritivo = dominio && dominio.length > 2
+                              ? `${idx + 1}. ${dominio}`
+                              : `${idx + 1}. ${mbgrNomes[idx] || dominio}`
+                            const cor = score === 0 ? '#D1FAE5' : score <= 2 ? '#DBEAFE' : score <= 4 ? '#FEF3C7' : '#FEE2E2'
+                            const corTexto = score === 0 ? '#065F46' : score <= 2 ? '#1D4ED8' : score <= 4 ? '#92400E' : '#991B1B'
+                            return (
+                              <div key={`${dominio}-${idx}`} style={{ padding: '12px', background: cor, borderRadius: '8px', border: `1px solid ${cor}` }}>
+                                <div style={{ color: corTexto, fontSize: '12px', fontWeight: 600, marginBottom: '6px' }}>{nomeDescritivo}</div>
+                                <div style={{ color: corTexto, fontWeight: 700, fontSize: '16px' }}>
+                                  {score}
+                                  <span style={{ fontSize: '11px', fontWeight: 400, marginLeft: '4px' }}>
+                                    {score === 0 ? '✓ Normal' : score <= 2 ? '◐ Leve' : score <= 4 ? '◕ Moderado' : '✗ Grave'}
+                                  </span>
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Praxias - Scores por Grupo com Cores */}
+                    {parsed.instrumento === 'PRAXIAS' && parsed.scores && (
+                      <div style={{ fontSize: '13px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                          {Object.entries(parsed.scores as Record<string, number>).map(([grupo, score]: [string, number]) => {
+                            const cor = score >= 80 ? '#D1FAE5' : score >= 60 ? '#DBEAFE' : score >= 40 ? '#FEF3C7' : '#FEE2E2'
+                            const corTexto = score >= 80 ? '#065F46' : score >= 60 ? '#1D4ED8' : score >= 40 ? '#92400E' : '#991B1B'
+                            const status = score >= 80 ? 'Normal' : score >= 60 ? 'Leve' : score >= 40 ? 'Moderado' : 'Grave'
+                            return (
+                              <div key={grupo} style={{ padding: '12px', background: cor, borderRadius: '8px', border: `1px solid ${cor}` }}>
+                                <div style={{ color: corTexto, fontSize: '12px', fontWeight: 600, marginBottom: '6px' }}>{grupo}</div>
+                                <div style={{ color: corTexto, fontWeight: 700, fontSize: '16px' }}>
+                                  {Math.round(score)}%
+                                  <span style={{ fontSize: '11px', fontWeight: 400, marginLeft: '6px' }}>({status})</span>
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* PODCLE - Scores por Dimensão com Cores */}
+                    {parsed.instrumento === 'PODCLE' && parsed.scores && (
+                      <div style={{ fontSize: '13px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                          {Object.entries(parsed.scores as Record<string, number>).map(([dimensao, score]: [string, number]) => {
+                            const cor = score > 0 && score <= 33 ? '#FEE2E2' : score <= 66 ? '#FEF3C7' : '#D1FAE5'
+                            const corTexto = score > 0 && score <= 33 ? '#991B1B' : score <= 66 ? '#92400E' : '#065F46'
+                            return (
+                              <div key={dimensao} style={{ padding: '12px', background: cor, borderRadius: '8px', border: `1px solid ${cor}` }}>
+                                <div style={{ color: corTexto, fontSize: '12px', fontWeight: 600, marginBottom: '6px' }}>{dimensao}</div>
+                                <div style={{ color: corTexto, fontWeight: 700, fontSize: '16px' }}>{Math.round(score)}%</div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Motora da Fala - Precisão por Tarefa com Cores */}
+                    {parsed.instrumento === 'MOTORA_FALA' && parsed.tarefas && (
+                      <div style={{ fontSize: '13px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                          {Object.entries(parsed.tarefas as Record<string, any>).map(([tarefa, data]: [string, any]) => {
+                            const pct = (data.precisao / 4) * 100
+                            const cor = pct >= 80 ? '#D1FAE5' : pct >= 60 ? '#DBEAFE' : pct >= 40 ? '#FEF3C7' : '#FEE2E2'
+                            const corTexto = pct >= 80 ? '#065F46' : pct >= 60 ? '#1D4ED8' : pct >= 40 ? '#92400E' : '#991B1B'
+                            return (
+                              <div key={tarefa} style={{ padding: '12px', background: cor, borderRadius: '8px', border: `1px solid ${cor}` }}>
+                                <div style={{ color: corTexto, fontSize: '12px', fontWeight: 600, marginBottom: '6px' }}>{tarefa}</div>
+                                <div style={{ color: corTexto, marginTop: '4px', fontSize: '13px', fontWeight: 600 }}>
+                                  {data.precisao}/4 {data.consistente ? '✓ Consistente' : '—'}
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Fala e Linguagem - Scores por Domínio com Cores */}
+                    {parsed.instrumento === 'FALA_LINGUAGEM' && parsed.scores && (
+                      <div style={{ fontSize: '13px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                          {Object.entries(parsed.scores as Record<string, number>).map(([dominio, score]: [string, number]) => {
+                            const cor = score >= 80 ? '#D1FAE5' : score >= 50 ? '#FEF3C7' : '#FEE2E2'
+                            const corTexto = score >= 80 ? '#065F46' : score >= 50 ? '#92400E' : '#991B1B'
+                            const status = score >= 80 ? 'Adequado' : score >= 50 ? 'Parcial' : 'Alterado'
+                            return (
+                              <div key={dominio} style={{ padding: '12px', background: cor, borderRadius: '8px', border: `1px solid ${cor}` }}>
+                                <div style={{ color: corTexto, fontSize: '12px', fontWeight: 600, marginBottom: '6px' }}>{dominio}</div>
+                                <div style={{ color: corTexto, fontWeight: 700, fontSize: '16px' }}>
+                                  {Math.round(score)}%
+                                  <span style={{ fontSize: '11px', fontWeight: 400, marginLeft: '6px' }}>({status})</span>
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Fallback - Exibir qualquer campo JSON não tratado */}
+                    {!parsed.respostas && !parsed.itens && !parsed.processos && !parsed.itensStatus && !parsed.jogoFrequente && !parsed.areaScores && !parsed.niveis && !parsed.tarefas && (
+                      <div style={{ padding: '12px', background: '#F3F4F6', borderRadius: '6px', color: '#6B7280', fontSize: '13px' }}>
+                        📊 Dados das respostas armazenados no sistema · Instrumento: <strong>{parsed.instrumento}</strong>
+                      </div>
+                    )}
                   </div>
                 )}
 

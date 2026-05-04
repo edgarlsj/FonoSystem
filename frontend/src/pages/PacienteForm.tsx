@@ -59,6 +59,19 @@ export default function PacienteForm() {
     }
   }
 
+  const formatarTelefone = (valor: string): string => {
+    const apenasNumeros = valor.replace(/\D/g, '')
+    if (apenasNumeros.length === 0) return ''
+    if (apenasNumeros.length <= 2) return apenasNumeros
+    if (apenasNumeros.length <= 6) return `(${apenasNumeros.slice(0, 2)}) ${apenasNumeros.slice(2)}`
+    if (apenasNumeros.length <= 10) return `(${apenasNumeros.slice(0, 2)}) ${apenasNumeros.slice(2, 6)}-${apenasNumeros.slice(6)}`
+    return `(${apenasNumeros.slice(0, 2)}) ${apenasNumeros.slice(2, 7)}-${apenasNumeros.slice(7, 11)}`
+  }
+
+  const handleTelefoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.target.value = formatarTelefone(e.target.value)
+  }
+
   const validateForm = (form: FormData): Record<string, string> => {
     const errors: Record<string, string> = {}
     const nome = form.get('nome')?.toString().trim()
@@ -101,9 +114,9 @@ export default function PacienteForm() {
       dataNascimento: form.get('nascimento'),
       sexo: form.get('sexo'),
       cpf: form.get('cpf'),
-      telefone: form.get('telefone'),
+      telefone: (form.get('telefone')?.toString() || '').replace(/\D/g, ''),
       nomeResponsavel: form.get('responsavel'),
-      telefoneResponsavel: form.get('telResponsavel'),
+      telefoneResponsavel: (form.get('telResponsavel')?.toString() || '').replace(/\D/g, ''),
       emailResponsavel: form.get('emailResponsavel'),
       grauParentesco: form.get('parentesco'),
       tipoAtendimento: form.get('tipoAtendimento'),
@@ -203,7 +216,7 @@ export default function PacienteForm() {
             </div>
             <div className="form-group">
               <label>Telefone</label>
-              <input className="form-control" name="telefone" placeholder="(11) 99999-9999" defaultValue={paciente?.telefone || ''} />
+              <input className="form-control" name="telefone" placeholder="(11) 99999-9999" onChange={handleTelefoneChange} defaultValue={paciente?.telefone || ''} />
             </div>
           </div>
         </div>
@@ -232,6 +245,7 @@ export default function PacienteForm() {
                 name="telResponsavel"
                 required
                 placeholder="(11) 99999-9999"
+                onChange={handleTelefoneChange}
                 defaultValue={paciente?.telefoneResponsavel || ''}
                 style={{ border: fieldErrors.telResponsavel ? '2px solid #dc2626' : undefined }}
               />
