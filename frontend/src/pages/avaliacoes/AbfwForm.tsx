@@ -42,8 +42,12 @@ interface AbfwFormProps {
 }
 
 export default function AbfwForm({ value, onChange }: AbfwFormProps) {
-  const [frequencias, setFrequencias] = useState<Record<string, Frequencia>>(value?.frequencias || {})
-  const [meios, setMeios] = useState<Record<string, MeioUso>>(value?.meios || {})
+  // Fallback para dados antigos ou malformados
+  const initialFreq = (value?.frequencias && typeof value.frequencias === 'object') ? value.frequencias : {}
+  const initialMeios = (value?.meios && typeof value.meios === 'object') ? value.meios : {}
+
+  const [frequencias, setFrequencias] = useState<Record<string, Frequencia>>(initialFreq)
+  const [meios, setMeios] = useState<Record<string, MeioUso>>(initialMeios)
   const [totalAtos, setTotalAtos] = useState<string>(value?.totalAtos || '')
   const [tempoAmostra, setTempoAmostra] = useState<string>(value?.tempoAmostra || '30')
   const [observacoes, setObservacoes] = useState<string>(value?.observacoes || '')

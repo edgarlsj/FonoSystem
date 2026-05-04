@@ -31,12 +31,14 @@ const LABEL_MAP: Record<string, string> = {
 }
 
 export default function AvaliacaoRadar({ scores, titulo }: AvaliacaoRadarProps) {
-  const data = Object.entries(scores).map(([key, value]) => ({
-    dominio: LABEL_MAP[key] || key,
-    dominioFull: key,
-    valor: value,
-    fullMark: 100,
-  }))
+  const data = Object.entries(scores)
+    .filter(([, value]) => typeof value === 'number')
+    .map(([key, value]) => ({
+      dominio: LABEL_MAP[key] || key,
+      dominioFull: key,
+      valor: value,
+      fullMark: 100,
+    }))
 
   if (data.length === 0) return null
 

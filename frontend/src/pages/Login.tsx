@@ -17,8 +17,17 @@ export default function Login() {
     try {
       await login(email, senha)
       navigate('/')
-    } catch {
-      setErro('Email ou senha inválidos')
+    } catch (err: any) {
+      // Diferenciar entre erro de credenciais e erro de conexão
+      if (err.response?.status === 401) {
+        setErro('Email ou senha inválidos')
+      } else if (err.code === 'ERR_NETWORK' || !err.response) {
+        setErro('❌ Não foi possível conectar ao servidor. Verifique se o backend está rodando.')
+      } else if (err.response?.status >= 500) {
+        setErro('❌ Erro no servidor. Tente novamente mais tarde.')
+      } else {
+        setErro(err.response?.data?.detail || '❌ Erro ao conectar. Tente novamente.')
+      }
       // Limpar apenas a senha, mantém o email preenchido
       setSenha('')
     } finally {

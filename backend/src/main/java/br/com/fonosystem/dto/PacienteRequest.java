@@ -24,8 +24,8 @@ public class PacienteRequest {
     @Pattern(regexp = "^(M|F|O)$", message = "Sexo deve ser M, F ou O")
     private String sexo;
 
-    @Pattern(regexp = "^(\\(?\\d{2}\\)?[\\s-]?\\d{4,5}-?\\d{4})?$",
-             message = "Telefone inválido")
+    @Pattern(regexp = "^(\\d{10,11})?$",
+             message = "Telefone deve conter 10 ou 11 dígitos")
     private String telefone;
 
     @Email(message = "Email inválido")
@@ -36,8 +36,8 @@ public class PacienteRequest {
     private String nomeResponsavel;
 
     @NotBlank(message = "Telefone do responsável é obrigatório")
-    @Pattern(regexp = "^\\(?\\d{2}\\)?[\\s-]?\\d{4,5}-?\\d{4}$",
-             message = "Telefone do responsável inválido")
+    @Pattern(regexp = "^\\d{10,11}$",
+             message = "Telefone do responsável deve conter 10 ou 11 dígitos")
     private String telefoneResponsavel;
 
     @Email(message = "Email do responsável inválido")
