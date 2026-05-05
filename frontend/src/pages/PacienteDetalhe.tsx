@@ -41,6 +41,7 @@ export default function PacienteDetalhe() {
     { to: 'prescricoes', label: 'Prescrição' },
     { to: 'anamnese', label: 'Anamnese' },
     { to: 'avaliacoes', label: 'Avaliações' },
+    { to: 'documentos-profissionais', label: '📎 Documentos' },
   ]
 
   return (

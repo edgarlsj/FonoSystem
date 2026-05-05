@@ -10,6 +10,7 @@ import PacienteDetalhe from './pages/PacienteDetalhe'
 import Anamnese from './pages/Anamnese'
 import Avaliacao from './pages/Avaliacao'
 import AvaliacoesTab from './pages/AvaliacoesTab'
+import DocumentosProfissionaisTab from './pages/DocumentosProfissionaisTab'
 import Relatorios from './pages/Relatorios'
 import PacienteRelatorios from './pages/PacienteRelatorios'
 import PacientePrescricoes from './pages/PacientePrescricoes'
@@ -40,6 +41,7 @@ export default function App() {
           <Route path="anamnese" element={<Anamnese />} />
           <Route path="avaliacoes" element={<AvaliacoesTab />} />
           <Route path="avaliacao" element={<Avaliacao />} />
+          <Route path="documentos-profissionais" element={<DocumentosProfissionaisTab />} />
         </Route>
         <Route path="relatorios" element={<Relatorios />} />
         <Route path="coletar-dados" element={<ColetarDados />} />

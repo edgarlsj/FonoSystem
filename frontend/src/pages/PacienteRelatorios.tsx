@@ -76,6 +76,17 @@ export default function PacienteRelatorios() {
     }
   }
 
+  const calcularIdade = (dataNascimento: string): number => {
+    const data = new Date(dataNascimento)
+    const hoje = new Date()
+    let idade = hoje.getFullYear() - data.getFullYear()
+    const mes = hoje.getMonth() - data.getMonth()
+    if (mes < 0 || (mes === 0 && hoje.getDate() < data.getDate())) {
+      idade--
+    }
+    return idade
+  }
+
   const limparFiltros = () => {
     setDataInicio('')
     setDataFim('')
@@ -98,13 +109,16 @@ export default function PacienteRelatorios() {
   const gerarDadosAgrupados = () => {
     const agrupado = new Map<string, any[]>()
     const pacienteNome = paciente?.nomeCompleto || 'Paciente'
+    const pacienteIdade = paciente ? calcularIdade(paciente.dataNascimento) : ''
+    const pacienteSexo = paciente?.sexo || ''
+    const chavePaciente = `${pacienteNome} (${pacienteIdade}a) - ${pacienteSexo}`
 
     relatoriosFiltrados.forEach(rel => {
       if (selecionados.has(rel.id)) {
-        if (!agrupado.has(pacienteNome)) {
-          agrupado.set(pacienteNome, [])
+        if (!agrupado.has(chavePaciente)) {
+          agrupado.set(chavePaciente, [])
         }
-        agrupado.get(pacienteNome)!.push(rel)
+        agrupado.get(chavePaciente)!.push(rel)
       }
     })
 
@@ -257,7 +271,10 @@ export default function PacienteRelatorios() {
           <div className="breadcrumb">
             <button onClick={() => navigate('/pacientes')} className="btn-link" style={{ padding: 0 }}>Pacientes</button>
             <span>›</span>
-            <strong>{paciente?.nomeCompleto || 'Paciente'}</strong>
+            <strong>
+              {paciente?.nomeCompleto || 'Paciente'}
+              {paciente && ` (${calcularIdade(paciente.dataNascimento)}a) - ${paciente.sexo}`}
+            </strong>
             <span>›</span> Relatório Diário
           </div>
           <div className="page-header">
@@ -265,7 +282,10 @@ export default function PacienteRelatorios() {
               <button className="btn btn-outline" onClick={() => navigate(-1)}>← Voltar</button>
               <div>
                 <div className="page-title">📝 Relatório Diário</div>
-                <div className="page-subtitle">{paciente?.nomeCompleto || 'Carregando...'}</div>
+                <div className="page-subtitle">
+                  {paciente?.nomeCompleto || 'Carregando...'}
+                  {paciente && ` | ${calcularIdade(paciente.dataNascimento)} anos | ${paciente.sexo}`}
+                </div>
               </div>
             </div>
             <PacienteAcoesMenu pacienteId={id!} paginaAtual="relatorios" />

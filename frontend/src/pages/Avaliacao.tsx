@@ -2,19 +2,40 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import api from '../services/api'
 
+interface DadosPaciente {
+  nomeCompleto: string
+  dataNascimento: string
+  sexo: string
+}
+
 export default function Avaliacao() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const [pacienteNome, setPacienteNome] = useState('')
+  const [paciente, setPaciente] = useState<DadosPaciente | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Carregar dados do paciente para exibir o nome
+    // Carregar dados do paciente (nome, idade, sexo)
     api.get(`/v1/pacientes/${id}`)
-      .then(res => setPacienteNome(res.data.nomeCompleto))
-      .catch(() => setPacienteNome(`Paciente #${id}`))
+      .then(res => setPaciente(res.data))
+      .catch(() => setPaciente(null))
       .finally(() => setLoading(false))
   }, [id])
+
+  const calcularIdade = (dataNascimento: string): number => {
+    const data = new Date(dataNascimento)
+    const hoje = new Date()
+    let idade = hoje.getFullYear() - data.getFullYear()
+    const mes = hoje.getMonth() - data.getMonth()
+    if (mes < 0 || (mes === 0 && hoje.getDate() < data.getDate())) {
+      idade--
+    }
+    return idade
+  }
+
+  const pacienteNome = paciente?.nomeCompleto || `Paciente #${id}`
+  const pacienteIdade = paciente ? calcularIdade(paciente.dataNascimento) : null
+  const pacienteSexo = paciente?.sexo || null
 
   if (loading) {
     return <div style={{ textAlign: 'center', padding: '80px', color: '#6B7280' }}>Carregando...</div>
@@ -23,18 +44,20 @@ export default function Avaliacao() {
   return (
     <div>
       <div className="breadcrumb">
-        <button 
-          onClick={() => navigate('/pacientes')} 
+        <button
+          onClick={() => navigate('/pacientes')}
           style={{ background: 'none', border: 'none', color: 'inherit', padding: 0, font: 'inherit', cursor: 'pointer' }}
         >
           Pacientes
         </button>
         <span>›</span>
-        <button 
-          onClick={() => navigate(`/pacientes/${id}`)} 
+        <button
+          onClick={() => navigate(`/pacientes/${id}`)}
           style={{ background: 'none', border: 'none', color: 'inherit', padding: 0, font: 'inherit', cursor: 'pointer', fontWeight: 600 }}
         >
           {pacienteNome}
+          {pacienteIdade && ` (${pacienteIdade}a)`}
+          {pacienteSexo && ` - ${pacienteSexo}`}
         </button>
         <span>›</span> Avaliação
       </div>
@@ -48,6 +71,8 @@ export default function Avaliacao() {
             <div className="page-title">Avaliação e Planejamento</div>
             <div className="page-subtitle" style={{ color: 'var(--primary-600)', fontWeight: 600 }}>
               Paciente: {pacienteNome}
+              {pacienteIdade && ` | ${pacienteIdade} anos`}
+              {pacienteSexo && ` | ${pacienteSexo}`}
             </div>
           </div>
         </div>

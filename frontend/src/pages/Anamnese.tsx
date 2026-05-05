@@ -157,6 +157,17 @@ export default function Anamnese() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const queixaPrincipalRef = useRef<HTMLTextAreaElement>(null)
 
+  const calcularIdade = (dataNascimento: string): number => {
+    const data = new Date(dataNascimento)
+    const hoje = new Date()
+    let idade = hoje.getFullYear() - data.getFullYear()
+    const mes = hoje.getMonth() - data.getMonth()
+    if (mes < 0 || (mes === 0 && hoje.getDate() < data.getDate())) {
+      idade--
+    }
+    return idade
+  }
+
   useEffect(() => {
     // 1. Carregar dados do paciente
     api.get(`/v1/pacientes/${id}`)
@@ -274,6 +285,7 @@ export default function Anamnese() {
             <span>›</span>
             <button onClick={() => navigate(`/pacientes/${id}`)} className="breadcrumb-btn bold">
               {pacienteInfo?.nomeCompleto || `Paciente #${id}`}
+              {pacienteInfo && ` (${calcularIdade(pacienteInfo.dataNascimento)}a) - ${pacienteInfo.sexo}`}
             </button>
             <span>›</span> Anamnese Fonoaudiológica
           </div>
@@ -284,6 +296,7 @@ export default function Anamnese() {
                 <div className="page-title">🩺 Anamnese Fonoaudiológica</div>
                 <div className="page-subtitle" style={{ color: 'var(--primary-600)', fontWeight: 600 }}>
                   {pacienteInfo?.nomeCompleto || ''}
+                  {pacienteInfo && ` | ${calcularIdade(pacienteInfo.dataNascimento)} anos | ${pacienteInfo.sexo}`}
                 </div>
               </div>
             </div>
