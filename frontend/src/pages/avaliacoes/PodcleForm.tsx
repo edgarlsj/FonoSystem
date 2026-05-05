@@ -54,7 +54,7 @@ export default function PodcleForm({ value, onChange }: PodcleFormProps) {
     const dim = DIMENSOES.find(d => d.key === dimKey)
     if (!dim) return { pct: 0, label: 'Incompleto' }
     const itemCount = dim.indicadores.length
-    const total = Object.values(scores[dimKey] || {}).reduce((a, b) => a + b, 0)
+    const total = Object.values(scores[dimKey] || {}).reduce((a, b) => a + b, 0 as number)
     const max = itemCount * 2
     const pct = max > 0 ? Math.round((total / max) * 100) : 0
     return { pct, label: pct === 100 ? 'Completo' : pct > 0 ? 'Parcial' : 'Ausente' }
@@ -119,7 +119,7 @@ export default function PodcleForm({ value, onChange }: PodcleFormProps) {
       {/* Dimensões */}
       {DIMENSOES.map(dim => {
         const dimScores = scores[dim.key] || {}
-        const total = Object.values(dimScores).reduce((a, b) => a + b, 0)
+        const total = Object.values(dimScores).reduce((a, b) => a + b, 0 as number)
         const max = dim.indicadores.length * 2
         return (
           <div className="form-card" key={dim.key} style={{ marginBottom: '16px' }}>

@@ -35,7 +35,14 @@ export default function Relatorios() {
   })
   const [relatorioVisualizar, setRelatorioVisualizar] = useState<any | null>(null)
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
+  // Templates
+  const [templates, setTemplates] = useState<any[]>([])
+  const [mostrarTemplates, setMostrarTemplates] = useState(false)
+  const [nomeTemplate, setNomeTemplate] = useState('')
+  const [mostrarSalvarTemplate, setMostrarSalvarTemplate] = useState(false)
+  const [salvandoTemplate, setSalvandoTemplate] = useState(false)
+
+  const { register, handleSubmit, reset, formState: { errors }, setValue, watch } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       dataSessao: format(new Date(), 'yyyy-MM-dd'),
@@ -55,6 +62,9 @@ export default function Relatorios() {
   useEffect(() => {
     if (isModalOpen && pacientes.length === 0) {
       carregarPacientes()
+    }
+    if (isModalOpen) {
+      carregarTemplates()
     }
   }, [isModalOpen])
 
@@ -157,6 +167,52 @@ export default function Relatorios() {
     }
   }
 
+  const carregarTemplates = async () => {
+    try {
+      const { data } = await api.get('/v1/templates-relatorio')
+      setTemplates(data)
+    } catch (err) {
+      console.error('Erro ao carregar templates:', err)
+    }
+  }
+
+  const aplicarTemplate = (template: any) => {
+    setValue('metaTrabalhada', template.metaTrabalhada || '')
+    setValue('atividadesRealizadas', template.atividadesRealizadas || '')
+    setValue('evolucaoObservada', template.evolucaoObservada || '')
+    setValue('orientacoesFamilia', template.orientacoesFamilia || '')
+    setValue('planejamentoProximaSessao', template.planejamentoProximaSessao || '')
+    setMostrarTemplates(false)
+    showToast(`Template "${template.nome}" aplicado com sucesso!`, 'success')
+  }
+
+  const salvarTemplate = async () => {
+    if (!nomeTemplate.trim()) return
+
+    const formValues = watch()
+    try {
+      setSalvandoTemplate(true)
+      await api.post('/v1/templates-relatorio', {
+        nome: nomeTemplate,
+        metaTrabalhada: formValues.metaTrabalhada,
+        atividadesRealizadas: formValues.atividadesRealizadas,
+        evolucaoObservada: formValues.evolucaoObservada,
+        orientacoesFamilia: formValues.orientacoesFamilia,
+        planejamentoProximaSessao: formValues.planejamentoProximaSessao,
+      })
+      showToast(`Template "${nomeTemplate}" salvo com sucesso!`, 'success')
+      setNomeTemplate('')
+      setMostrarSalvarTemplate(false)
+      carregarTemplates()
+    } catch (err) {
+      showToast('Erro ao salvar template', 'error')
+      console.error('Erro:', err)
+    } finally {
+      setSalvandoTemplate(false)
+    }
+  }
+
+
   return (
     <div>
       <div className="page-header">
@@ -252,10 +308,56 @@ export default function Relatorios() {
       {/* MODAL DE CRIAÇÃO */}
       <div className={`modal-overlay ${isModalOpen ? 'active' : ''}`}>
         <div className="modal" style={{ maxWidth: '600px' }}>
-          <div className="modal-header">
+          <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h2 className="modal-title">Registrar Sessão</h2>
-            <button className="modal-close" onClick={() => setIsModalOpen(false)}>×</button>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <button
+                type="button"
+                className="btn btn-outline"
+                onClick={() => setMostrarTemplates(!mostrarTemplates)}
+                style={{ fontSize: '13px', padding: '6px 12px' }}
+              >
+                📋 Usar Template
+              </button>
+              <button className="modal-close" onClick={() => setIsModalOpen(false)}>×</button>
+            </div>
           </div>
+
+          {/* Template Selector */}
+          {mostrarTemplates && (
+            <div style={{ background: '#F9FAFB', padding: '16px', borderRadius: '8px', margin: '0 24px 16px', border: '1px solid #E5E7EB' }}>
+              <label style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', marginBottom: '8px', display: 'block', textTransform: 'uppercase' }}>
+                Selecionar Template:
+              </label>
+              {templates.length === 0 ? (
+                <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>Nenhum template salvo ainda. Crie um template salvando um formulário preenchido.</p>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  {templates.map(t => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => aplicarTemplate(t)}
+                      style={{
+                        padding: '10px 12px',
+                        background: '#FFFFFF',
+                        border: '1px solid #D1D5DB',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: 500,
+                        color: '#374151',
+                        textAlign: 'left',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      {t.nome}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="form-grid">
@@ -403,6 +505,45 @@ export default function Relatorios() {
               </div>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* MODAL DE SALVAR TEMPLATE */}
+      <div className={`modal-overlay ${mostrarSalvarTemplate ? 'active' : ''}`}>
+        <div className="modal" style={{ maxWidth: '450px' }}>
+          <div className="modal-header">
+            <h2 className="modal-title">Salvar Como Template</h2>
+            <button className="modal-close" onClick={() => setMostrarSalvarTemplate(false)} type="button">×</button>
+          </div>
+          <div style={{ padding: '24px' }}>
+            <div className="form-group">
+              <label>Nome do Template *</label>
+              <input
+                type="text"
+                className="form-control"
+                value={nomeTemplate}
+                onChange={e => setNomeTemplate(e.target.value)}
+                placeholder="Ex: Estratégia de Comunicação Aumentativa"
+                autoFocus
+              />
+              <span style={{ fontSize: '11px', color: '#9CA3AF', marginTop: '4px', display: 'block' }}>
+                Este nome será usado para identificar o template na lista
+              </span>
+            </div>
+            <div className="form-actions">
+              <button type="button" className="btn btn-outline" onClick={() => setMostrarSalvarTemplate(false)}>
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={salvarTemplate}
+                disabled={!nomeTemplate.trim() || salvandoTemplate}
+              >
+                {salvandoTemplate ? 'Salvando...' : '✓ Salvar Template'}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 

@@ -5,6 +5,7 @@ import { ptBR } from 'date-fns/locale'
 import api from '../services/api'
 import PacienteAcoesMenu from '../components/PacienteAcoesMenu'
 import { useInTab } from '../context/TabContext'
+import FolhaEvolucao from './FolhaEvolucao'
 
 export default function PacienteRelatorios() {
   const { id } = useParams()
@@ -27,9 +28,27 @@ export default function PacienteRelatorios() {
     show: false, msg: '', type: 'success'
   })
 
+  // Templates
+  const [templates, setTemplates] = useState<any[]>([])
+  const [mostrarTemplates, setMostrarTemplates] = useState(false)
+  const [nomeTemplate, setNomeTemplate] = useState('')
+  const [mostrarSalvarTemplate, setMostrarSalvarTemplate] = useState(false)
+  const [salvandoTemplate, setSalvandoTemplate] = useState(false)
+
+  // Folha de Evolução
+  const [selecionados, setSelecionados] = useState<Set<number>>(new Set())
+  const [modoSelecao, setModoSelecao] = useState(false)
+  const [mostrandoFolhaEvolucao, setMostrandoFolhaEvolucao] = useState(false)
+
   useEffect(() => {
     carregarDados()
   }, [id, dataInicio, dataFim])
+
+  useEffect(() => {
+    if (relatorioEditando) {
+      carregarTemplates()
+    }
+  }, [relatorioEditando])
 
   const carregarDados = async () => {
     try {
@@ -63,6 +82,41 @@ export default function PacienteRelatorios() {
     setTermoBusca('')
   }
 
+  const toggleSelecionado = (relatorioId: number) => {
+    const novo = new Set(selecionados)
+    if (novo.has(relatorioId)) {
+      novo.delete(relatorioId)
+    } else {
+      novo.add(relatorioId)
+    }
+    setSelecionados(novo)
+    if (novo.size === 0) {
+      setModoSelecao(false)
+    }
+  }
+
+  const gerarDadosAgrupados = () => {
+    const agrupado = new Map<string, any[]>()
+    const pacienteNome = paciente?.nomeCompleto || 'Paciente'
+
+    relatoriosFiltrados.forEach(rel => {
+      if (selecionados.has(rel.id)) {
+        if (!agrupado.has(pacienteNome)) {
+          agrupado.set(pacienteNome, [])
+        }
+        agrupado.get(pacienteNome)!.push(rel)
+      }
+    })
+
+    agrupado.forEach(relats => {
+      relats.sort((a, b) =>
+        new Date(a.dataSessao).getTime() - new Date(b.dataSessao).getTime()
+      )
+    })
+
+    return new Map([...agrupado.entries()].sort())
+  }
+
   const relatoriosFiltrados = relatorios.filter(rel => {
     if (!termoBusca) return true
     const busca = termoBusca.toLowerCase()
@@ -72,6 +126,54 @@ export default function PacienteRelatorios() {
       rel.evolucaoObservada?.toLowerCase().includes(busca)
     )
   })
+
+  const carregarTemplates = async () => {
+    try {
+      const { data } = await api.get('/v1/templates-relatorio')
+      setTemplates(data)
+    } catch (err) {
+      console.error('Erro ao carregar templates:', err)
+    }
+  }
+
+  const aplicarTemplate = (template: any) => {
+    if (!relatorioEditando) return
+    setRelatorioEditando({
+      ...relatorioEditando,
+      metaTrabalhada: template.metaTrabalhada || '',
+      atividadesRealizadas: template.atividadesRealizadas || '',
+      evolucaoObservada: template.evolucaoObservada || '',
+      orientacoesFamilia: template.orientacoesFamilia || '',
+      planejamentoProximaSessao: template.planejamentoProximaSessao || '',
+    })
+    setMostrarTemplates(false)
+    showToast(`Template "${template.nome}" aplicado com sucesso!`, 'success')
+  }
+
+  const salvarTemplate = async () => {
+    if (!nomeTemplate.trim() || !relatorioEditando) return
+
+    try {
+      setSalvandoTemplate(true)
+      await api.post('/v1/templates-relatorio', {
+        nome: nomeTemplate,
+        metaTrabalhada: relatorioEditando.metaTrabalhada,
+        atividadesRealizadas: relatorioEditando.atividadesRealizadas,
+        evolucaoObservada: relatorioEditando.evolucaoObservada,
+        orientacoesFamilia: relatorioEditando.orientacoesFamilia,
+        planejamentoProximaSessao: relatorioEditando.planejamentoProximaSessao,
+      })
+      showToast(`Template "${nomeTemplate}" salvo com sucesso!`, 'success')
+      setNomeTemplate('')
+      setMostrarSalvarTemplate(false)
+      carregarTemplates()
+    } catch (err) {
+      showToast('Erro ao salvar template', 'error')
+      console.error('Erro:', err)
+    } finally {
+      setSalvandoTemplate(false)
+    }
+  }
 
   const showToast = (msg: string, type: 'success' | 'error') => {
     setToast({ show: true, msg, type })
@@ -198,6 +300,23 @@ export default function PacienteRelatorios() {
         </div>
       </div>
 
+      {/* Botão para Folha de Evolução */}
+      <div style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
+        <button
+          className={`btn ${modoSelecao ? 'btn-primary' : 'btn-outline'}`}
+          onClick={() => {
+            if (selecionados.size > 0) {
+              setMostrandoFolhaEvolucao(true)
+            } else {
+              setModoSelecao(!modoSelecao)
+            }
+          }}
+        >
+          📋 {modoSelecao ? 'Gerar Folha' : 'Modo Seleção'}
+          {selecionados.size > 0 && ` (${selecionados.size})`}
+        </button>
+      </div>
+
       <div className="session-list">
         {relatoriosFiltrados.length === 0 ? (
           <div className="form-card" style={{ textAlign: 'center', padding: '60px', color: '#9CA3AF' }}>
@@ -209,9 +328,23 @@ export default function PacienteRelatorios() {
           </div>
         ) : (
           relatoriosFiltrados.map((rel: any) => (
-            <div className="session-card" key={rel.id}>
+            <div
+              className={`session-card ${selecionados.has(rel.id) ? 'selected' : ''}`}
+              key={rel.id}
+              onClick={() => modoSelecao && toggleSelecionado(rel.id)}
+              style={{ cursor: modoSelecao ? 'pointer' : 'default', opacity: modoSelecao && !selecionados.has(rel.id) ? 0.6 : 1 }}
+            >
               <div className="session-card-header">
-                <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+                  {modoSelecao && (
+                    <input
+                      type="checkbox"
+                      checked={selecionados.has(rel.id)}
+                      onChange={() => toggleSelecionado(rel.id)}
+                      onClick={e => e.stopPropagation()}
+                      style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                    />
+                  )}
                   <div className="session-patient">
                     {format(new Date(rel.dataSessao + 'T00:00:00'), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
                   </div>
@@ -336,12 +469,65 @@ export default function PacienteRelatorios() {
       <div className={`modal-overlay ${relatorioEditando ? 'active' : ''}`}>
         <div className="modal" style={{ maxWidth: '750px', maxHeight: '90vh', overflowY: 'auto' }}>
           <div className="modal-header">
-            <h2 className="modal-title">Editar Relatório</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+              <h2 className="modal-title">Editar Relatório</h2>
+              <button
+                className="btn btn-outline"
+                onClick={() => setMostrarTemplates(!mostrarTemplates)}
+                style={{ fontSize: '13px', padding: '8px 12px' }}
+              >
+                📋 Usar Template
+              </button>
+            </div>
             <button className="modal-close" onClick={() => fecharEditar()}>×</button>
           </div>
 
           {relatorioEditando && (
             <div style={{ padding: '24px' }}>
+              {/* SELETOR DE TEMPLATES */}
+              {mostrarTemplates && (
+                <div style={{ background: '#F9FAFB', padding: '16px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #E5E7EB' }}>
+                  <label style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', marginBottom: '12px', display: 'block', textTransform: 'uppercase' }}>
+                    Selecionar Template:
+                  </label>
+                  {templates.length === 0 ? (
+                    <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>Nenhum template salvo ainda. Crie um preenchendo os campos abaixo.</p>
+                  ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                      {templates.map(t => (
+                        <button
+                          key={t.id}
+                          onClick={() => aplicarTemplate(t)}
+                          style={{
+                            padding: '12px',
+                            background: '#FFFFFF',
+                            border: '1px solid #D1D5DB',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: '12px',
+                            fontWeight: 500,
+                            color: '#374151',
+                            textAlign: 'left',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={e => {
+                            const target = e.target as HTMLButtonElement
+                            target.style.borderColor = '#3B82F6'
+                            target.style.background = '#EFF6FF'
+                          }}
+                          onMouseLeave={e => {
+                            const target = e.target as HTMLButtonElement
+                            target.style.borderColor = '#D1D5DB'
+                            target.style.background = '#FFFFFF'
+                          }}
+                        >
+                          {t.nome}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="form-grid form-grid-2">
                 <div className="form-group">
                   <label>Data da Sessão *</label>
@@ -466,7 +652,18 @@ export default function PacienteRelatorios() {
                 />
               </div>
 
-              <div className="form-actions" style={{ marginTop: '24px' }}>
+              <div style={{ padding: '16px', background: '#FEF3C7', borderRadius: '8px', marginTop: '24px', marginBottom: '20px', border: '1px solid #FCD34D' }}>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => setMostrarSalvarTemplate(true)}
+                  style={{ width: '100%' }}
+                >
+                  💾 Salvar Como Novo Template
+                </button>
+              </div>
+
+              <div className="form-actions" style={{ marginTop: '0px' }}>
                 <button className="btn btn-outline" onClick={() => fecharEditar()} disabled={salvando}>
                   Cancelar
                 </button>
@@ -478,6 +675,62 @@ export default function PacienteRelatorios() {
           )}
         </div>
       </div>
+
+      {/* MODAL SALVAR TEMPLATE */}
+      <div className={`modal-overlay ${mostrarSalvarTemplate ? 'active' : ''}`}>
+        <div className="modal" style={{ maxWidth: '450px' }}>
+          <div className="modal-header">
+            <h2 className="modal-title">Salvar como Template</h2>
+            <button className="modal-close" onClick={() => {
+              setMostrarSalvarTemplate(false)
+              setNomeTemplate('')
+            }}>×</button>
+          </div>
+          <div style={{ padding: '24px' }}>
+            <div className="form-group">
+              <label>Nome do Template *</label>
+              <input
+                type="text"
+                className="form-control"
+                value={nomeTemplate}
+                onChange={e => setNomeTemplate(e.target.value)}
+                placeholder="Ex: Estratégia de Comunicação Aumentativa"
+                autoFocus
+              />
+              <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px' }}>
+                Este nome ajudará a identificar o template quando precisar usá-lo novamente.
+              </p>
+            </div>
+            <div className="form-actions">
+              <button
+                className="btn btn-outline"
+                onClick={() => {
+                  setMostrarSalvarTemplate(false)
+                  setNomeTemplate('')
+                }}
+                disabled={salvandoTemplate}
+              >
+                Cancelar
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={() => salvarTemplate()}
+                disabled={!nomeTemplate.trim() || salvandoTemplate}
+              >
+                {salvandoTemplate ? 'Salvando...' : '✓ Salvar Template'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* FOLHA DE EVOLUÇÃO */}
+      {mostrandoFolhaEvolucao && (
+        <FolhaEvolucao
+          dadosAgrupados={gerarDadosAgrupados()}
+          onFechar={() => setMostrandoFolhaEvolucao(false)}
+        />
+      )}
 
       {/* TOAST */}
       <div className={`toast ${toast.type} ${toast.show ? 'show' : ''}`}>

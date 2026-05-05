@@ -909,7 +909,7 @@ export default function AvaliacoesTab() {
                           .map(([dominio, score]) => (
                             <div key={dominio} style={{ padding: '8px 10px', background: '#F3F4F6', borderRadius: '6px' }}>
                               <div style={{ color: '#9CA3AF', fontWeight: 600, marginBottom: '2px', fontSize: '10px' }}>{dominio}</div>
-                              <div style={{ fontSize: '14px', fontWeight: 700, color: '#374151' }}>{Math.round(score)}%</div>
+                              <div style={{ fontSize: '14px', fontWeight: 700, color: '#374151' }}>{Math.round(score as number)}%</div>
                             </div>
                           ))}
                       </div>
