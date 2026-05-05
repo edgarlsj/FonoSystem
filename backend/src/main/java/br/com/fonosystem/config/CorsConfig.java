@@ -17,8 +17,10 @@ public class CorsConfig {
         config.setAllowedOriginPatterns(List.of(
                 "http://localhost:3000",
                 "http://localhost:5173",
-                "https://fonosystem-frontend.onrender.com",
-                "https://*.onrender.com"
+                "https://livesystem.app.br",
+                "https://www.livesystem.app.br",
+                "http://livesystem.app.br",
+                "http://www.livesystem.app.br"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
