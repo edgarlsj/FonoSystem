@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { showSessionExpiredNotification } from '../utils/notifications'
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || '/api'
 
@@ -16,46 +17,21 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// Interceptor para refresh automático em 401
+// Interceptor para 401 - Token expirado
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const originalRequest = error.config
-
-    // Se for 401 (não autorizado)
+  (error) => {
+    // Se for 401 (não autorizado/token expirado)
     if (error.response?.status === 401) {
-      // Se ainda não tentou fazer refresh
-      if (!originalRequest._retry) {
-        originalRequest._retry = true
-        try {
-          const refreshToken = localStorage.getItem('refreshToken')
-          if (!refreshToken) {
-            // Sem refresh token, vai direto para login
-            throw new Error('No refresh token')
-          }
+      // Limpa dados do usuário
+      localStorage.removeItem('token')
+      localStorage.removeItem('refreshToken')
+      localStorage.removeItem('user')
 
-          const { data } = await axios.post(`${API_BASE}/v1/auth/refresh`, { refreshToken })
-          localStorage.setItem('token', data.token)
-          if (data.refreshToken) {
-            localStorage.setItem('refreshToken', data.refreshToken)
-          }
-          originalRequest.headers.Authorization = `Bearer ${data.token}`
-          return api(originalRequest)
-        } catch (err) {
-          // Qualquer erro no refresh, limpa e vai para login
-          localStorage.removeItem('token')
-          localStorage.removeItem('refreshToken')
-          localStorage.removeItem('user')
-          window.location.href = '/login'
-          return Promise.reject(err)
-        }
-      } else {
-        // Já tentou refresh e ainda está 401, vai para login
-        localStorage.removeItem('token')
-        localStorage.removeItem('refreshToken')
-        localStorage.removeItem('user')
-        window.location.href = '/login'
-      }
+      // Mostra notificação elegante
+      showSessionExpiredNotification()
+
+      return Promise.reject(error)
     }
 
     return Promise.reject(error)

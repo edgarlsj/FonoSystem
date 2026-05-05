@@ -196,7 +196,7 @@ export default function AvaliacoesTab() {
 </head><body>
   <div class="header">
     <div>
-      <div style="font-size:20px;font-weight:700;color:#29B6D1;">🎙️ Live System</div>
+      <div style="font-size:20px;font-weight:700;color:#29B6D1;">🧩 Live System</div>
       <div style="font-size:12px;color:#6B7280;margin-top:4px;">Relatório de Avaliação</div>
     </div>
     <div style="text-align:right;">

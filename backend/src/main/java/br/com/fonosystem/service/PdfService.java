@@ -51,7 +51,7 @@ public class PdfService {
             PdfFont fontItalic = PdfFontFactory.createFont(StandardFonts.HELVETICA_OBLIQUE);
 
             // ═══ CABEÇALHO ═══
-            Paragraph header = new Paragraph("Live System")
+            Paragraph header = new Paragraph("🧩 Live System")
                     .setFont(fontBold)
                     .setFontSize(22)
                     .setFontColor(PRIMARY_DARK)
@@ -225,7 +225,7 @@ public class PdfService {
             PdfFont fontItalic = PdfFontFactory.createFont(StandardFonts.HELVETICA_OBLIQUE);
 
             // ═══ CABEÇALHO ═══
-            Paragraph header = new Paragraph("Live System")
+            Paragraph header = new Paragraph("🧩 Live System")
                     .setFont(fontBold)
                     .setFontSize(22)
                     .setFontColor(PRIMARY_DARK)

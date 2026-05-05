@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @Slf4j
 @RestControllerAdvice
@@ -37,6 +38,15 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleBadCredentials(BadCredentialsException ex) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Email ou senha inválidos");
         problem.setTitle("Falha na autenticação");
+        return problem;
+    }
+
+    @ExceptionHandler(TokenExpiredException.class)
+    public ProblemDetail handleTokenExpired(TokenExpiredException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(UNAUTHORIZED, ex.getMessage());
+        problem.setTitle("Token expirado");
+        problem.setType(URI.create("https://fonosystem.com/errors/token-expired"));
+        problem.setProperty("code", "TOKEN_EXPIRED");
         return problem;
     }
 

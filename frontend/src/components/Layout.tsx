@@ -17,7 +17,7 @@ export default function Layout() {
     <>
       <header className="app-header">
         <div className="app-header-logo">
-          <div className="logo-icon">🎙️</div>
+          <div className="logo-icon">🧩</div>
           Live<span>System</span>
         </div>
         <div className="app-header-right">
