@@ -4,6 +4,18 @@ import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import api from '../services/api'
 
+type StatusAgendamento = 'AGENDADO' | 'REALIZADO' | 'FALTOU' | 'CANCELADO'
+
+interface Agendamento {
+  id: number
+  pacienteId: number
+  pacienteNome: string
+  dataHoraInicio: string
+  duracao: number
+  status: StatusAgendamento
+  observacoes?: string
+}
+
 interface Paciente {
   id: number
   nomeCompleto: string
@@ -17,11 +29,19 @@ interface Paciente {
 interface Relatorio {
   id: number
   paciente: { id: number; nomeCompleto: string }
+  pacienteId?: number
+  pacienteNome?: string
   dataSessao: string
   horaInicio: string
   horaFim: string
   metaTrabalhada: string
+  atividadesRealizadas?: string
   evolucaoObservada?: string
+}
+
+interface UltimaSessao {
+  orientacoesFamilia?: string
+  planejamentoProximaSessao?: string
 }
 
 export default function Dashboard() {
@@ -30,6 +50,8 @@ export default function Dashboard() {
   const [ativos, setAtivos] = useState(0)
   const [pacientes, setPacientes] = useState<Paciente[]>([])
   const [sessoesHoje, setSessoesHoje] = useState<Relatorio[]>([])
+  const [agendamentosHoje, setAgendamentosHoje] = useState<Agendamento[]>([])
+  const [ultimasSessoes, setUltimasSessoes] = useState<Record<number, UltimaSessao>>({})
   const [loading, setLoading] = useState(true)
   const [relatorioVisualizar, setRelatorioVisualizar] = useState<any | null>(null)
 
@@ -54,13 +76,37 @@ export default function Dashboard() {
         setAtivos(lista.filter((p: Paciente) => p.status === 'ATIVO').length)
         setPacientes(lista.slice(0, 6))
 
-        // Tentar carregar relatórios, mas não falhar se não conseguir
+        const hoje = new Date().toISOString().split('T')[0]
+
         try {
-          const hoje = new Date().toISOString().split('T')[0]
           const relRes = await api.get(`/v1/relatorios?data=${hoje}`)
           setSessoesHoje(relRes.data || [])
         } catch {
           setSessoesHoje([])
+        }
+
+        try {
+          const agRes = await api.get(`/v1/agendamentos?data=${hoje}`)
+          const ags: Agendamento[] = agRes.data || []
+          setAgendamentosHoje(ags)
+
+          const agendados = ags.filter(a => a.status === 'AGENDADO')
+          const resultados = await Promise.allSettled(
+            agendados.map(a => api.get(`/v1/pacientes/${a.pacienteId}/relatorios/ultimo`))
+          )
+          const map: Record<number, UltimaSessao> = {}
+          agendados.forEach((a, i) => {
+            const r = resultados[i]
+            if (r.status === 'fulfilled' && r.value.data) {
+              map[a.pacienteId] = {
+                orientacoesFamilia: r.value.data.orientacoesFamilia,
+                planejamentoProximaSessao: r.value.data.planejamentoProximaSessao,
+              }
+            }
+          })
+          setUltimasSessoes(map)
+        } catch {
+          setAgendamentosHoje([])
         }
       } catch (err) {
         console.error('Erro ao carregar dados:', err)
@@ -95,10 +141,101 @@ export default function Dashboard() {
           <div className="stat-sub">Em acompanhamento</div>
         </div>
         <div className="stat-card orange">
-          <div className="stat-label">Consultas Hoje</div>
-          <div className="stat-value">{loading ? '...' : sessoesHoje.length}</div>
-          <div className="stat-sub">Atendimentos do dia</div>
+          <div className="stat-label">Atendimentos Hoje</div>
+          <div className="stat-value">{loading ? '...' : agendamentosHoje.filter(a => a.status === 'AGENDADO').length}</div>
+          <div className="stat-sub">Seus agendamentos pendentes</div>
         </div>
+      </div>
+
+      {/* Agendamentos de Hoje */}
+      <div className="form-card" style={{ marginTop: '16px', padding: '14px 16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+          <h3 style={{ color: '#1A4D73', fontSize: '13px', fontWeight: 600 }}>
+            📅 Agendamentos de Hoje
+          </h3>
+          <button
+            className="btn btn-outline btn-sm"
+            style={{ fontSize: '11px', padding: '3px 10px' }}
+            onClick={() => navigate('/agenda')}
+          >
+            Ver agenda
+          </button>
+        </div>
+        {loading ? (
+          <p style={{ color: '#9CA3AF', textAlign: 'center', padding: '20px' }}>Carregando...</p>
+        ) : agendamentosHoje.length === 0 ? (
+          <p style={{ color: '#9CA3AF', textAlign: 'center', padding: '20px' }}>
+            Nenhum agendamento para hoje.
+          </p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {agendamentosHoje.map(ag => {
+              const borderColor: Record<StatusAgendamento, string> = {
+                AGENDADO: 'var(--primary-400)', REALIZADO: 'var(--aud-400)',
+                FALTOU: 'var(--danger-500)', CANCELADO: 'var(--gray-300)',
+              }
+              const badgeClass: Record<StatusAgendamento, string> = {
+                AGENDADO: 'badge-agendado', REALIZADO: 'badge-ativo',
+                FALTOU: 'badge-inativo', CANCELADO: 'badge-cancelado',
+              }
+              const statusLabel: Record<StatusAgendamento, string> = {
+                AGENDADO: 'Agendado', REALIZADO: 'Realizado',
+                FALTOU: 'Faltou', CANCELADO: 'Cancelado',
+              }
+              const relatorioDoAgendamento = sessoesHoje.find(r =>
+                (r.paciente?.id ?? r.pacienteId) === ag.pacienteId
+              )
+              return (
+                <div
+                  key={ag.id}
+                  style={{
+                    display: 'flex', flexDirection: 'column', gap: '2px',
+                    padding: '8px 12px',
+                    borderLeft: `3px solid ${borderColor[ag.status]}`,
+                    borderRadius: '6px', cursor: 'pointer',
+                    background: '#fff', transition: 'background 0.15s',
+                  }}
+                  onClick={() => navigate('/agenda')}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'var(--gray-50)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = '#fff')}
+                >
+                  <span style={{ fontWeight: 700, fontSize: '13px', color: 'var(--primary-800)' }}>
+                    {format(new Date(ag.dataHoraInicio), 'HH:mm')}
+                  </span>
+                  <span style={{ fontSize: '13px', color: 'var(--gray-700)' }}>
+                    <span style={{ color: 'var(--gray-400)', fontWeight: 500 }}>paciente: </span>
+                    {ag.pacienteNome}
+                  </span>
+                  <span className={`badge ${badgeClass[ag.status]}`} style={{ fontSize: '10px', alignSelf: 'flex-start' }}>
+                    {statusLabel[ag.status]}
+                  </span>
+                  {ag.status === 'AGENDADO' && ultimasSessoes[ag.pacienteId] && (
+                    <div style={{ marginTop: '2px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      {ultimasSessoes[ag.pacienteId].orientacoesFamilia && (
+                        <div style={{ fontSize: '11px', color: 'var(--gray-600)' }}>
+                          <span style={{ fontWeight: 600, color: 'var(--aud-600)', textTransform: 'uppercase', fontSize: '10px' }}>Orientações: </span>
+                          {ultimasSessoes[ag.pacienteId].orientacoesFamilia}
+                        </div>
+                      )}
+                      {ultimasSessoes[ag.pacienteId].planejamentoProximaSessao && (
+                        <div style={{ fontSize: '11px', color: 'var(--gray-600)' }}>
+                          <span style={{ fontWeight: 600, color: 'var(--primary-600)', textTransform: 'uppercase', fontSize: '10px' }}>Próx. sessão: </span>
+                          {ultimasSessoes[ag.pacienteId].planejamentoProximaSessao}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {ag.status === 'REALIZADO' && relatorioDoAgendamento?.atividadesRealizadas && (
+                    <div style={{ marginTop: '2px', fontSize: '11px', color: 'var(--gray-600)' }}>
+                      <span style={{ fontWeight: 600, color: 'var(--aud-600)', textTransform: 'uppercase', fontSize: '10px' }}>Atividades realizadas: </span>
+                      {relatorioDoAgendamento.atividadesRealizadas}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       {/* Consultas de Hoje */}

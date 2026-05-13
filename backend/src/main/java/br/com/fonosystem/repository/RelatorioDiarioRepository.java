@@ -23,6 +23,9 @@ public interface RelatorioDiarioRepository extends JpaRepository<RelatorioDiario
     @Query("SELECT r FROM RelatorioDiario r JOIN FETCH r.paciente JOIN FETCH r.profissional WHERE r.profissional.id = :profissionalId AND r.id = :id")
     java.util.Optional<RelatorioDiario> findByIdWithFetch(@Param("profissionalId") Long profissionalId, @Param("id") Long id);
 
+    @Query("SELECT r FROM RelatorioDiario r JOIN FETCH r.paciente JOIN FETCH r.profissional WHERE r.profissional.id = :profissionalId AND r.paciente.id = :pacienteId ORDER BY r.dataSessao DESC, r.horaInicio DESC LIMIT 1")
+    java.util.Optional<RelatorioDiario> findUltimoByPacienteId(@Param("profissionalId") Long profissionalId, @Param("pacienteId") Long pacienteId);
+
     @Query("SELECT r FROM RelatorioDiario r JOIN FETCH r.paciente JOIN FETCH r.profissional " +
            "WHERE r.profissional.id = :profissionalId " +
            "AND (:pacienteId IS NULL OR r.paciente.id = :pacienteId) " +

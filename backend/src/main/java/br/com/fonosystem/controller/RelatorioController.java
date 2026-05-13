@@ -69,6 +69,13 @@ public class RelatorioController {
         return ResponseEntity.ok(relatorioService.buscarEvolucao(pacienteId, inicio, fim));
     }
 
+    @GetMapping("/v1/pacientes/{pacienteId}/relatorios/ultimo")
+    public ResponseEntity<RelatorioDiario> buscarUltimo(@PathVariable Long pacienteId) {
+        return relatorioService.buscarUltimo(pacienteId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.noContent().build());
+    }
+
     @GetMapping("/v1/relatorios/{id}")
     public ResponseEntity<RelatorioDiario> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(relatorioService.buscarPorId(id));

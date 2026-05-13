@@ -20,6 +20,7 @@ import Users from './pages/Users'
 import UserForm from './pages/UserForm'
 import Profile from './pages/Profile'
 import PacienteProntuario from './pages/PacienteProntuario'
+import Agenda from './pages/Agenda'
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { token } = useAuth()
@@ -45,6 +46,7 @@ export default function App() {
           <Route path="avaliacao" element={<Avaliacao />} />
           <Route path="documentos-profissionais" element={<DocumentosProfissionaisTab />} />
         </Route>
+        <Route path="agenda" element={<Agenda />} />
         <Route path="relatorios" element={<Relatorios />} />
         <Route path="coletar-dados" element={<ColetarDados />} />
         <Route path="logs" element={<Logs />} />

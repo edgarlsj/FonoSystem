@@ -2,9 +2,12 @@ package br.com.fonosystem.service;
 
 import br.com.fonosystem.dto.RelatorioRequest;
 import br.com.fonosystem.exception.ResourceNotFoundException;
+import br.com.fonosystem.model.Agendamento;
 import br.com.fonosystem.model.Paciente;
 import br.com.fonosystem.model.RelatorioDiario;
 import br.com.fonosystem.model.User;
+import br.com.fonosystem.model.enums.StatusAgendamento;
+import br.com.fonosystem.repository.AgendamentoRepository;
 import br.com.fonosystem.repository.PacienteRepository;
 import br.com.fonosystem.repository.RelatorioDiarioRepository;
 import br.com.fonosystem.repository.UserRepository;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -22,6 +26,7 @@ import java.util.List;
 public class RelatorioService {
 
     private final RelatorioDiarioRepository relatorioRepository;
+    private final AgendamentoRepository agendamentoRepository;
     private final PacienteService pacienteService;
     private final UserRepository userRepository;
 
@@ -60,6 +65,12 @@ public class RelatorioService {
         return relatorioRepository.findByPacienteIdAndDataSessaoBetween(profissionalId, pacienteId, inicio, fim);
     }
 
+    public java.util.Optional<RelatorioDiario> buscarUltimo(Long pacienteId) {
+        pacienteService.buscarEntidadePorId(pacienteId);
+        Long profissionalId = obterProfissionalIdLogado();
+        return relatorioRepository.findUltimoByPacienteId(profissionalId, pacienteId);
+    }
+
     @Transactional
     public RelatorioDiario criar(RelatorioRequest request) {
         Paciente paciente = pacienteService.buscarEntidadePorId(request.getPacienteId());
@@ -81,8 +92,21 @@ public class RelatorioService {
                 .orientacoesFamilia(request.getOrientacoesFamilia())
                 .planejamentoProximaSessao(request.getPlanejamentoProximaSessao())
                 .build();
-        return relatorioRepository.save(relatorio);
+        RelatorioDiario salvo = relatorioRepository.save(relatorio);
+
+        // Regra: sessão registrada → agendamento do mesmo dia vira REALIZADO
+        LocalDateTime inicioDia = relatorio.getDataSessao().atStartOfDay();
+        LocalDateTime fimDia = inicioDia.plusDays(1);
+        agendamentoRepository.findAgendadoNoDia(
+                paciente.getId(), profissional.getId(), inicioDia, fimDia, StatusAgendamento.AGENDADO)
+                .ifPresent(ag -> {
+                    ag.setStatus(StatusAgendamento.REALIZADO);
+                    agendamentoRepository.save(ag);
+                });
+
+        return salvo;
     }
+
     @Transactional
     public RelatorioDiario atualizar(Long id, RelatorioRequest request) {
         RelatorioDiario relatorio = buscarPorId(id);

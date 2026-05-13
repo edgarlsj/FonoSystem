@@ -77,6 +77,9 @@ export default function Layout() {
           <NavLink to="/pacientes" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}>
             <span className="sidebar-item-icon">👥</span> Pacientes
           </NavLink>
+          <NavLink to="/agenda" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}>
+            <span className="sidebar-item-icon">📅</span> Agenda
+          </NavLink>
           <NavLink to="/relatorios" className={({ isActive }) => `sidebar-item${isActive ? ' active' : ''}`}>
             <span className="sidebar-item-icon">📝</span> Relatórios
           </NavLink>

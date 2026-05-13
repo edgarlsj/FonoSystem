@@ -5,6 +5,7 @@ import br.com.fonosystem.exception.ResourceNotFoundException;
 import br.com.fonosystem.model.Paciente;
 import br.com.fonosystem.model.RelatorioDiario;
 import br.com.fonosystem.model.User;
+import br.com.fonosystem.repository.AgendamentoRepository;
 import br.com.fonosystem.repository.PacienteRepository;
 import br.com.fonosystem.repository.RelatorioDiarioRepository;
 import br.com.fonosystem.repository.UserRepository;
@@ -34,6 +35,9 @@ class RelatorioServiceTest {
     private RelatorioDiarioRepository relatorioRepository;
 
     @Mock
+    private AgendamentoRepository agendamentoRepository;
+
+    @Mock
     private PacienteService pacienteService;
 
     @Mock
@@ -55,8 +59,8 @@ class RelatorioServiceTest {
 
     @BeforeEach
     void setUp() {
-        paciente = Paciente.builder().id(1L).build();
         profissional = User.builder().id(2L).email("medico@teste.com").build();
+        paciente = Paciente.builder().id(1L).profissional(profissional).build();
 
         relatorio = RelatorioDiario.builder()
                 .id(1L)

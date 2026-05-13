@@ -660,11 +660,13 @@ tbody td strong {
   white-space: nowrap;
 }
 
-.badge-tea          { background: var(--tea-200);    color: var(--tea-600); }
-.badge-auditiva     { background: var(--aud-200);    color: #166534; }
-.badge-ativo        { background: var(--aud-200);    color: #166534; }
-.badge-inativo      { background: var(--danger-200); color: var(--danger-text); }
-.badge-tea-auditiva { background: var(--purple-200); color: var(--purple-600); }
+.badge-tea          { background: var(--tea-200);     color: var(--tea-600); }
+.badge-auditiva     { background: var(--aud-200);     color: #166534; }
+.badge-ativo        { background: var(--aud-200);     color: #166534; }
+.badge-inativo      { background: var(--danger-200);  color: var(--danger-text); }
+.badge-tea-auditiva { background: var(--purple-200);  color: var(--purple-600); }
+.badge-agendado     { background: var(--primary-100); color: var(--primary-700); }
+.badge-cancelado    { background: var(--gray-100);    color: var(--gray-500); }
 
 /* ══════════════════════════════════════
    FORM CARD
