@@ -3,7 +3,6 @@ package br.com.fonosystem.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -77,6 +76,16 @@ public class Paciente {
 
     @Column(name = "data_consentimento")
     private LocalDateTime dataConsentimento;
+
+    @Column(name = "foto", columnDefinition = "BYTEA")
+    @JsonIgnore
+    private byte[] foto;
+
+    @Column(name = "foto_tipo_mime", length = 50)
+    private String fotoTipoMime;
+
+    @Column(name = "foto_tamanho_bytes")
+    private Long fotoTamanhoBytes;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)

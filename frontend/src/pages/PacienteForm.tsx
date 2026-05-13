@@ -1,5 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import { useEffect, useState, useRef } from 'react'
+import { useConfirm } from '../context/ConfirmContext'
+import { useAlert } from '../context/AlertContext'
 import api from '../services/api'
 
 interface Paciente {
@@ -31,6 +33,11 @@ export default function PacienteForm() {
   const [erro, setErro] = useState('')
   const [paciente, setPaciente] = useState<Paciente | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [fotoPreview, setFotoPreview] = useState<string>('')
+  const [fotoFile, setFotoFile] = useState<File | null>(null)
+  const [temFoto, setTemFoto] = useState(false)
+  const [salvandoFoto, setSalvandoFoto] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Refs para campos obrigatórios
   const nomeRef = useRef<HTMLInputElement>(null)
@@ -51,6 +58,13 @@ export default function PacienteForm() {
       setLoading(true)
       const { data } = await api.get(`/v1/pacientes/${id}`)
       setPaciente(data)
+      // Verificar se tem foto
+      try {
+        const { data: fotoData } = await api.get(`/v1/pacientes/${id}/tem-foto`)
+        setTemFoto(fotoData.temFoto)
+      } catch {
+        setTemFoto(false)
+      }
     } catch (err: any) {
       setErro('Erro ao carregar dados do paciente')
       setTimeout(() => navigate('/pacientes'), 2000)
@@ -142,6 +156,71 @@ export default function PacienteForm() {
       setErro(err.response?.data?.detail || 'Erro ao salvar paciente')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const alertFn = useAlert()
+
+  const handleFotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alertFn({ title: 'Erro', message: 'Foto não pode ser maior que 2MB', type: 'error' })
+        return
+      }
+      setFotoFile(file)
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        setFotoPreview(event.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const salvarFoto = async () => {
+    if (!fotoFile || !id) return
+
+    try {
+      setSalvandoFoto(true)
+      const formData = new FormData()
+      formData.append('foto', fotoFile)
+
+      await api.post(`/v1/pacientes/${id}/foto`, formData)
+
+      setTemFoto(true)
+      setFotoPreview('')
+      setFotoFile(null)
+      alertFn({ title: 'Sucesso', message: 'Foto salva com sucesso', type: 'success' })
+    } catch (err: any) {
+      alertFn({ title: 'Erro', message: 'Erro ao salvar foto', type: 'error' })
+    } finally {
+      setSalvandoFoto(false)
+    }
+  }
+
+  const confirm = useConfirm()
+
+  const removerFoto = async () => {
+    if (!id) return
+    const confirmacao = await confirm({
+      title: 'Remover Foto',
+      message: 'Deseja remover a foto do paciente?',
+      okLabel: 'Remover',
+      cancelLabel: 'Cancelar'
+    })
+    if (!confirmacao) return
+
+    try {
+      setSalvandoFoto(true)
+      await api.delete(`/v1/pacientes/${id}/foto`)
+      setTemFoto(false)
+      setFotoPreview('')
+      setFotoFile(null)
+      alertFn({ title: 'Sucesso', message: 'Foto removida com sucesso', type: 'success' })
+    } catch (err: any) {
+      alertFn({ title: 'Erro', message: 'Erro ao remover foto', type: 'error' })
+    } finally {
+      setSalvandoFoto(false)
     }
   }
 
@@ -322,6 +401,81 @@ export default function PacienteForm() {
             </label>
           </div>
         </div>
+
+        {/* DESATIVADO TEMPORARIAMENTE - Seção de Fotos */}
+        {false && isEditing && (
+          <div className="form-card">
+            <div className="form-section-title"><div className="section-icon"></div>📸 Foto do Paciente</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {fotoPreview && (
+                <div style={{ textAlign: 'center' }}>
+                  <img
+                    src={fotoPreview}
+                    alt="Preview"
+                    style={{ maxWidth: '150px', maxHeight: '150px', borderRadius: '8px', border: '2px solid #E5E7EB' }}
+                  />
+                </div>
+              )}
+
+              {temFoto && !fotoPreview && (
+                <div style={{ textAlign: 'center' }}>
+                  <img
+                    src={`${api.defaults.baseURL}/v1/pacientes/${id}/foto`}
+                    alt="Foto atual"
+                    style={{ maxWidth: '150px', maxHeight: '150px', borderRadius: '8px', border: '2px solid #10B981' }}
+                  />
+                  <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '8px' }}>Foto atual</p>
+                </div>
+              )}
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFotoSelect}
+                style={{ display: 'none' }}
+              />
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{ flex: 1 }}
+                >
+                  📸 Selecionar Foto
+                </button>
+                {temFoto && (
+                  <button
+                    type="button"
+                    className="btn btn-outline"
+                    onClick={removerFoto}
+                    disabled={salvandoFoto}
+                    style={{ color: '#dc2626' }}
+                  >
+                    🗑️ Remover
+                  </button>
+                )}
+              </div>
+
+              {fotoFile && (
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={salvarFoto}
+                  disabled={salvandoFoto}
+                  style={{ width: '100%' }}
+                >
+                  {salvandoFoto ? '⏳ Salvando...' : '✓ Salvar Foto'}
+                </button>
+              )}
+
+              <p style={{ fontSize: '12px', color: '#6B7280', margin: '0' }}>
+                Tamanho máximo: 2MB • Formatos: JPG, PNG, GIF
+              </p>
+            </div>
+          </div>
+        )}
 
         {erro && (
           <div style={{ background: '#FEF2F2', color: '#991B1B', padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', border: '1px solid #FECACA', fontSize: '13px' }}>

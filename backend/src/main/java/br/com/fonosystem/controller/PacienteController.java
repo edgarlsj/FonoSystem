@@ -12,10 +12,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.ContentDisposition;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 import java.util.Optional;
@@ -95,6 +99,74 @@ public class PacienteController {
                 id,
                 (novoStatus.equals("ATIVO") ? "Paciente ativado: " : "Paciente desativado: ") + nomePaciente,
                 body,
+                user
+        ));
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/foto")
+    public ResponseEntity<Void> adicionarFoto(
+            @PathVariable Long id,
+            @RequestPart("foto") MultipartFile arquivo,
+            Authentication authentication) throws IllegalAccessException {
+        pacienteService.adicionarFoto(id, arquivo);
+
+        Optional<User> usuario = userRepository.findByEmail(authentication.getName());
+        usuario.ifPresent(user -> logService.registrar(
+                "ADICIONOU_FOTO",
+                "PACIENTE",
+                id,
+                "Foto adicionada ao paciente",
+                null,
+                user
+        ));
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/tem-foto")
+    public ResponseEntity<Map<String, Boolean>> verificarFoto(@PathVariable Long id) {
+        pacienteService.buscarPorId(id); // Verifica se paciente existe
+        return ResponseEntity.ok(Map.of("temFoto", pacienteService.temFoto(id)));
+    }
+
+    @GetMapping("/{id}/foto")
+    public ResponseEntity<byte[]> downloadFoto(@PathVariable Long id) {
+        PacienteResponse paciente = pacienteService.buscarPorId(id);
+
+        if (!pacienteService.temFoto(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        byte[] fotoBytes = pacienteService.buscarEntidadePorId(id).getFoto();
+        String tipoMime = pacienteService.buscarEntidadePorId(id).getFotoTipoMime();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(tipoMime != null ? tipoMime : "image/jpeg"));
+        headers.setContentLength(fotoBytes.length);
+        headers.setContentDisposition(
+                ContentDisposition.builder("inline")
+                        .filename("paciente_" + id + ".jpg")
+                        .build()
+        );
+
+        return new ResponseEntity<>(fotoBytes, headers, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}/foto")
+    public ResponseEntity<Void> removerFoto(
+            @PathVariable Long id,
+            Authentication authentication) {
+        pacienteService.removerFoto(id);
+
+        Optional<User> usuario = userRepository.findByEmail(authentication.getName());
+        usuario.ifPresent(user -> logService.registrar(
+                "REMOVEU_FOTO",
+                "PACIENTE",
+                id,
+                "Foto removida do paciente",
+                null,
                 user
         ));
 

@@ -4,10 +4,46 @@ import { ptBR } from 'date-fns/locale'
 interface FolhaEvolucaoProps {
   dadosAgrupados: Map<string, any[]>
   onFechar: () => void
+  onRegistrarSessao?: () => void
 }
 
-export default function FolhaEvolucao({ dadosAgrupados, onFechar }: FolhaEvolucaoProps) {
+export default function FolhaEvolucao({ dadosAgrupados, onFechar, onRegistrarSessao }: FolhaEvolucaoProps) {
   const dataAtual = format(new Date(), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR })
+
+  const handlePrint = () => {
+    const content = document.getElementById('folha-evolucao-content')
+    if (!content) return
+
+    const printWindow = window.open('', '_blank', 'width=900,height=700')
+    if (!printWindow) return
+
+    printWindow.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <title>Folha de Evolução</title>
+  <meta charset="utf-8">
+  <style>
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box; }
+    @page { size: A4; margin: 15mm; }
+    html, body { margin: 0; padding: 0; background: white; }
+    body { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333; }
+    body > div { padding: 0 !important; max-width: 100% !important; margin: 0 !important; }
+    h1 { margin: 0 0 4px 0; font-size: 20px; text-align: center; font-weight: bold; }
+    h2 { margin: 0; font-size: 16px; font-weight: bold; color: #1F2937; }
+    h3 { margin: 0; font-size: 12px; font-weight: bold; color: #111827; }
+    p { margin: 0; white-space: pre-wrap; }
+    label { display: block; }
+  </style>
+</head>
+<body>${content.innerHTML}</body>
+</html>`)
+    printWindow.document.close()
+    printWindow.focus()
+    setTimeout(() => {
+      printWindow.print()
+      printWindow.close()
+    }, 300)
+  }
 
   return (
     <div className="modal-overlay active">
@@ -17,7 +53,7 @@ export default function FolhaEvolucao({ dadosAgrupados, onFechar }: FolhaEvoluca
           <button className="modal-close" onClick={onFechar} type="button">×</button>
         </div>
 
-        <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', fontSize: '14px', lineHeight: '1.6', color: '#333', maxWidth: '210mm' }}>
+        <div id="folha-evolucao-content" style={{ padding: '20px', fontFamily: 'Arial, sans-serif', fontSize: '14px', lineHeight: '1.6', color: '#333', maxWidth: '210mm' }}>
           {/* Cabeçalho do documento */}
           <div style={{ marginBottom: '20px', borderBottom: '2px solid #333', paddingBottom: '12px' }}>
             <h1 style={{ margin: '0 0 4px 0', fontSize: '20px', textAlign: 'center', fontWeight: 'bold' }}>
@@ -158,79 +194,21 @@ export default function FolhaEvolucao({ dadosAgrupados, onFechar }: FolhaEvoluca
           <button type="button" className="btn btn-outline" onClick={onFechar}>
             Fechar
           </button>
+          {onRegistrarSessao && (
+            <button type="button" className="btn btn-outline" onClick={onRegistrarSessao}>
+              + Registrar Sessão
+            </button>
+          )}
           <button
             type="button"
             className="btn btn-primary"
-            onClick={() => window.print()}
+            onClick={handlePrint}
           >
             🖨️ Imprimir / Salvar como PDF
           </button>
         </div>
       </div>
 
-      {/* CSS para impressão */}
-      <style>{`
-        @media print {
-          * {
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-          }
-
-          html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background: white;
-          }
-
-          .modal-overlay {
-            position: static;
-            display: block;
-            margin: 0;
-            padding: 0;
-            background: white;
-            box-shadow: none;
-          }
-
-          .modal {
-            position: static;
-            max-width: 100%;
-            max-height: none;
-            width: 100%;
-            height: auto;
-            margin: 0;
-            padding: 0;
-            box-shadow: none;
-            border-radius: 0;
-            border: none;
-            display: block;
-            overflow: visible;
-          }
-
-          .modal-header {
-            display: none;
-          }
-
-          .form-actions {
-            display: none;
-          }
-
-          div > div {
-            page-break-inside: avoid;
-          }
-
-          @page {
-            size: A4;
-            margin: 15mm 15mm 15mm 15mm;
-          }
-
-          body > div > div > div > div > div > div {
-            margin-bottom: 0;
-            page-break-after: auto;
-          }
-        }
-      `}</style>
     </div>
   )
 }

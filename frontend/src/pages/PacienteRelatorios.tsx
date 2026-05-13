@@ -2,15 +2,18 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { useConfirm } from '../context/ConfirmContext'
 import api from '../services/api'
 import PacienteAcoesMenu from '../components/PacienteAcoesMenu'
 import { useInTab } from '../context/TabContext'
 import FolhaEvolucao from './FolhaEvolucao'
+import { getCurrentTimeFormatted, getOneHourBefore } from '../utils/timeUtils'
 
 export default function PacienteRelatorios() {
   const { id } = useParams()
   const navigate = useNavigate()
   const inTab = useInTab()
+  const confirm = useConfirm()
   const [paciente, setPaciente] = useState<any>(null)
   const [relatorios, setRelatorios] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -39,6 +42,24 @@ export default function PacienteRelatorios() {
   const [selecionados, setSelecionados] = useState<Set<number>>(new Set())
   const [modoSelecao, setModoSelecao] = useState(false)
   const [mostrandoFolhaEvolucao, setMostrandoFolhaEvolucao] = useState(false)
+
+  // Nova Sessão
+  const [criandoRelatorio, setCriandoRelatorio] = useState(false)
+  const novoRelatorioInicial = () => ({
+    dataSessao: format(new Date(), 'yyyy-MM-dd'),
+    horaInicio: getOneHourBefore(),
+    horaFim: getCurrentTimeFormatted(),
+    metaTrabalhada: '',
+    atividadesRealizadas: '',
+    usoCaaSessao: false,
+    recursoCaaUtilizado: '',
+    respostaEstimulacaoAuditiva: '',
+    evolucaoObservada: '',
+    intercorrencias: '',
+    orientacoesFamilia: '',
+    planejamentoProximaSessao: '',
+  })
+  const [novoRelatorio, setNovoRelatorio] = useState<any>(novoRelatorioInicial())
 
   useEffect(() => {
     carregarDados()
@@ -226,9 +247,12 @@ export default function PacienteRelatorios() {
     if (!relatorioEditando) return
 
     if (isFutureDate(relatorioEditando.dataSessao)) {
-      const confirmacao = window.confirm(
-        'A data da sessão é futura. Deseja continuar mesmo assim?'
-      )
+      const confirmacao = await confirm({
+        title: 'Data Futura',
+        message: 'A data da sessão é futura. Deseja continuar mesmo assim?',
+        okLabel: 'Continuar',
+        cancelLabel: 'Cancelar'
+      })
       if (!confirmacao) return
     }
 
@@ -255,6 +279,39 @@ export default function PacienteRelatorios() {
     } catch (err: any) {
       showToast('Erro ao atualizar relatório', 'error')
       console.error('Erro ao atualizar:', err)
+    } finally {
+      setSalvando(false)
+    }
+  }
+
+  const handleCriar = async () => {
+    if (!novoRelatorio.metaTrabalhada.trim() || !novoRelatorio.atividadesRealizadas.trim()) {
+      showToast('Meta e Atividades são obrigatórias.', 'error')
+      return
+    }
+
+    if (isFutureDate(novoRelatorio.dataSessao)) {
+      const confirmacao = await confirm({
+        title: 'Data Futura',
+        message: 'A data da sessão é futura. Deseja continuar mesmo assim?',
+        okLabel: 'Continuar',
+        cancelLabel: 'Cancelar'
+      })
+      if (!confirmacao) return
+    }
+
+    try {
+      setSalvando(true)
+      await api.post(`/v1/pacientes/${id}/relatorios`, {
+        pacienteId: Number(id),
+        ...novoRelatorio,
+      })
+      showToast('Sessão registrada com sucesso!', 'success')
+      setCriandoRelatorio(false)
+      setNovoRelatorio(novoRelatorioInicial())
+      carregarDados()
+    } catch (err) {
+      showToast('Erro ao registrar sessão.', 'error')
     } finally {
       setSalvando(false)
     }
@@ -334,6 +391,15 @@ export default function PacienteRelatorios() {
         >
           📋 {modoSelecao ? 'Gerar Folha' : 'Modo Seleção'}
           {selecionados.size > 0 && ` (${selecionados.size})`}
+        </button>
+        <button
+          className="btn btn-primary"
+          onClick={() => {
+            setNovoRelatorio(novoRelatorioInicial())
+            setCriandoRelatorio(true)
+          }}
+        >
+          + Registrar Sessão
         </button>
       </div>
 
@@ -749,8 +815,75 @@ export default function PacienteRelatorios() {
         <FolhaEvolucao
           dadosAgrupados={gerarDadosAgrupados()}
           onFechar={() => setMostrandoFolhaEvolucao(false)}
+          onRegistrarSessao={() => {
+            setMostrandoFolhaEvolucao(false)
+            setNovoRelatorio(novoRelatorioInicial())
+            setCriandoRelatorio(true)
+          }}
         />
       )}
+
+      {/* MODAL NOVA SESSÃO */}
+      <div className={`modal-overlay ${criandoRelatorio ? 'active' : ''}`}>
+        <div className="modal" style={{ maxWidth: '600px' }}>
+          <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h2 className="modal-title">Registrar Sessão</h2>
+            <button className="modal-close" type="button" onClick={() => setCriandoRelatorio(false)}>×</button>
+          </div>
+          <div className="form-grid" style={{ padding: '0 24px 24px' }}>
+            <div className="form-grid form-grid-3">
+              <div className="form-group">
+                <label>Data *</label>
+                <input type="date" className="form-control" value={novoRelatorio.dataSessao}
+                  onChange={e => setNovoRelatorio({ ...novoRelatorio, dataSessao: e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label>Início *</label>
+                <input type="time" className="form-control" value={novoRelatorio.horaInicio}
+                  onChange={e => setNovoRelatorio({ ...novoRelatorio, horaInicio: e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label>Fim *</label>
+                <input type="time" className="form-control" value={novoRelatorio.horaFim}
+                  onChange={e => setNovoRelatorio({ ...novoRelatorio, horaFim: e.target.value })} />
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Meta Trabalhada *</label>
+              <input className="form-control" value={novoRelatorio.metaTrabalhada}
+                onChange={e => setNovoRelatorio({ ...novoRelatorio, metaTrabalhada: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label>Atividades Realizadas *</label>
+              <textarea className="form-control" rows={3} value={novoRelatorio.atividadesRealizadas}
+                onChange={e => setNovoRelatorio({ ...novoRelatorio, atividadesRealizadas: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label>Evolução Observada</label>
+              <textarea className="form-control" rows={2} value={novoRelatorio.evolucaoObservada}
+                onChange={e => setNovoRelatorio({ ...novoRelatorio, evolucaoObservada: e.target.value })} />
+            </div>
+            <div className="form-grid-2">
+              <div className="form-group">
+                <label>Orientações à Família</label>
+                <textarea className="form-control" rows={2} value={novoRelatorio.orientacoesFamilia}
+                  onChange={e => setNovoRelatorio({ ...novoRelatorio, orientacoesFamilia: e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label>Planejamento Próxima Sessão</label>
+                <textarea className="form-control" rows={2} value={novoRelatorio.planejamentoProximaSessao}
+                  onChange={e => setNovoRelatorio({ ...novoRelatorio, planejamentoProximaSessao: e.target.value })} />
+              </div>
+            </div>
+          </div>
+          <div className="form-actions" style={{ borderTop: '1px solid #E5E7EB' }}>
+            <button type="button" className="btn btn-outline" onClick={() => setCriandoRelatorio(false)}>Cancelar</button>
+            <button type="button" className="btn btn-primary" onClick={handleCriar} disabled={salvando}>
+              {salvando ? 'Salvando...' : 'Salvar Sessão'}
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* TOAST */}
       <div className={`toast ${toast.type} ${toast.show ? 'show' : ''}`}>

@@ -1461,3 +1461,46 @@ textarea.form-control {
 ::-webkit-scrollbar-track { background: var(--gray-50); }
 ::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--gray-400); }
+
+/* ══════════════════════════════════════
+   PRINT STYLES
+   ══════════════════════════════════════ */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+    color: #1F2937;
+  }
+
+  .breadcrumb {
+    display: none !important;
+  }
+
+  .sidebar {
+    display: none !important;
+  }
+
+  .modal-overlay {
+    display: none !important;
+  }
+
+  .page-header {
+    display: none !important;
+  }
+
+  div[style*="borderBottom: 2px solid"] {
+    page-break-inside: avoid;
+  }
+
+  div[style*="padding: 32px"] {
+    padding: 20px !important;
+  }
+
+  div[style*="borderRadius: var(--radius-lg)"] {
+    box-shadow: none !important;
+    border: 1px solid #e5e7eb !important;
+  }
+}

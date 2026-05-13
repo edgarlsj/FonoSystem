@@ -3,8 +3,10 @@ import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useConfirm } from '../context/ConfirmContext'
 import * as z from 'zod'
 import api from '../services/api'
+import { getCurrentTimeFormatted, getOneHourBefore } from '../utils/timeUtils'
 
 // Esquema de validação
 const schema = z.object({
@@ -22,6 +24,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>
 
 export default function Relatorios() {
+  const confirm = useConfirm()
   const [filtroPaciente, setFiltroPaciente] = useState<string>('')
   const [filtroData, setFiltroData] = useState<string>(format(new Date(), 'yyyy-MM-dd'))
   const [filtroHora, setFiltroHora] = useState<string>('')
@@ -46,8 +49,8 @@ export default function Relatorios() {
     resolver: zodResolver(schema),
     defaultValues: {
       dataSessao: format(new Date(), 'yyyy-MM-dd'),
-      horaInicio: '08:00',
-      horaFim: '09:00'
+      horaInicio: getOneHourBefore(),
+      horaFim: getCurrentTimeFormatted()
     }
   })
 
@@ -105,9 +108,12 @@ export default function Relatorios() {
 
   const onSubmit = async (formData: FormData) => {
     if (isFutureDate(formData.dataSessao)) {
-      const confirmacao = window.confirm(
-        'A data da sessão é futura. Deseja continuar mesmo assim?'
-      )
+      const confirmacao = await confirm({
+        title: 'Data Futura',
+        message: 'A data da sessão é futura. Deseja continuar mesmo assim?',
+        okLabel: 'Continuar',
+        cancelLabel: 'Cancelar'
+      })
       if (!confirmacao) return
     }
 
@@ -151,9 +157,13 @@ export default function Relatorios() {
   }
 
   const handleExcluir = async (id: number) => {
-    if (!window.confirm('Tem certeza que deseja excluir esta sessão? Esta ação não pode ser desfeita.')) {
-      return
-    }
+    const confirmacao = await confirm({
+      title: 'Excluir Sessão',
+      message: 'Tem certeza que deseja excluir esta sessão? Esta ação não pode ser desfeita.',
+      okLabel: 'Excluir',
+      cancelLabel: 'Cancelar'
+    })
+    if (!confirmacao) return
 
     try {
       setLoading(true)
@@ -318,6 +328,14 @@ export default function Relatorios() {
                 style={{ fontSize: '13px', padding: '6px 12px' }}
               >
                 📋 Usar Template
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline"
+                onClick={() => setMostrarSalvarTemplate(true)}
+                style={{ fontSize: '13px', padding: '6px 12px' }}
+              >
+                💾 Salvar como Template
               </button>
               <button className="modal-close" onClick={() => setIsModalOpen(false)}>×</button>
             </div>

@@ -76,7 +76,7 @@ public class PdfService {
             doc.add(new Paragraph("").setMarginBottom(12));
 
             // ═══ TÍTULO ═══
-            Paragraph titulo = new Paragraph("PRESCRIÇÃO DE EXERCÍCIOS")
+            Paragraph titulo = new Paragraph("PRESCRIÇÃO")
                     .setFont(fontBold)
                     .setFontSize(14)
                     .setFontColor(PRIMARY_DARK)
@@ -123,25 +123,29 @@ public class PdfService {
                     .setFont(fontBold).setFontSize(14).setFontColor(PRIMARY_DARK));
             doc.add(tituloBox);
 
-            // ═══ DESCRIÇÃO DOS EXERCÍCIOS ═══
-            doc.add(new Paragraph("Descrição dos Exercícios")
+            // ═══ CONTEÚDO DA PRESCRIÇÃO ═══
+            doc.add(new Paragraph("Conteúdo da Prescrição")
                     .setFont(fontBold).setFontSize(11).setFontColor(PRIMARY_DARK)
                     .setMarginBottom(8));
 
-            // Processa quebras de linha do texto para parágrafos individuais
+            Div conteudoBox = new Div()
+                    .setBackgroundColor(BG_LIGHT)
+                    .setPadding(16)
+                    .setMarginBottom(20)
+                    .setBorderLeft(new SolidBorder(PRIMARY_MID, 3));
+
             String[] linhas = prescricao.getDescricaoExercicios().split("\\n");
             for (String linha : linhas) {
                 String trimmed = linha.trim();
                 if (trimmed.isEmpty()) {
-                    doc.add(new Paragraph("").setMarginBottom(4));
+                    conteudoBox.add(new Paragraph("").setMarginBottom(4));
                     continue;
                 }
-                doc.add(new Paragraph(trimmed)
+                conteudoBox.add(new Paragraph(trimmed)
                         .setFont(fontRegular).setFontSize(11).setFontColor(GRAY_600)
-                        .setMultipliedLeading(1.6f).setMarginBottom(2));
+                        .setMultipliedLeading(1.7f).setMarginBottom(2));
             }
-
-            doc.add(new Paragraph("").setMarginBottom(12));
+            doc.add(conteudoBox);
 
             // ═══ OBSERVAÇÕES (SE HOUVER) ═══
             if (prescricao.getObservacoes() != null && !prescricao.getObservacoes().isBlank()) {

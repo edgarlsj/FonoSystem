@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +25,9 @@ public class PacienteService {
 
     private final PacienteRepository pacienteRepository;
     private final UserRepository userRepository;
+    private final LogService logService;
+
+    private static final long MAX_FOTO_SIZE = 2 * 1024 * 1024; // 2MB
 
     private User getUsuarioLogado() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -124,13 +128,53 @@ public class PacienteService {
 
     public Paciente buscarEntidadePorId(Long id) {
         User user = getUsuarioLogado();
-        Paciente paciente = pacienteRepository.findById(id)
+        Paciente paciente = pacienteRepository.findByIdWithProfissional(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Paciente não encontrado: " + id));
-        
+
         if (!paciente.getProfissional().getId().equals(user.getId())) {
             throw new AccessDeniedException("Acesso negado: o paciente não pertence a este profissional.");
         }
-        
+
         return paciente;
+    }
+
+    @Transactional
+    public void adicionarFoto(Long pacienteId, MultipartFile arquivo) throws IllegalAccessException {
+        if (arquivo == null || arquivo.isEmpty()) {
+            throw new IllegalArgumentException("Arquivo de foto não pode estar vazio");
+        }
+
+        if (arquivo.getSize() > MAX_FOTO_SIZE) {
+            throw new IllegalArgumentException("Foto não pode ser maior que 2MB. Tamanho atual: " + (arquivo.getSize() / 1024) + "KB");
+        }
+
+        Paciente paciente = buscarEntidadePorId(pacienteId);
+
+        try {
+            paciente.setFoto(arquivo.getBytes());
+            paciente.setFotoTipoMime(arquivo.getContentType());
+            paciente.setFotoTamanhoBytes(arquivo.getSize());
+
+            pacienteRepository.save(paciente);
+        } catch (java.io.IOException e) {
+            throw new RuntimeException("Erro ao processar arquivo de foto", e);
+        }
+    }
+
+    @Transactional
+    public void removerFoto(Long pacienteId) {
+        Paciente paciente = buscarEntidadePorId(pacienteId);
+
+        paciente.setFoto(null);
+        paciente.setFotoTipoMime(null);
+        paciente.setFotoTamanhoBytes(null);
+
+        pacienteRepository.save(paciente);
+    }
+
+    public boolean temFoto(Long pacienteId) {
+        return pacienteRepository.findById(pacienteId)
+                .map(p -> p.getFoto() != null && p.getFoto().length > 0)
+                .orElse(false);
     }
 }

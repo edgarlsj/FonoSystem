@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAlert } from '../context/AlertContext'
 import api from '../services/api'
 
 interface PacienteData {
@@ -12,6 +13,7 @@ interface PacienteData {
 }
 
 export default function Pacientes() {
+  const alertFn = useAlert()
   const [pacientes, setPacientes] = useState<PacienteData[]>([])
   const [busca, setBusca] = useState('')
   const [loading, setLoading] = useState(true)
@@ -71,7 +73,7 @@ export default function Pacientes() {
       setConfirmarModal({ show: false, paciente: null, acao: 'desativar' })
     } catch (err) {
       console.error('Erro ao alterar status:', err)
-      alert('Erro ao alterar status do paciente')
+      alertFn({ title: 'Erro', message: 'Erro ao alterar status do paciente', type: 'error' })
     }
   }
 
@@ -99,7 +101,7 @@ export default function Pacientes() {
         </thead>
         <tbody>
           {lista.map((p, i) => (
-            <tr key={p.id}>
+            <tr key={p.id} onClick={() => navigate(`/pacientes/${p.id}`)} style={{ cursor: 'pointer' }}>
               <td style={{ color: '#9CA3AF' }}>{String(i + 1).padStart(3, '0')}</td>
               <td><strong>{p.nomeCompleto}</strong></td>
               <td>{p.idade} anos</td>
@@ -110,7 +112,7 @@ export default function Pacientes() {
                   {p.status}
                 </span>
               </td>
-              <td>
+              <td onClick={(e) => e.stopPropagation()}>
                 <div ref={dropdownAberto === p.id ? dropdownRef : undefined}>
                   <button
                     onClick={(e) => {
@@ -162,8 +164,10 @@ export default function Pacientes() {
                     }}>
                       <MenuItem icon="✏️" label="Editar" onClick={() => navegar(`/pacientes/${p.id}/editar`)} />
                       <MenuItem icon="🩺" label="Anamnese" onClick={() => navegar(`/pacientes/${p.id}/anamnese`)} />
+                      <MenuItem icon="📊" label="Avaliações" onClick={() => navegar(`/pacientes/${p.id}/avaliacoes`)} />
                       <MenuItem icon="📝" label="Relatórios" onClick={() => navegar(`/pacientes/${p.id}/relatorios`)} />
                       <MenuItem icon="📋" label="Prescrições" onClick={() => navegar(`/pacientes/${p.id}/prescricoes`)} />
+                      <MenuItem icon="📁" label="Documentos" onClick={() => navegar(`/pacientes/${p.id}/documentos-profissionais`)} />
                       <div style={{ borderTop: '1px solid #F3F4F6', margin: '4px 0' }} />
                       {p.status === 'ATIVO' ? (
                         <MenuItem

@@ -19,6 +19,7 @@ import ColetarDados from './pages/ColetarDados'
 import Users from './pages/Users'
 import UserForm from './pages/UserForm'
 import Profile from './pages/Profile'
+import PacienteProntuario from './pages/PacienteProntuario'
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { token } = useAuth()
@@ -35,7 +36,8 @@ export default function App() {
         <Route path="pacientes/novo" element={<PacienteForm />} />
         <Route path="pacientes/:id/editar" element={<PacienteForm />} />
         <Route path="pacientes/:id" element={<PacienteDetalhe />}>
-          <Route index element={<Navigate to="relatorios" replace />} />
+          <Route index element={<Navigate to="prontuario" replace />} />
+          <Route path="prontuario" element={<PacienteProntuario />} />
           <Route path="relatorios" element={<PacienteRelatorios />} />
           <Route path="prescricoes" element={<PacientePrescricoes />} />
           <Route path="anamnese" element={<Anamnese />} />

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { useConfirm } from '../context/ConfirmContext'
+import { useAlert } from '../context/AlertContext'
 import api from '../services/api'
 
 interface Documento {
@@ -16,6 +18,7 @@ interface Documento {
 
 export default function DocumentosProfissionaisTab() {
   const { id } = useParams()
+  const alertFn = useAlert()
   const [documentos, setDocumentos] = useState<Documento[]>([])
   const [loading, setLoading] = useState(true)
   const [mostrarFormulario, setMostrarFormulario] = useState(false)
@@ -96,14 +99,22 @@ export default function DocumentosProfissionaisTab() {
       carregarDocumentos()
     } catch (err) {
       console.error('Erro ao enviar documento:', err)
-      alert('Erro ao enviar documento')
+      alertFn({ title: 'Erro', message: 'Erro ao enviar documento', type: 'error' })
     } finally {
       setEnviando(false)
     }
   }
 
+  const confirm = useConfirm()
+
   const deletarDocumento = async (docId: number) => {
-    if (!confirm('Tem certeza que deseja deletar este documento?')) return
+    const confirmacao = await confirm({
+      title: 'Deletar Documento',
+      message: 'Tem certeza que deseja deletar este documento?',
+      okLabel: 'Deletar',
+      cancelLabel: 'Cancelar'
+    })
+    if (!confirmacao) return
 
     try {
       setDeletando(docId)
@@ -111,7 +122,7 @@ export default function DocumentosProfissionaisTab() {
       carregarDocumentos()
     } catch (err) {
       console.error('Erro ao deletar documento:', err)
-      alert('Erro ao deletar documento')
+      alertFn({ title: 'Erro', message: 'Erro ao deletar documento', type: 'error' })
     } finally {
       setDeletando(null)
     }
@@ -132,7 +143,7 @@ export default function DocumentosProfissionaisTab() {
       window.URL.revokeObjectURL(url)
     } catch (err) {
       console.error('Erro ao baixar documento:', err)
-      alert('Erro ao baixar documento')
+      alertFn({ title: 'Erro', message: 'Erro ao baixar documento', type: 'error' })
     }
   }
 

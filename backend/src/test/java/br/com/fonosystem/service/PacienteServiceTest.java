@@ -103,22 +103,22 @@ class PacienteServiceTest {
     @Test
     void buscarPorId_WhenExists_ShouldReturnResponse() {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(usuario));
-        when(pacienteRepository.findById(1L)).thenReturn(Optional.of(paciente));
+        when(pacienteRepository.findByIdWithProfissional(1L)).thenReturn(Optional.of(paciente));
 
         PacienteResponse result = pacienteService.buscarPorId(1L);
 
         assertNotNull(result);
         assertEquals("João Silva", result.getNomeCompleto());
-        verify(pacienteRepository, times(1)).findById(1L);
+        verify(pacienteRepository, times(1)).findByIdWithProfissional(1L);
     }
 
     @Test
     void buscarPorId_WhenNotExists_ShouldThrowException() {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(usuario));
-        when(pacienteRepository.findById(99L)).thenReturn(Optional.empty());
+        when(pacienteRepository.findByIdWithProfissional(99L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> pacienteService.buscarPorId(99L));
-        verify(pacienteRepository, times(1)).findById(99L);
+        verify(pacienteRepository, times(1)).findByIdWithProfissional(99L);
     }
 
     @Test
@@ -155,7 +155,7 @@ class PacienteServiceTest {
     @Test
     void atualizar_WhenPacienteExists_ShouldUpdateDetails() {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(usuario));
-        when(pacienteRepository.findById(1L)).thenReturn(Optional.of(paciente));
+        when(pacienteRepository.findByIdWithProfissional(1L)).thenReturn(Optional.of(paciente));
 
         pacienteRequest.setNomeCompleto("João Silva Atualizado");
         when(pacienteRepository.save(any(Paciente.class))).thenReturn(paciente); // paciente object was mutated
@@ -170,7 +170,7 @@ class PacienteServiceTest {
     @Test
     void alterarStatus_WhenInativo_ShouldSetDeletedAt() {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(usuario));
-        when(pacienteRepository.findById(1L)).thenReturn(Optional.of(paciente));
+        when(pacienteRepository.findByIdWithProfissional(1L)).thenReturn(Optional.of(paciente));
 
         pacienteService.alterarStatus(1L, "INATIVO");
 
@@ -184,7 +184,7 @@ class PacienteServiceTest {
         paciente.setStatus("INATIVO");
         paciente.setDeletedAt(LocalDateTime.now());
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(usuario));
-        when(pacienteRepository.findById(1L)).thenReturn(Optional.of(paciente));
+        when(pacienteRepository.findByIdWithProfissional(1L)).thenReturn(Optional.of(paciente));
 
         pacienteService.alterarStatus(1L, "ATIVO");
 
